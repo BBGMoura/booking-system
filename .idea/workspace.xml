@@ -4,17 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="218c06c7-baff-4545-a6d6-7ad38efd124d" name="Changes" comment="spring application set up">
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/dev/converter/BookingStatusConverter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/dev/model/Booking.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/dev/model/BookingHistory.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/dev/model/BookingStatus.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/dev/model/Customer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/dev/model/Room.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/schema.sql" afterDir="false" />
-    </list>
+    <list default="true" id="218c06c7-baff-4545-a6d6-7ad38efd124d" name="Changes" comment="adding models" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -103,7 +93,23 @@
       <option name="project" value="LOCAL" />
       <updated>1702906702477</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="adding email to Customer">
+      <option name="closed" value="true" />
+      <created>1702921147908</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1702921147908</updated>
+    </task>
+    <task id="LOCAL-00006" summary="adding models">
+      <option name="closed" value="true" />
+      <created>1702921192283</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1702921192283</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -111,6 +117,8 @@
     <MESSAGE value="h2 database setup" />
     <MESSAGE value="booking system database schema" />
     <MESSAGE value="spring application set up" />
-    <option name="LAST_COMMIT_MESSAGE" value="spring application set up" />
+    <MESSAGE value="adding email to Customer" />
+    <MESSAGE value="adding models" />
+    <option name="LAST_COMMIT_MESSAGE" value="adding models" />
   </component>
 </project>
