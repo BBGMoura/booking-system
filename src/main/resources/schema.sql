@@ -14,6 +14,7 @@ create table customer (
     id int auto_increment,
     first_name varchar(50) NOT NULL,
     last_name varchar(50) NOT NULL,
+    email varchar(250) NOT NULL UNIQUE,
     PRIMARY KEY(id)
 );
 
@@ -37,9 +38,8 @@ create table booking_history (
     PRIMARY KEY(id)
 );
 
-
 insert into room
 (name, price_per_half_hour, price_per_hour)
 values
-('Room 1', 0.89, 1),
-('Room 2', 0.78, 1.08);
+('Room 1', 1, 0.89),
+('Room 2', 1.08, 0.78);
