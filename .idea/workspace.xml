@@ -4,7 +4,27 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="218c06c7-baff-4545-a6d6-7ad38efd124d" name="Changes" comment="adding models" />
+    <list default="true" id="218c06c7-baff-4545-a6d6-7ad38efd124d" name="Changes" comment="Update customer model to match camel case">
+      <change afterPath="$PROJECT_DIR$/.idea/git_toolbox_prj.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/2/e/2e608873984ef9b450d601ca5f052e2c63649d66" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/3/9/395cb5ba8383c2d7221a3c582df652f6af6dcd43" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/3/e/3e415825cc82d3e4ebe181214b5df2983ef10b35" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/6/0/600de46dced8599bbb7b82c3379b6df5fce26d85" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/a/1/a186ac10f677a40b7df87dacc749f56fbf3bc3ef" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/d/6/d6de3cc290ce2ccc65133cdddb17e62f02b75541" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/2/e/2e608873984ef9b450d601ca5f052e2c63649d66" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/3/9/395cb5ba8383c2d7221a3c582df652f6af6dcd43" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/3/e/3e415825cc82d3e4ebe181214b5df2983ef10b35" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/6/0/600de46dced8599bbb7b82c3379b6df5fce26d85" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/a/1/a186ac10f677a40b7df87dacc749f56fbf3bc3ef" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/d/6/d6de3cc290ce2ccc65133cdddb17e62f02b75541" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/index.pb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/dev/model/Booking.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/dev/model/Booking.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/dev/model/BookingHistory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/dev/model/BookingHistory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/schema.sql" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -21,9 +41,30 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 4
-}]]></component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;history&quot;: [
+    {
+      &quot;state&quot;: &quot;OPEN&quot;
+    }
+  ],
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;
+  }
+}</component>
+  <component name="GitToolBoxStore">
+    <option name="projectConfigVersion" value="5" />
+  </component>
+  <component name="GithubPullRequestsUISettings">
+    <option name="selectedUrlAndAccountId">
+      <UrlAndAccount>
+        <option name="accountId" value="42d9a0be-68c5-4827-b5d8-ec503fa18a2f" />
+        <option name="url" value="https://github.com/BBGMoura/booking-system.git" />
+      </UrlAndAccount>
+    </option>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
   <component name="ProjectId" id="2ZXlJdlUOJMRqLro0AcOIQBa38A" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -36,19 +77,22 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "SONARLINT_PRECOMMIT_ANALYSIS": "true",
     "git-widget-placeholder": "master",
     "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/Bruna/IdeaProjects/booking-system",
     "onboarding.tips.debug.path": "/Users/harrison/Desktop/bruna/booking-system/src/main/java/org/dev/Main.java",
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "terminal"
+    "settings.editor.selected.configurable": "preferences.lookFeel",
+    "settings.editor.splitter.proportion": "0.18323746"
   }
 }]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="jdk-21.0.1-openjdk-21.0.1-8336523bb0d9-55c9c8bc" />
+        <option value="jdk-21.0.1-openjdk-21.0.1-f644763e9732-f98dd351" />
       </set>
     </attachedChunks>
   </component>
@@ -109,8 +153,43 @@
       <option name="project" value="LOCAL" />
       <updated>1702921192283</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Adding created on to track when an entry was created in the database.">
+      <option name="closed" value="true" />
+      <created>1704116333215</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1704116333215</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Adding Booking History model">
+      <option name="closed" value="true" />
+      <created>1704118465217</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1704118465217</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Update customer model to match camel case">
+      <option name="closed" value="true" />
+      <created>1704118501081</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1704118501081</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="initial commit" />
@@ -119,6 +198,10 @@
     <MESSAGE value="spring application set up" />
     <MESSAGE value="adding email to Customer" />
     <MESSAGE value="adding models" />
-    <option name="LAST_COMMIT_MESSAGE" value="adding models" />
+    <MESSAGE value="Adding created on to track when an entry was created in the datbase." />
+    <MESSAGE value="Adding created on to track when an entry was created in the database." />
+    <MESSAGE value="Adding Booking History model" />
+    <MESSAGE value="Update customer model to match camel case" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update customer model to match camel case" />
   </component>
 </project>
