@@ -4,6 +4,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 
 public class BookingHistory {
     @Id
@@ -13,6 +15,7 @@ public class BookingHistory {
     @Column(name = "booking_status")
     private int bookingStatus;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "created_on")
     private BookingStatus createdOn;
 

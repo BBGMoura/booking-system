@@ -4,6 +4,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -31,8 +33,9 @@ public class Booking {
     @Column(name = "duration_in_mins")
     private int durationInMins;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "booking_status")
-    private BookingStatus bookingStatus;
+    private BookingStatus newStatus;
 
     @Column(name = "total_rice")
     private BigDecimal totalPrice;
@@ -40,7 +43,7 @@ public class Booking {
     public Booking() {
     }
 
-    public Booking(int id, int roomId, int customerId, LocalDate createdOn, LocalDate bookedFrom, LocalDate bookedTo, int durationInMins, BookingStatus bookingStatus, BigDecimal totalPrice) {
+    public Booking(int id, int roomId, int customerId, LocalDate createdOn, LocalDate bookedFrom, LocalDate bookedTo, int durationInMins, BookingStatus newStatus, BigDecimal totalPrice) {
         this.id = id;
         this.roomId = roomId;
         this.createdOn = createdOn;
@@ -48,7 +51,7 @@ public class Booking {
         this.bookedFrom = bookedFrom;
         this.bookedTo = bookedTo;
         this.durationInMins = durationInMins;
-        this.bookingStatus = bookingStatus;
+        this.newStatus = newStatus;
         this.totalPrice = totalPrice;
     }
 
@@ -81,7 +84,7 @@ public class Booking {
     }
 
     public BookingStatus getBookingStatus() {
-        return bookingStatus;
+        return newStatus;
     }
 
     public BigDecimal getTotalPrice() {
