@@ -22,6 +22,7 @@ create table booking (
     id int auto_increment,
     room_id int NOT NULL,
     customer_id int NOT NULL,
+    created_on datetime NOT NULL,
     booked_from datetime NOT NULL,
     booked_to datetime NOT NULL,
     duration_in_minutes int NOT NULL,
@@ -35,6 +36,7 @@ create table booking (
 create table booking_history (
     id int auto_increment,
     booking_status varchar(30) NOT NULL,
+    createdOn datetime NOT NULL,
     PRIMARY KEY(id)
 );
 
