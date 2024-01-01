@@ -9,19 +9,19 @@ public class Customer {
     private int id;
 
     @Column(name = "first_name")
-    private String first_name;
+    private String firstName;
 
     @Column(name = "last_name")
-    private String last_name;
+    private String lastName;
 
     private String email;
 
     public Customer() {}
 
-    public Customer(int id, String first_name, String last_name, String email) {
+    public Customer(int id, String firstName, String lastName, String email) {
         this.id = id;
-        this.first_name = first_name;
-        this.last_name = last_name;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.email = email;
     }
 
@@ -29,12 +29,12 @@ public class Customer {
         return id;
     }
 
-    public String getFirst_name() {
-        return first_name;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public String getLast_name() {
-        return last_name;
+    public String getLastName() {
+        return lastName;
     }
 
     public String getEmail() {
