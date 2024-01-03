@@ -14,18 +14,18 @@ public class BookingHistory {
     private LocalDate createdOn;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "booking_status")
-    private BookingStatus bookingStatus;
+    @Column(name = "new_booking_status")
+    private BookingStatus newBookingStatus;
 
     private String description;
 
     public BookingHistory() {
     }
 
-    public BookingHistory(int id, LocalDate createdOn, BookingStatus bookingStatus, String description) {
+    public BookingHistory(int id, LocalDate createdOn, BookingStatus newBookingStatus, String description) {
         this.id = id;
         this.createdOn = createdOn;
-        this.bookingStatus = bookingStatus;
+        this.newBookingStatus = newBookingStatus;
         this.description = description;
     }
 
@@ -37,8 +37,8 @@ public class BookingHistory {
         return createdOn;
     }
 
-    public BookingStatus getBookingStatus() {
-        return bookingStatus;
+    public BookingStatus getNewBookingStatus() {
+        return newBookingStatus;
     }
 
     public String getDescription() {
