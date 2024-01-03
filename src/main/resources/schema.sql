@@ -37,6 +37,7 @@ create table booking_history (
     id int auto_increment,
     new_booking_status varchar(30) NOT NULL,
     createdOn datetime NOT NULL,
+    description varchar(50) NOT NULL,
     PRIMARY KEY(id)
 );
 
