@@ -1,42 +1,47 @@
 package org.dev.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.EnumType;
+import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
+@Table(name = "booking_history")
 public class BookingHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "booking_status")
-    private int bookingStatus;
+    @Column(name = "created_on")
+    private LocalDate createdOn;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "created_on")
-    private BookingStatus createdOn;
+    @Column(name = "booking_status")
+    private BookingStatus bookingStatus;
+
+    private String description;
 
     public BookingHistory() {
     }
 
-    public BookingHistory(int id, int bookingStatus, BookingStatus createdOn) {
+    public BookingHistory(int id, LocalDate createdOn, BookingStatus bookingStatus, String description) {
         this.id = id;
-        this.bookingStatus = bookingStatus;
         this.createdOn = createdOn;
+        this.bookingStatus = bookingStatus;
+        this.description = description;
     }
 
     public int getId() {
         return id;
     }
 
-    public int getBookingStatus() {
+    public LocalDate getCreatedOn() {
+        return createdOn;
+    }
+
+    public BookingStatus getBookingStatus() {
         return bookingStatus;
     }
 
-    public BookingStatus getCreatedOn() {
-        return createdOn;
+    public String getDescription() {
+        return description;
     }
 }
