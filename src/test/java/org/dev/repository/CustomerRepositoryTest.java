@@ -31,7 +31,7 @@ class CustomerRepositoryTest {
         int customerId = customer.getId();
         Customer retrievedCustomer = customerRepository.findById(customerId).orElseThrow();
 
-        List<Customer> retrievedCustomers = new ArrayList<Customer>();
+        List<Customer> retrievedCustomers = new ArrayList<>();
         customerRepository.findAll().forEach(retrievedCustomers::add);
 
         //then
@@ -39,6 +39,7 @@ class CustomerRepositoryTest {
         assertEquals(customer.getEmail(), retrievedCustomer.getEmail());
         assertEquals(customer.getFirstName(), retrievedCustomer.getFirstName());
         assertEquals(customer.getLastName(), retrievedCustomer.getLastName());
+        assertEquals(1, customerRepository.count());
         assertEquals(1, retrievedCustomers.size());
     }
 }
