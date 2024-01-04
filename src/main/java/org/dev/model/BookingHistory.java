@@ -11,6 +11,8 @@ public class BookingHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    //TODO add booking and use @JoinColumn annotation
+
     @Column(name = "created_on")
     private LocalDate createdOn;
 

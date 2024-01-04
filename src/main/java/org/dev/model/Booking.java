@@ -11,9 +11,11 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    //TODO replace id with room and use @JoinColumn annotation
     @Column(name = "room_id")
     private int roomId;
 
+    //TODO replace id with customer and use @JoinColumn annotation
     @Column(name = "customer_id")
     private int customerId;
 
