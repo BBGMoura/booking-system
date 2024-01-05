@@ -23,15 +23,15 @@ class CustomerRepositoryTest {
     @Test
     void testSave() {
         //given
-        Customer customer = createTestCustomer();
+        final Customer customer = createTestCustomer();
 
         //when
         customerRepository.save(customer);
 
-        int customerId = customer.getId();
-        Customer savedCustomer = customerRepository.findById(customerId).orElseThrow();
+        final int customerId = customer.getId();
+        final Customer savedCustomer = customerRepository.findById(customerId).orElseThrow();
 
-        List<Customer> savedCustomers = new ArrayList<>();
+        final List<Customer> savedCustomers = new ArrayList<>();
         customerRepository.findAll().forEach(savedCustomers::add);
 
         //then
@@ -46,11 +46,11 @@ class CustomerRepositoryTest {
     @Test
     void testFindByEmail(){
         //given
-        Customer customer = createTestCustomer();
+        final Customer customer = createTestCustomer();
         customerRepository.save(customer);
 
         //when
-        Customer retrievedCustomer = customerRepository.findByEmail("larajean@email.com").orElseThrow();
+        final Customer retrievedCustomer = customerRepository.findByEmail("larajean@email.com").orElseThrow();
 
         //then
         assertEquals(customer, retrievedCustomer);
@@ -59,9 +59,23 @@ class CustomerRepositoryTest {
     }
 
     @Test
+    void testFindByFirstName() {
+        //given
+        final Customer customer = createTestCustomer();
+        customerRepository.save(customer);
+
+        //when
+        final List<Customer> retrievedCustomers = new ArrayList<>();
+        customerRepository.findByFirstName("Lara").forEach(retrievedCustomers::add);
+
+        //then
+        assertEquals(1, retrievedCustomers.size());
+    }
+
+    @Test
     void testUpdate() {
         //given
-        Customer customer = createTestCustomer();
+        final Customer customer = createTestCustomer();
         customerRepository.save(customer);
 
         //when
@@ -70,7 +84,7 @@ class CustomerRepositoryTest {
         customer.setEmail("updatedemail@email.com");
         customerRepository.save(customer);
 
-        Customer updatedCustomer = customerRepository.findById(customer.getId()).orElseThrow();
+        final Customer updatedCustomer = customerRepository.findById(customer.getId()).orElseThrow();
 
         //then
         assertEquals(customer.getId(), updatedCustomer.getId());
