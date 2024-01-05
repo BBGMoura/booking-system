@@ -11,7 +11,9 @@ public class BookingHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    //TODO add booking and use @JoinColumn annotation
+    @ManyToOne
+    @JoinColumn(name = "booking_id")
+    private Booking booking;
 
     @Column(name = "created_on")
     private LocalDate createdOn;
@@ -22,10 +24,10 @@ public class BookingHistory {
 
     private String description;
 
-    public BookingHistory() {
-    }
+    public BookingHistory() {}
 
-    public BookingHistory(LocalDate createdOn, BookingStatus newBookingStatus, String description) {
+    public BookingHistory(Booking booking, LocalDate createdOn, BookingStatus newBookingStatus, String description) {
+        this.booking = booking;
         this.createdOn = createdOn;
         this.newBookingStatus = newBookingStatus;
         this.description = description;
@@ -33,6 +35,10 @@ public class BookingHistory {
 
     public int getId() {
         return id;
+    }
+
+    public Booking getBooking() {
+        return booking;
     }
 
     public LocalDate getCreatedOn() {
