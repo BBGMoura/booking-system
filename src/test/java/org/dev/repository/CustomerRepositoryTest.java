@@ -23,23 +23,28 @@ class CustomerRepositoryTest {
     @Test
     void testSave() {
         //given
-        Customer customer = new Customer("Lara", "Jean", "larajean@email.com");
+        Customer customer = createTestCustomer();
 
         //when
         customerRepository.save(customer);
 
         int customerId = customer.getId();
-        Customer retrievedCustomer = customerRepository.findById(customerId).orElseThrow();
+        Customer savedCustomer = customerRepository.findById(customerId).orElseThrow();
 
-        List<Customer> retrievedCustomers = new ArrayList<>();
-        customerRepository.findAll().forEach(retrievedCustomers::add);
+        List<Customer> savedCustomers = new ArrayList<>();
+        customerRepository.findAll().forEach(savedCustomers::add);
 
         //then
-        assertEquals(customerId, retrievedCustomer.getId());
-        assertEquals(customer.getEmail(), retrievedCustomer.getEmail());
-        assertEquals(customer.getFirstName(), retrievedCustomer.getFirstName());
-        assertEquals(customer.getLastName(), retrievedCustomer.getLastName());
+        assertEquals(customerId, savedCustomer.getId());
+        assertEquals(customer.getEmail(), savedCustomer.getEmail());
+        assertEquals(customer.getFirstName(), savedCustomer.getFirstName());
+        assertEquals(customer.getLastName(), savedCustomer.getLastName());
         assertEquals(1, customerRepository.count());
-        assertEquals(1, retrievedCustomers.size());
+        assertEquals(1, savedCustomers.size());
+    }
+
+
+    private Customer createTestCustomer() {
+        return new Customer("Lara", "Jean", "larajean@email.com");
     }
 }
