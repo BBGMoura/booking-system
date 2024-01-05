@@ -44,6 +44,21 @@ class CustomerRepositoryTest {
     }
 
     @Test
+    void testFindByEmail(){
+        //given
+        Customer customer = createTestCustomer();
+        customerRepository.save(customer);
+
+        //when
+        Customer retrievedCustomer = customerRepository.findByEmail("larajean@email.com").orElseThrow();
+
+        //then
+        assertEquals(customer, retrievedCustomer);
+        assertEquals(customer.getFirstName(), retrievedCustomer.getFirstName());
+        assertEquals(customer.getLastName(), retrievedCustomer.getLastName());
+    }
+
+    @Test
     void testUpdate() {
         //given
         Customer customer = createTestCustomer();
