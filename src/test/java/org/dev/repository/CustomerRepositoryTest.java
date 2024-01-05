@@ -9,8 +9,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @DataJpaTest
@@ -73,6 +75,34 @@ class CustomerRepositoryTest {
     }
 
     @Test
+    void testByLastName() {
+        //given
+        final Customer customer = createTestCustomer();
+        customerRepository.save(customer);
+
+        //when
+        final List<Customer> retrievedCustomers = new ArrayList<>();
+        customerRepository.findByLastName("Jean").forEach(retrievedCustomers::add);
+
+        //then
+        assertEquals(1, retrievedCustomers.size());
+    }
+
+    @Test
+    void testFindByFirstNameAndLastName() {
+        //given
+        final Customer customer = createTestCustomer();
+        customerRepository.save(customer);
+
+        //when
+        final List<Customer> retrievedCustomers = new ArrayList<>();
+        customerRepository.findByFirstNameAndLastName("Lara","Jean").forEach(retrievedCustomers::add);
+
+        //then
+        assertEquals(1, retrievedCustomers.size());
+    }
+
+    @Test
     void testUpdate() {
         //given
         final Customer customer = createTestCustomer();
@@ -93,6 +123,20 @@ class CustomerRepositoryTest {
         assertEquals("updatedemail@email.com", updatedCustomer.getEmail());
     }
 
+    @Test
+    void testDeleteById() {
+        //given
+        final Customer customer = createTestCustomer();
+        customerRepository.save(customer);
+
+        //when
+        final int customerId = customer.getId();
+        customerRepository.deleteById(customerId);
+        final Optional<Customer> deletedCustomer = customerRepository.findById(customerId);
+
+        //then
+        assertTrue(deletedCustomer.isEmpty());
+    }
 
     private Customer createTestCustomer() {
         return new Customer("Lara", "Jean", "larajean@email.com");
