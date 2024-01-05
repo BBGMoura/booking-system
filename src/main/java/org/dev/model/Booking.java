@@ -11,13 +11,13 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    //TODO replace id with room and use @JoinColumn annotation
-    @Column(name = "room_id")
-    private int roomId;
+    @ManyToOne
+    @JoinColumn(name = "room_id")
+    private Room room;
 
-    //TODO replace id with customer and use @JoinColumn annotation
-    @Column(name = "customer_id")
-    private int customerId;
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
 
     @Column(name = "created_on")
     private LocalDate createdOn;
@@ -40,10 +40,10 @@ public class Booking {
 
     public Booking() {}
 
-    public Booking(int roomId, int customerId, LocalDate createdOn, LocalDate bookedFrom, LocalDate bookedTo, int durationInMins, BookingStatus bookingStatus, BigDecimal totalPrice) {
-        this.roomId = roomId;
+    public Booking(Room room, Customer customer, LocalDate createdOn, LocalDate bookedFrom, LocalDate bookedTo, int durationInMins, BookingStatus bookingStatus, BigDecimal totalPrice) {
+        this.room = room;
         this.createdOn = createdOn;
-        this.customerId = customerId;
+        this.customer = customer;
         this.bookedFrom = bookedFrom;
         this.bookedTo = bookedTo;
         this.durationInMins = durationInMins;
@@ -55,12 +55,12 @@ public class Booking {
         return id;
     }
 
-    public int getRoomId() {
-        return roomId;
+    public Room getRoom() {
+        return room;
     }
 
-    public int getCustomerId() {
-        return customerId;
+    public Customer getCustomer() {
+        return customer;
     }
 
     public LocalDate getCreatedOn() {
