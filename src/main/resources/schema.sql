@@ -35,10 +35,12 @@ create table booking (
 
 create table booking_history (
     id int auto_increment,
+    booking_id int NOT NULL,
     new_booking_status varchar(30) NOT NULL,
     createdOn datetime NOT NULL,
     description varchar(50) NOT NULL,
-    PRIMARY KEY(id)
+    PRIMARY KEY(id),
+    FOREIGN KEY(booking_id) REFERENCES booking(id)
 );
 
 insert into room
