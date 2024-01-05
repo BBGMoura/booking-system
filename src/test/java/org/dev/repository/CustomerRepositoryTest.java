@@ -43,6 +43,27 @@ class CustomerRepositoryTest {
         assertEquals(1, savedCustomers.size());
     }
 
+    @Test
+    void testUpdate() {
+        //given
+        Customer customer = createTestCustomer();
+        customerRepository.save(customer);
+
+        //when
+        customer.setFirstName("Updated");
+        customer.setLastName("Customer");
+        customer.setEmail("updatedemail@email.com");
+        customerRepository.save(customer);
+
+        Customer updatedCustomer = customerRepository.findById(customer.getId()).orElseThrow();
+
+        //then
+        assertEquals(customer.getId(), updatedCustomer.getId());
+        assertEquals("Updated", updatedCustomer.getFirstName());
+        assertEquals("Customer", updatedCustomer.getLastName());
+        assertEquals("updatedemail@email.com", updatedCustomer.getEmail());
+    }
+
 
     private Customer createTestCustomer() {
         return new Customer("Lara", "Jean", "larajean@email.com");
