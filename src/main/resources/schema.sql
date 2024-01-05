@@ -47,4 +47,6 @@ insert into room
 (name, price_per_half_hour, price_per_hour)
 values
 ('Room 1', 1, 0.89),
-('Room 2', 1.08, 0.78);
+('Room 2', 1.08, 0.78),
+('Room 3', 1.2, 0.92),
+('Room 4', 0.95, 0.72);
