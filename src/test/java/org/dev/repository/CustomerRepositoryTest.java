@@ -23,7 +23,7 @@ class CustomerRepositoryTest {
     @Test
     void testSave() {
         //given
-        Customer customer = new Customer(1, "Lara", "Jean", "larajean@email.com");
+        Customer customer = new Customer("Lara", "Jean", "larajean@email.com");
 
         //when
         customerRepository.save(customer);

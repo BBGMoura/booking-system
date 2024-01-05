@@ -25,8 +25,7 @@ public class BookingHistory {
     public BookingHistory() {
     }
 
-    public BookingHistory(int id, LocalDate createdOn, BookingStatus newBookingStatus, String description) {
-        this.id = id;
+    public BookingHistory(LocalDate createdOn, BookingStatus newBookingStatus, String description) {
         this.createdOn = createdOn;
         this.newBookingStatus = newBookingStatus;
         this.description = description;

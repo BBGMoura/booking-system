@@ -41,8 +41,7 @@ public class Booking {
     public Booking() {
     }
 
-    public Booking(int id, int roomId, int customerId, LocalDate createdOn, LocalDate bookedFrom, LocalDate bookedTo, int durationInMins, BookingStatus newStatus, BigDecimal totalPrice) {
-        this.id = id;
+    public Booking(int roomId, int customerId, LocalDate createdOn, LocalDate bookedFrom, LocalDate bookedTo, int durationInMins, BookingStatus newStatus, BigDecimal totalPrice) {
         this.roomId = roomId;
         this.createdOn = createdOn;
         this.customerId = customerId;

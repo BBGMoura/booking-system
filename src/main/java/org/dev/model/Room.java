@@ -20,8 +20,8 @@ public class Room {
 
     public Room() {}
 
-    public Room(int id, String name, BigDecimal priceHalfHour, BigDecimal priceHour) {
-        this.id = id;
+    public Room(String name, BigDecimal priceHalfHour, BigDecimal priceHour) {
+
         this.name = name;
         this.priceHalfHour = priceHalfHour;
         this.priceHour = priceHour;
