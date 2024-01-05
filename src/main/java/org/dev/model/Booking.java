@@ -33,22 +33,21 @@ public class Booking {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "booking_status")
-    private BookingStatus newStatus;
+    private BookingStatus bookingStatus;
 
     @Column(name = "total_rice")
     private BigDecimal totalPrice;
 
-    public Booking() {
-    }
+    public Booking() {}
 
-    public Booking(int roomId, int customerId, LocalDate createdOn, LocalDate bookedFrom, LocalDate bookedTo, int durationInMins, BookingStatus newStatus, BigDecimal totalPrice) {
+    public Booking(int roomId, int customerId, LocalDate createdOn, LocalDate bookedFrom, LocalDate bookedTo, int durationInMins, BookingStatus bookingStatus, BigDecimal totalPrice) {
         this.roomId = roomId;
         this.createdOn = createdOn;
         this.customerId = customerId;
         this.bookedFrom = bookedFrom;
         this.bookedTo = bookedTo;
         this.durationInMins = durationInMins;
-        this.newStatus = newStatus;
+        this.bookingStatus = bookingStatus;
         this.totalPrice = totalPrice;
     }
 
@@ -81,7 +80,7 @@ public class Booking {
     }
 
     public BookingStatus getBookingStatus() {
-        return newStatus;
+        return bookingStatus;
     }
 
     public BigDecimal getTotalPrice() {
