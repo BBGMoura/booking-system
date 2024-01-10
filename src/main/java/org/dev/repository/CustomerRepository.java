@@ -9,10 +9,7 @@ import java.util.Optional;
 @Repository
 public interface CustomerRepository extends CrudRepository<Customer, Integer> {
     Optional<Customer> findByEmail(String email);
-
     Iterable<Customer> findByFirstName(String firstName);
-
     Iterable<Customer> findByLastName(String lastName);
-
     Iterable<Customer> findByFirstNameAndLastName(String firstName, String lastName);
 }
