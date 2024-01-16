@@ -12,6 +12,6 @@ public interface CustomerService {
     List<CustomerDTO> getByFirstName(String firstName);
     List<CustomerDTO> getByLastName(String lastName);
     List<CustomerDTO> getAllCustomers();
-    CustomerDTO updateCustomer(CustomerDTO customerDto);
+    CustomerDTO updateCustomer(int customerId, CustomerDTO customerDto);
     void deleteCustomer(int customerId);
 }
