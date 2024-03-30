@@ -20,13 +20,13 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int id;
     @ManyToOne
-    @JoinColumn(name="id", nullable = false)
+    @JoinColumn(referencedColumnName="id", nullable = false)
     private User user;
     @ManyToOne
-    @JoinColumn(name="id", nullable = false)
+    @JoinColumn(referencedColumnName="id", nullable = false)
     private Room room;
     @ManyToOne
-    @JoinColumn(name="id", nullable = false)
+    @JoinColumn(referencedColumnName="id", nullable = false)
     private DanceClass danceClass;
     @Column(nullable = false)
     private LocalDateTime bookedFrom;

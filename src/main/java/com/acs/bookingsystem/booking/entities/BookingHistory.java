@@ -20,7 +20,7 @@ public class BookingHistory {
     @GeneratedValue
     private int id;
     @ManyToOne
-    @JoinColumn(name="id")
+    @JoinColumn(referencedColumnName="id")
     private Booking booking;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -28,6 +28,6 @@ public class BookingHistory {
     @Column(nullable = false)
     private LocalDateTime createdOn;
     @ManyToOne
-    @JoinColumn(name="id", nullable = false)
+    @JoinColumn(referencedColumnName="id", nullable = false)
     private User updatingUser;
 }
