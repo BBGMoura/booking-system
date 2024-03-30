@@ -1,4 +1,4 @@
-package com.acs.bookingsystem.model.user;
+package com.acs.bookingsystem.user;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

@@ -1,4 +1,4 @@
-package com.acs.bookingsystem.model.user;
+package com.acs.bookingsystem.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
