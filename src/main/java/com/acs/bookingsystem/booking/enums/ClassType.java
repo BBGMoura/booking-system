@@ -9,6 +9,7 @@ public enum ClassType {
     PRIVATE("PRIV"),
     PRACTICE("PRA"),
     GROUP("GRP"),
+    UNAVAILABLE("UN"),
     OTHER("OTH");
 
     private final String code;
