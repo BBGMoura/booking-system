@@ -18,8 +18,8 @@ public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int id;
-    @OneToOne
-    @JoinColumn(name="id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(referencedColumnName = "id", nullable = false)
     private User user;
     @Column(nullable = false)
     private BigDecimal outstandingBalance;

@@ -19,13 +19,14 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int id;
     @OneToOne
-    @JoinColumn(name = "id", nullable = false)
+    @JoinColumn(referencedColumnName="id", nullable = false)
     private Booking booking;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PaymentStatus paymentStatus;
     @Column(nullable = false)
     private LocalDateTime createdOn;
-    @Column(nullable = false)
+    @ManyToOne
+    @JoinColumn(referencedColumnName ="id")
     private Account account;
 }
