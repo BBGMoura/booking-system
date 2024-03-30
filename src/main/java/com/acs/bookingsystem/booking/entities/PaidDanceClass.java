@@ -1,5 +1,6 @@
-package com.acs.bookingsystem.booking;
+package com.acs.bookingsystem.booking.entities;
 
+import com.acs.bookingsystem.booking.entities.DanceClass;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;

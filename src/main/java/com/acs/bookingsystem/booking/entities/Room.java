@@ -1,4 +1,4 @@
-package com.acs.bookingsystem.booking;
+package com.acs.bookingsystem.booking.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

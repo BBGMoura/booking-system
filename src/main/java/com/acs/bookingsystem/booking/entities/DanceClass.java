@@ -1,5 +1,6 @@
-package com.acs.bookingsystem.booking;
+package com.acs.bookingsystem.booking.entities;
 
+import com.acs.bookingsystem.booking.enums.ClassType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

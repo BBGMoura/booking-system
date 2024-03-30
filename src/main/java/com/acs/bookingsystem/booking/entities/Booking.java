@@ -1,4 +1,4 @@
-package com.acs.bookingsystem.booking;
+package com.acs.bookingsystem.booking.entities;
 
 import com.acs.bookingsystem.user.User;
 import jakarta.persistence.*;
