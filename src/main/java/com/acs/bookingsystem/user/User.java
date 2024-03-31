@@ -26,6 +26,7 @@ public class User {
     @Column(length=15, nullable=false)
     private String phoneNumber;
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Permission permission;
     @OneToOne(mappedBy = "user",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Account account;
