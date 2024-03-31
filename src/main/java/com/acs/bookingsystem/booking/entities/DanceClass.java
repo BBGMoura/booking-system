@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Getter
@@ -21,4 +23,7 @@ public class DanceClass {
     private ClassType classType;
     @Column(nullable=false)
     private boolean active;
+    private BigDecimal pricePer60;
+    private BigDecimal pricePer45;
+    private BigDecimal pricePer30;
 }
