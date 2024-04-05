@@ -1,6 +1,7 @@
-package com.acs.bookingsystem.user;
+package com.acs.bookingsystem.user.entities;
 
 import com.acs.bookingsystem.payment.Account;
+import com.acs.bookingsystem.user.enums.Permission;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,8 +11,6 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Table(name="Users")
 public class User {
     @Id
@@ -30,4 +29,12 @@ public class User {
     private Permission permission;
     @OneToOne(mappedBy = "user",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Account account;
+
+    public User(String firstName, String lastName, String email, String phoneNumber, Permission permission) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.permission = permission;
+    }
 }

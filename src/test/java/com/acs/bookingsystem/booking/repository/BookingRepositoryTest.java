@@ -4,19 +4,16 @@ import com.acs.bookingsystem.booking.entities.Booking;
 import com.acs.bookingsystem.booking.entities.DanceClass;
 import com.acs.bookingsystem.booking.enums.ClassType;
 import com.acs.bookingsystem.booking.enums.Room;
-import com.acs.bookingsystem.payment.Account;
 import com.acs.bookingsystem.payment.repository.AccountRepository;
-import com.acs.bookingsystem.user.Permission;
-import com.acs.bookingsystem.user.User;
+import com.acs.bookingsystem.user.enums.Permission;
+import com.acs.bookingsystem.user.entities.User;
 import com.acs.bookingsystem.user.repository.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.ArrayList;
@@ -88,9 +85,6 @@ class BookingRepositoryTest {
         assertEquals(filteredBookings.getFirst().getBookedFrom(), LocalDateTime.of(2024, Month.MARCH,30,12,0));
         assertEquals(filteredBookings.getLast().getBookedFrom(), LocalDateTime.of(2024, Month.MARCH,30,12,45));
     }
-
-
-
 
     @Test
     void deleteABooking(){

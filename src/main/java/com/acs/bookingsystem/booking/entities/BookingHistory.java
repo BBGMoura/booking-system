@@ -1,7 +1,7 @@
 package com.acs.bookingsystem.booking.entities;
 
 import com.acs.bookingsystem.booking.enums.BookingStatus;
-import com.acs.bookingsystem.user.User;
+import com.acs.bookingsystem.user.entities.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

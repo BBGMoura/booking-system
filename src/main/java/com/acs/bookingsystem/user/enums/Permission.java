@@ -1,4 +1,4 @@
-package com.acs.bookingsystem.user;
+package com.acs.bookingsystem.user.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
