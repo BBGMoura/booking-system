@@ -1,8 +1,6 @@
 package com.acs.bookingsystem.user.exception;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
