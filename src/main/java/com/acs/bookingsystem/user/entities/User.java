@@ -11,6 +11,8 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name="Users")
 public class User {
     @Id
@@ -20,9 +22,9 @@ public class User {
     private String firstName;
     @Column(length=50, nullable=false)
     private String lastName;
-    @Column(length=100, nullable=false, unique = true)
+    @Column(length=254, nullable=false, unique = true)
     private String email;
-    @Column(length=15, nullable=false)
+    @Column(length=11, nullable=false)
     private String phoneNumber;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
