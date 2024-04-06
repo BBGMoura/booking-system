@@ -23,7 +23,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class BookingRepositoryTest {
     @Autowired
     private BookingRepository bookingRepository;
@@ -31,8 +30,6 @@ class BookingRepositoryTest {
     UserRepository userRepository;
     @Autowired
     DanceClassRepository danceClassRepository;
-    @Autowired
-    AccountRepository accountRepository;
 
     @Test
     void createABooking(){
