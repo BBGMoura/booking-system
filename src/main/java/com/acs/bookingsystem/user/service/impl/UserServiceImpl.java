@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -37,8 +36,8 @@ public class UserServiceImpl implements UserService {
         return userMapper.mapUserToDTO(findUserById(id));
     }
 
-    public UserDTO updateUser(UserUpdateRequest userUpdateRequest){
-        User userToUpdate = findUserById(userUpdateRequest.getId());
+    public UserDTO updateUser(int userId, UserUpdateRequest userUpdateRequest){
+        User userToUpdate = findUserById(userId);
 
         if (userUpdateRequest.getEmail() != null) {
             validateEmail(userUpdateRequest.getEmail());
@@ -64,14 +63,17 @@ public class UserServiceImpl implements UserService {
     }
 
     private void validateEmail(String email) {
-        userRepository.findByEmail(email).orElseThrow(() -> new UserRequestException(createError("EMAIL_ALREADY_EXISTS", String.format("User with email %s already exists", email))));
+        userRepository.findByEmail(email)
+                      .ifPresent(user -> {
+                          throw new UserRequestException(createError("EMAIL_ALREADY_EXISTS", String.format("User with email %s already exists", email)));
+                      });
     }
 
     private User findUserById(int id){
-        return userRepository.findById(id).orElseThrow(() -> new UserRequestException(createError("INVALID_ID", String.format("Could not find user with ID %d", id))));
+        return userRepository.findById(id)
+                             .orElseThrow(() -> new UserRequestException(createError("INVALID_ID", String.format("Could not find user with ID %d", id))));
     }
 
-    //TODO: make a class or change this to be more reusable
     private List<ErrorModel> createError(String code, String message) {
         List<ErrorModel> errorModelList = new ArrayList<>();
         errorModelList.add(new ErrorModel(code, message));

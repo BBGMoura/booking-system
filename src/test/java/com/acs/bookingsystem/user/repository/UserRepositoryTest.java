@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,6 +15,7 @@ class UserRepositoryTest {
 
     @Autowired
     private UserRepository userRepository;
+
     @Test
     void testSaveUser() {
         // Given
@@ -27,6 +27,7 @@ class UserRepositoryTest {
         // Then
         Optional<User> savedUser = userRepository.findByEmail("test@example.com");
         assertTrue(savedUser.isPresent());
+        assertEquals(1,savedUser.get().getId());
     }
 
     @Test

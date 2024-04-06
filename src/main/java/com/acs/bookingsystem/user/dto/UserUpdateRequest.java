@@ -3,11 +3,12 @@ package com.acs.bookingsystem.user.dto;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public class UserUpdateRequest {
-    private int id;
     @NotEmpty
     @Size(max=50)
     private String firstName;
@@ -15,7 +16,7 @@ public class UserUpdateRequest {
     @Size(max=50)
     private String lastName;
     @NotEmpty
-    @Size(max=50)
+    @Size(max=254)
     @Pattern(regexp="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}")
     private String email;
     @NotEmpty
