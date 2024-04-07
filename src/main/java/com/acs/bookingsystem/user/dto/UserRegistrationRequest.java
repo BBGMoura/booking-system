@@ -17,9 +17,9 @@ public class UserRegistrationRequest {
     private String lastName;
     @NotBlank
     @Size(max=254)
-    @Pattern(regexp="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}")
+    @Pattern(regexp="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}", message="Invalid email format")
     private String email;
     @NotBlank
-    @Pattern(regexp = "\\d{11}", message = "Invalid phone number format. It should be 11-digits starting with 0.")
+    @Pattern(regexp = "\\d{11}", message = "Invalid phone number format (ex. 0711223344556)")
     private String phoneNumber;
 }

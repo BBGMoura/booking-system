@@ -5,7 +5,7 @@ import com.acs.bookingsystem.user.dto.UserRegistrationRequest;
 import com.acs.bookingsystem.user.dto.UserUpdateRequest;
 import com.acs.bookingsystem.user.entities.User;
 import com.acs.bookingsystem.user.enums.Permission;
-import com.acs.bookingsystem.user.exception.ErrorModel;
+import com.acs.bookingsystem.user.exception.UserError;
 import com.acs.bookingsystem.user.exception.UserRequestException;
 import com.acs.bookingsystem.user.mapper.UserMapper;
 import com.acs.bookingsystem.user.repository.UserRepository;
@@ -13,8 +13,6 @@ import com.acs.bookingsystem.user.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -65,18 +63,14 @@ public class UserServiceImpl implements UserService {
     private void validateEmail(String email) {
         userRepository.findByEmail(email)
                       .ifPresent(user -> {
-                          throw new UserRequestException(createError("EMAIL_ALREADY_EXISTS", String.format("User with email %s already exists", email)));
+                          throw new UserRequestException("Email "+email+" is already in use", UserError.EMAIL_ALREADY_EXISTS);
                       });
     }
 
     private User findUserById(int id){
+
         return userRepository.findById(id)
-                             .orElseThrow(() -> new UserRequestException(createError("INVALID_ID", String.format("Could not find user with ID %d", id))));
+                             .orElseThrow(() -> new UserRequestException("Could not find user with ID "+id, UserError.INVALID_ID));
     }
 
-    private List<ErrorModel> createError(String code, String message) {
-        List<ErrorModel> errorModelList = new ArrayList<>();
-        errorModelList.add(new ErrorModel(code, message));
-        return errorModelList;
-    }
 }

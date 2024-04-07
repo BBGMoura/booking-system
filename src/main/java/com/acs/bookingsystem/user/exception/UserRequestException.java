@@ -3,14 +3,19 @@ package com.acs.bookingsystem.user.exception;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
 public class UserRequestException extends RuntimeException {
-    private final List<ErrorModel> errors;
+    private final UserError error;
 
-    public UserRequestException(List<ErrorModel> errors){
-        this.errors = errors;
+    public UserRequestException(String message, UserError error) {
+        super(message);
+        this.error = error;
+    }
+
+    public UserRequestException(String message, Throwable cause, UserError error) {
+        super(message, cause);
+        this.error = error;
     }
 }
+
