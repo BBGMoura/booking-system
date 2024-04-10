@@ -18,4 +18,6 @@ public interface BookingRepository extends CrudRepository<Booking, Integer> {
     List<Booking> findBookingsByRoomAndEndOrStartBetweenTimeRange(@Param("room") Room room,
                                                                   @Param("dateFrom") LocalDateTime dateFrom,
                                                                   @Param("dateTo") LocalDateTime dateTo);
+
+    List<Booking> findAllByUserId(int userId);
 }

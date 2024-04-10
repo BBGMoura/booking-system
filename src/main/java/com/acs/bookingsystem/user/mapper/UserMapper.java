@@ -14,4 +14,14 @@ public class UserMapper {
                            user.getPhoneNumber(),
                            user.getPermission());
     }
+
+    public User mapDTOToUser(UserDTO userDTO){
+        return new User(userDTO.id(),
+                        userDTO.firstName(),
+                        userDTO.lastName(),
+                        userDTO.email(),
+                        userDTO.phoneNumber(),
+                        userDTO.permission(),
+                        null);
+    }
 }

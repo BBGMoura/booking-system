@@ -5,7 +5,7 @@ import com.acs.bookingsystem.user.dto.UserRegistrationRequest;
 import com.acs.bookingsystem.user.dto.UserUpdateRequest;
 import com.acs.bookingsystem.user.entities.User;
 import com.acs.bookingsystem.user.enums.Permission;
-import com.acs.bookingsystem.user.exception.UserRequestException;
+import com.acs.bookingsystem.common.exception.RequestException;
 import com.acs.bookingsystem.user.mapper.UserMapper;
 import com.acs.bookingsystem.user.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -63,7 +63,7 @@ class UserServiceImplTest {
         when(userRepository.findByEmail(request.getEmail())).thenReturn(Optional.of(user));
 
         //then
-        assertThrows(UserRequestException.class, () -> userService.registerUser(request));
+        assertThrows(RequestException.class, () -> userService.registerUser(request));
         verify(userRepository, times(1)).findByEmail(request.getEmail());
     }
 
@@ -76,7 +76,7 @@ class UserServiceImplTest {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         //then
-        assertThrows(UserRequestException.class, () ->  userService.getUserById(userId));
+        assertThrows(RequestException.class, () ->  userService.getUserById(userId));
     }
 
     @Test

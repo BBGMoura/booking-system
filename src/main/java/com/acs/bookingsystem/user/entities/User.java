@@ -29,7 +29,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Permission permission;
-    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Account account;
 
     public User(String firstName, String lastName, String email, String phoneNumber, Permission permission) {

@@ -34,4 +34,13 @@ public class Booking {
     private LocalDateTime bookedTo;
     @Column(nullable = false)
     private BigDecimal totalPrice;
+
+    public Booking(User user, Room room, DanceClass danceClass, LocalDateTime bookedFrom, LocalDateTime bookedTo, BigDecimal totalPrice) {
+        this.user = user;
+        this.room = room;
+        this.danceClass = danceClass;
+        this.bookedFrom = bookedFrom;
+        this.bookedTo = bookedTo;
+        this.totalPrice = totalPrice;
+    }
 }

@@ -2,8 +2,8 @@ package com.acs.bookingsystem.user.controller;
 
 import com.acs.bookingsystem.user.dto.UserDTO;
 import com.acs.bookingsystem.user.enums.Permission;
-import com.acs.bookingsystem.user.exception.UserError;
-import com.acs.bookingsystem.user.exception.UserRequestException;
+import com.acs.bookingsystem.common.exception.ErrorCode;
+import com.acs.bookingsystem.common.exception.RequestException;
 import com.acs.bookingsystem.user.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +46,7 @@ class UserControllerTest {
 
     @Test
     void testDoesntFindByID() throws Exception {
-        when(userService.getUserById(anyInt())).thenThrow(new UserRequestException("Could not find user with ID", UserError.INVALID_ID));
+        when(userService.getUserById(anyInt())).thenThrow(new RequestException("Could not find user with ID", ErrorCode.INVALID_ID));
 
         mockMvc.perform(get("/user/123")
                                               .contentType(MediaType.APPLICATION_JSON))

@@ -1,6 +1,5 @@
-package com.acs.bookingsystem.user.exception;
+package com.acs.bookingsystem.common.exception;
 
-import com.acs.bookingsystem.user.controller.UserController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,10 +10,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-@ControllerAdvice(assignableTypes = {UserController.class})
-public class UserExceptionHandler {
-    @ExceptionHandler(UserRequestException.class)
-    public ResponseEntity<ErrorModel> handleUserRequestException(UserRequestException uEx){
+@ControllerAdvice
+public class UniversalExceptionHandler {
+    @ExceptionHandler(RequestException.class)
+    public ResponseEntity<ErrorModel> handleUserRequestException(RequestException uEx){
         ErrorModel error = new ErrorModel(new Date(),
                                           HttpStatus.BAD_REQUEST.value(),
                                           uEx.getError().getDescription(),
@@ -22,10 +21,9 @@ public class UserExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    //This will be fed back to user, so needs to be ready
+    //This will be fed back to user, so error needs to be ready
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<List<ErrorModel>> handleFieldValidation(MethodArgumentNotValidException maEx){
-
         List<ErrorModel> errors = maEx.getBindingResult()
                                       .getFieldErrors()
                                       .stream()

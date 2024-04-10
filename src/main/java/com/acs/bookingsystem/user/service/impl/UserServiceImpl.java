@@ -5,8 +5,8 @@ import com.acs.bookingsystem.user.dto.UserRegistrationRequest;
 import com.acs.bookingsystem.user.dto.UserUpdateRequest;
 import com.acs.bookingsystem.user.entities.User;
 import com.acs.bookingsystem.user.enums.Permission;
-import com.acs.bookingsystem.user.exception.UserError;
-import com.acs.bookingsystem.user.exception.UserRequestException;
+import com.acs.bookingsystem.common.exception.ErrorCode;
+import com.acs.bookingsystem.common.exception.RequestException;
 import com.acs.bookingsystem.user.mapper.UserMapper;
 import com.acs.bookingsystem.user.repository.UserRepository;
 import com.acs.bookingsystem.user.service.UserService;
@@ -63,14 +63,13 @@ public class UserServiceImpl implements UserService {
     private void validateEmail(String email) {
         userRepository.findByEmail(email)
                       .ifPresent(user -> {
-                          throw new UserRequestException("Email "+email+" is already in use", UserError.EMAIL_ALREADY_EXISTS);
+                          throw new RequestException("Email "+email+" is already in use", ErrorCode.EMAIL_ALREADY_EXISTS);
                       });
     }
 
     private User findUserById(int id){
-
         return userRepository.findById(id)
-                             .orElseThrow(() -> new UserRequestException("Could not find user with ID "+id, UserError.INVALID_ID));
+                             .orElseThrow(() -> new RequestException("Could not find user with ID "+id, ErrorCode.INVALID_ID));
     }
 
 }
