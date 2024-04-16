@@ -5,10 +5,10 @@ import com.acs.bookingsystem.booking.entities.DanceClass;
 import com.acs.bookingsystem.booking.enums.ClassType;
 import com.acs.bookingsystem.booking.exception.DanceClassNotFoundException;
 import com.acs.bookingsystem.booking.mapper.DanceClassMapper;
+import com.acs.bookingsystem.booking.request.DanceClassRequest;
 import com.acs.bookingsystem.booking.service.DanceClassService;
 import com.acs.bookingsystem.booking.repository.DanceClassRepository;
 import com.acs.bookingsystem.common.exception.ErrorCode;
-import com.acs.bookingsystem.common.exception.RequestException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,15 +22,22 @@ public class DanceClassServiceImpl implements DanceClassService {
     DanceClassMapper danceClassMapper;
 
     @Override
-    public DanceClassDTO createDanceClass(DanceClass danceClass) {
-        deactivateDanceClassType(danceClass.getClassType());
+    public DanceClassDTO createDanceClass(DanceClassRequest danceClassRequest) {
+        deactivateDanceClassType(danceClassRequest.getClassType());
+
+        DanceClass danceClass = new DanceClass(danceClassRequest.getClassType(),
+                                                true,
+                                                danceClassRequest.getPricePer60(),
+                                                danceClassRequest.getPricePer45(),
+                                                danceClassRequest.getPricePer30());
+
         return danceClassMapper.mapDanceClassToDTO(danceClassRepository.save(danceClass));
     }
 
     @Override
-    public List<ClassType> getAllDanceClassTypes() {
+    public List<ClassType> getAllActiveDanceClassTypes() {
         //add based on permission feature
-        List<DanceClass> danceClasses = (List<DanceClass>) danceClassRepository.findAllByActiveIsTrue();
+        List<DanceClass> danceClasses = danceClassRepository.findAllByActiveIsTrue();
         return danceClasses.stream()
                            .map(DanceClass::getClassType)
                            .toList();
@@ -42,18 +49,8 @@ public class DanceClassServiceImpl implements DanceClassService {
     }
 
     @Override
-    public DanceClassDTO getDanceClassById(int id) {
-        return danceClassMapper.mapDanceClassToDTO(findDanceClassById(id));
-    }
-
-    @Override
-    public void deactivateDanceClass(DanceClass danceClass) {
-        deactivateDanceClassType(danceClass.getClassType());
-    }
-
-    private DanceClass findDanceClassById(int id){
-        return danceClassRepository.findById(id)
-                                   .orElseThrow(() -> new RequestException(String.format("DanceClass with ID: %d does not exist", id), ErrorCode.INVALID_ID));
+    public void deactivateDanceClass(ClassType classType) {
+        deactivateDanceClassType(classType);
     }
 
     private DanceClass getActiveDanceClassByType(ClassType classType) {

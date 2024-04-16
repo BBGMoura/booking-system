@@ -29,16 +29,19 @@ public class Booking {
     @JoinColumn(referencedColumnName="id", nullable = false)
     private DanceClass danceClass;
     @Column(nullable = false)
+    private boolean active;
+    @Column(nullable = false)
     private LocalDateTime bookedFrom;
     @Column(nullable = false)
     private LocalDateTime bookedTo;
     @Column(nullable = false)
     private BigDecimal totalPrice;
 
-    public Booking(User user, Room room, DanceClass danceClass, LocalDateTime bookedFrom, LocalDateTime bookedTo, BigDecimal totalPrice) {
+    public Booking(User user, Room room, DanceClass danceClass, boolean active, LocalDateTime bookedFrom, LocalDateTime bookedTo, BigDecimal totalPrice) {
         this.user = user;
         this.room = room;
         this.danceClass = danceClass;
+        this.active = active;
         this.bookedFrom = bookedFrom;
         this.bookedTo = bookedTo;
         this.totalPrice = totalPrice;

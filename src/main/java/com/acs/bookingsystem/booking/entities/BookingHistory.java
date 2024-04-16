@@ -25,6 +25,7 @@ public class BookingHistory {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BookingStatus bookingStatus;
+    private String description;
     @Column(nullable = false)
     private LocalDateTime createdOn;
     @ManyToOne

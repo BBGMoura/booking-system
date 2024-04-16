@@ -11,6 +11,7 @@ public class BookingMapper {
         return new BookingDTO(booking.getId(),
                               booking.getUser().getId(),
                               booking.getRoom(),
+                              booking.isActive(),
                               booking.getDanceClass()
                                      .getId(),
                               booking.getBookedFrom(),

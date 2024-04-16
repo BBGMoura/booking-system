@@ -12,12 +12,15 @@ import java.util.List;
 public interface BookingRepository extends CrudRepository<Booking, Integer> {
     @Query("SELECT b FROM Booking b " +
             "WHERE b.room = :room " +
-            "AND (b.bookedFrom >= :dateFrom OR " +
-            "     b.bookedTo <= :dateTo OR " +
-            "     (b.bookedFrom <= :dateFrom AND b.bookedTo >= :dateTo))")
-    List<Booking> findBookingsByRoomAndEndOrStartBetweenTimeRange(@Param("room") Room room,
-                                                                  @Param("dateFrom") LocalDateTime dateFrom,
-                                                                  @Param("dateTo") LocalDateTime dateTo);
+            "AND b.active = true " +
+            "AND (" +
+            "     (b.bookedFrom > :dateFrom AND b.bookedTo < :dateTo) OR " +
+            "     (b.bookedFrom > :dateFrom AND b.bookedFrom < :dateTo) OR " +
+            "     (b.bookedTo > :dateFrom AND b.bookedTo < :dateTo)" +
+            ")")
+    List<Booking> findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(@Param("room") Room room,
+                                                                        @Param("dateFrom") LocalDateTime dateFrom,
+                                                                        @Param("dateTo") LocalDateTime dateTo);
 
     List<Booking> findAllByUserId(int userId);
 }

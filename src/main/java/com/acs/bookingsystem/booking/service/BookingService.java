@@ -2,7 +2,7 @@ package com.acs.bookingsystem.booking.service;
 
 
 import com.acs.bookingsystem.booking.dto.BookingDTO;
-import com.acs.bookingsystem.booking.dto.BookingRequest;
+import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.booking.enums.Room;
 
 import java.time.LocalDateTime;

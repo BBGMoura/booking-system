@@ -1,4 +1,4 @@
-package com.acs.bookingsystem.booking.dto;
+package com.acs.bookingsystem.booking.request;
 
 import com.acs.bookingsystem.booking.enums.ClassType;
 import com.acs.bookingsystem.booking.enums.Room;

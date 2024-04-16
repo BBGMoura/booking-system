@@ -3,6 +3,7 @@ package com.acs.bookingsystem.payment;
 import com.acs.bookingsystem.booking.entities.DanceClass;
 import com.acs.bookingsystem.booking.exception.DanceClassNotFoundException;
 import com.acs.bookingsystem.common.exception.ErrorCode;
+import com.acs.bookingsystem.common.exception.RequestException;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -14,7 +15,7 @@ public class PriceCalculator {
     static final long INTERVAL_30 = 30;
 
     private PriceCalculator() {
-        throw new IllegalStateException("Price Calculator is a util class.");
+        throw new IllegalStateException("Price Calculator is an util class.");
     }
 
     public static BigDecimal calculateTotalPrice(LocalDateTime dateFrom, LocalDateTime dateTo,  DanceClass danceClass){
@@ -26,23 +27,26 @@ public class PriceCalculator {
             return BigDecimal.ZERO;
         }
 
-        Duration duration = Duration.between(dateFrom, dateTo);
-        long durationInMins = duration.toMinutes();
-
+        long durationInMins = Duration.between(dateFrom, dateTo).toMinutes();
         int pay60 = 0;
         int pay45 = 0;
         int pay30 = 0;
 
         while (durationInMins > 0) {
-            if (durationInMins >= INTERVAL_60) {
+            if (durationInMins % INTERVAL_60 == 0 ||
+                    (durationInMins / INTERVAL_60 > 0 && (durationInMins % INTERVAL_60 == INTERVAL_45 || durationInMins % INTERVAL_60 == INTERVAL_30))) {
                 pay60++;
                 durationInMins -= INTERVAL_60;
-            } else if (durationInMins >= INTERVAL_45) {
+            } else if (durationInMins % INTERVAL_45  == 0 ||
+                    (durationInMins / INTERVAL_45  > 0 && durationInMins % INTERVAL_45 == INTERVAL_30)) {
                 pay45++;
                 durationInMins -= INTERVAL_45;
-            } else if (durationInMins >= INTERVAL_30) {
+            } else if (durationInMins % INTERVAL_30 == 0) {
                 pay30++;
                 durationInMins -= INTERVAL_30;
+            } else {
+                throw new RequestException("Cannot complete booking as time interval is invalid.",
+                        ErrorCode.INVALID_BOOKING_REQUEST);
             }
         }
 
@@ -50,10 +54,8 @@ public class PriceCalculator {
         BigDecimal costFor45Minutes = danceClass.getPricePer45().multiply(BigDecimal.valueOf(pay45));
         BigDecimal costFor30Minutes = danceClass.getPricePer30().multiply(BigDecimal.valueOf(pay30));
 
-        BigDecimal totalCost = costFor60Minutes.add(costFor45Minutes).add(costFor30Minutes);
+        // log: System.out.println("Total cost: £" + totalCost);
 
-        System.out.println("Total cost: £" + totalCost);
-
-        return totalCost;
+        return costFor60Minutes.add(costFor45Minutes).add(costFor30Minutes);
     }
 }
