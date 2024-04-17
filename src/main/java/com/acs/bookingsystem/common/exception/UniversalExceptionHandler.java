@@ -22,7 +22,7 @@ public class UniversalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    //This will be fed back to user, so error needs to be ready
+    //This will be fed back to user, so error string needs to be ready
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<List<ErrorModel>> handleFieldValidation(MethodArgumentNotValidException maEx){
         List<ErrorModel> errors = maEx.getBindingResult()
