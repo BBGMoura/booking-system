@@ -1,5 +1,6 @@
 package com.acs.bookingsystem.common.exception;
 
+import com.acs.bookingsystem.booking.exception.DanceClassNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -33,5 +34,14 @@ public class UniversalExceptionHandler {
                                                                         Arrays.stream(fieldError.getCodes()).findFirst().get()))
                                       .toList();
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DanceClassNotFoundException.class)
+    public ResponseEntity<ErrorModel> handleDanceClassNotFound(DanceClassNotFoundException dEx){
+        ErrorModel error = new ErrorModel(new Date(),
+                                            HttpStatus.NOT_FOUND.value(),
+                                            dEx.getMessage(),
+                                            dEx.getError().getDescription());
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 }
