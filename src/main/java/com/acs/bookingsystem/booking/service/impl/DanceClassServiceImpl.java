@@ -23,7 +23,8 @@ public class DanceClassServiceImpl implements DanceClassService {
 
     @Override
     public DanceClassDTO createDanceClass(DanceClassRequest danceClassRequest) {
-        deactivateDanceClassType(danceClassRequest.getClassType());
+        Optional<DanceClass> optionalClass = danceClassRepository.findByActiveIsTrueAndClassType(danceClassRequest.getClassType());
+        optionalClass.ifPresent(this::deactivateDanceClassType);
 
         DanceClass danceClass = new DanceClass(danceClassRequest.getClassType(),
                                                 true,
@@ -50,7 +51,7 @@ public class DanceClassServiceImpl implements DanceClassService {
 
     @Override
     public void deactivateDanceClass(ClassType classType) {
-        deactivateDanceClassType(classType);
+        deactivateDanceClassType(getActiveDanceClassByType(classType));
     }
 
     private DanceClass getActiveDanceClassByType(ClassType classType) {
@@ -58,12 +59,8 @@ public class DanceClassServiceImpl implements DanceClassService {
                                    .orElseThrow(() -> new DanceClassNotFoundException(String.format("The dance class %s has not been recognised. Please contact support.", classType), ErrorCode.INVALID_BOOKING_REQUEST));
     }
 
-    private void deactivateDanceClassType(ClassType classType) {
-        Optional<DanceClass> optionalClass = danceClassRepository.findByActiveIsTrueAndClassType(classType);
-        if (optionalClass.isPresent()) {
-            DanceClass currentClass = optionalClass.get();
-            currentClass.setActive(false);
-            danceClassRepository.save(currentClass);
-        }
+    private void deactivateDanceClassType(DanceClass danceClass) {
+            danceClass.setActive(false);
+            danceClassRepository.save(danceClass);
     }
 }
