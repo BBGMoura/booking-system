@@ -19,7 +19,6 @@ import com.acs.bookingsystem.user.enums.Permission;
 import com.acs.bookingsystem.user.mapper.UserMapper;
 import com.acs.bookingsystem.user.service.UserService;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
