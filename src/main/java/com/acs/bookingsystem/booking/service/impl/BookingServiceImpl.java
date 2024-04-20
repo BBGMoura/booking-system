@@ -151,5 +151,4 @@ public class BookingServiceImpl implements BookingService {
         DanceClassDTO danceClassDTO = danceClassService.getDanceClassByActiveClassType(classType);
         return danceClassMapper.mapDtoToDanceClass(danceClassDTO);
     }
-
 }
