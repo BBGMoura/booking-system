@@ -70,7 +70,7 @@ class DanceClassServiceImplTest {
 
         // Then
         verify(danceClassRepository, times(1)).findByActiveIsTrueAndClassType(ClassType.GROUP);
-        verify(danceClassRepository, times(1)).save(any(DanceClass.class));
+        verify(danceClassRepository, times(2)).save(any(DanceClass.class));
         verify(danceClassMapper, times(1)).mapDanceClassToDTO(newDanceClass);
         assertFalse(existingDanceClass.isActive());
         assertEquals(expectedDto, actualDto);
