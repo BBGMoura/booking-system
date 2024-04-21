@@ -1,10 +1,11 @@
 package com.acs.bookingsystem.user.controller;
 
 import com.acs.bookingsystem.user.dto.UserDTO;
+import com.acs.bookingsystem.user.dto.UserRegistrationRequest;
+import com.acs.bookingsystem.user.dto.UserUpdateRequest;
 import com.acs.bookingsystem.user.enums.Permission;
-import com.acs.bookingsystem.common.exception.ErrorCode;
-import com.acs.bookingsystem.common.exception.RequestException;
 import com.acs.bookingsystem.user.service.impl.UserServiceImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -12,46 +13,81 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class)
 class UserControllerTest {
     @MockBean
     UserServiceImpl userService;
-
     @Autowired
     MockMvc mockMvc;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
-    void testFindByID() throws Exception {
-        UserDTO userDTO = new UserDTO(1,
-                                      "Joe",
-                                      "Malone",
-                                      "joem@gmail.com",
-                                      "01234567891",
-                                      Permission.USER);
-        int userId = 1;
+    void registerUser_ShouldReturnCreatedUser() throws Exception {
+        UserRegistrationRequest request = createUserRegistrationRequest();
+        UserDTO responseDto = createUserDTO();
 
-        when(userService.getUserById(userId)).thenReturn(userDTO);
+        given(userService.registerUser(any(UserRegistrationRequest.class))).willReturn(responseDto);
 
-        mockMvc.perform(get("/user/1"))
-               .andExpect(status().isOk())
-               .andExpect(jsonPath("$.id").value(1))
-               .andExpect(jsonPath("$.firstName").value("Joe"));
+        mockMvc.perform(post("/user/register")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+               .andExpect(status().isCreated())
+               .andExpect(content().json(objectMapper.writeValueAsString(responseDto)));
     }
 
     @Test
-    void testDoesntFindByID() throws Exception {
-        when(userService.getUserById(anyInt())).thenThrow(new RequestException("Could not find user with ID", ErrorCode.INVALID_ID));
+    void getUserById_ShouldReturnUser() throws Exception {
+        UserDTO responseDto = createUserDTO();
 
-        mockMvc.perform(get("/user/123")
-                                              .contentType(MediaType.APPLICATION_JSON))
-               .andExpect(status().isBadRequest())
-               .andExpect(jsonPath("$.error").value("ID is Invalid"))
-               .andExpect(jsonPath("$.message").value("Could not find user with ID"));
+        given(userService.getUserById(1)).willReturn(responseDto);
+
+        mockMvc.perform(get("/user/{id}", 1))
+               .andExpect(status().isOk())
+               .andExpect(content().json(objectMapper.writeValueAsString(responseDto)));
+    }
+
+    @Test
+    void updateUser_ShouldReturnUpdatedUser() throws Exception {
+        UserUpdateRequest request = createUserUpdateRequest();
+        UserDTO responseDto = createUserDTO();  // Assuming ID does not change
+
+        given(userService.updateUser(eq(1), any(UserUpdateRequest.class))).willReturn(responseDto);
+
+        mockMvc.perform(put("/user/update/{id}", 1)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+               .andExpect(status().isOk())
+               .andExpect(content().json(objectMapper.writeValueAsString(responseDto)));
+    }
+
+    @Test
+    void deleteProperty_ShouldReturnNoContent() throws Exception {
+        doNothing().when(userService).deleteUserById(1);
+
+        mockMvc.perform(delete("/user/delete/{id}", 1))
+               .andExpect(status().isNoContent());
+    }
+
+
+
+    private UserRegistrationRequest createUserRegistrationRequest() {
+        return new UserRegistrationRequest("John", "Doe", "john.doe@example.com", "01234567890");
+    }
+
+    private UserUpdateRequest createUserUpdateRequest() {
+        return new UserUpdateRequest("Jane", "Doe", "jane.doe@example.com", "09876543211");
+    }
+
+    private UserDTO createUserDTO() {
+        return new UserDTO(1, "John", "Doe", "john.doe@example.com", "01234567890", Permission.USER);
     }
 }
