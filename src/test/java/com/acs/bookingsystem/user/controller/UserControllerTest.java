@@ -1,8 +1,8 @@
 package com.acs.bookingsystem.user.controller;
 
 import com.acs.bookingsystem.user.dto.UserDTO;
-import com.acs.bookingsystem.user.dto.UserRegistrationRequest;
-import com.acs.bookingsystem.user.dto.UserUpdateRequest;
+import com.acs.bookingsystem.user.request.UserRegistrationRequest;
+import com.acs.bookingsystem.user.request.UserUpdateRequest;
 import com.acs.bookingsystem.user.enums.Permission;
 import com.acs.bookingsystem.user.service.impl.UserServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;

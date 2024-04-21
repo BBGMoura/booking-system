@@ -1,4 +1,4 @@
-package com.acs.bookingsystem.user.dto;
+package com.acs.bookingsystem.user.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

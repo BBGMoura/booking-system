@@ -1,8 +1,8 @@
 package com.acs.bookingsystem.user.service.impl;
 
 import com.acs.bookingsystem.user.dto.UserDTO;
-import com.acs.bookingsystem.user.dto.UserRegistrationRequest;
-import com.acs.bookingsystem.user.dto.UserUpdateRequest;
+import com.acs.bookingsystem.user.request.UserRegistrationRequest;
+import com.acs.bookingsystem.user.request.UserUpdateRequest;
 import com.acs.bookingsystem.user.entities.User;
 import com.acs.bookingsystem.user.enums.Permission;
 import com.acs.bookingsystem.common.exception.ErrorCode;
@@ -34,20 +34,20 @@ public class UserServiceImpl implements UserService {
         return userMapper.mapUserToDTO(findUserById(id));
     }
 
-    public UserDTO updateUser(int userId, UserUpdateRequest userUpdateRequest){
+    public UserDTO updateUser(int userId, UserUpdateRequest userUpdateRequest) {
         User userToUpdate = findUserById(userId);
 
-        if (userUpdateRequest.getEmail() != null) {
+        if (userUpdateRequest.getEmail() != null && !userUpdateRequest.getEmail().trim().isEmpty()) {
             validateEmail(userUpdateRequest.getEmail());
             userToUpdate.setEmail(userUpdateRequest.getEmail());
         }
-        if (userUpdateRequest.getFirstName() != null) {
+        if (userUpdateRequest.getFirstName() != null && !userUpdateRequest.getFirstName().trim().isEmpty()) {
             userToUpdate.setFirstName(userUpdateRequest.getFirstName());
         }
-        if (userUpdateRequest.getLastName() != null) {
+        if (userUpdateRequest.getLastName() != null && !userUpdateRequest.getLastName().trim().isEmpty()) {
             userToUpdate.setLastName(userUpdateRequest.getLastName());
         }
-        if (userUpdateRequest.getPhoneNumber() != null) {
+        if (userUpdateRequest.getPhoneNumber() != null && !userUpdateRequest.getPhoneNumber().trim().isEmpty()) {
             userToUpdate.setPhoneNumber(userUpdateRequest.getPhoneNumber());
         }
 
