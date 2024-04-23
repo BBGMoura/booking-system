@@ -20,6 +20,6 @@ public class UserRegistrationRequest {
     @Pattern(regexp="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}", message="Invalid email format")
     private String email;
     @NotBlank
-    @Pattern(regexp = "\\d{11}", message = "Invalid phone number format (ex. 0711223344556)")
+    @Pattern(regexp = "^0\\d{8,10}$", message = "Invalid phone number format (ex. 07112233445)")
     private String phoneNumber;
 }
