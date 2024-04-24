@@ -7,8 +7,11 @@ import com.acs.bookingsystem.booking.enums.Room;
 import com.acs.bookingsystem.user.enums.Permission;
 import com.acs.bookingsystem.user.entities.User;
 import com.acs.bookingsystem.user.repository.UserRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.math.BigDecimal;
@@ -21,6 +24,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
+@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 class BookingRepositoryTest {
     @Autowired
     private BookingRepository bookingRepository;
@@ -28,6 +32,13 @@ class BookingRepositoryTest {
     UserRepository userRepository;
     @Autowired
     DanceClassRepository danceClassRepository;
+
+    @AfterEach
+    public void destroy() {
+        userRepository.deleteAll();
+        danceClassRepository.deleteAll();
+        bookingRepository.deleteAll();
+    }
 
     @Test
     void createABooking() {
@@ -121,25 +132,21 @@ class BookingRepositoryTest {
     }
 
     private Booking createTestBooking() {
-        User user = new User(1,
-                             "May",
+        User user = new User("May",
                              "Jones",
                              "mayjones@gmail.com",
                              "01234617281",
-                             Permission.USER,
-                             null);
+                             Permission.USER);
         userRepository.save(user);
 
-        DanceClass danceClass = new DanceClass(1,
-                                               ClassType.GROUP,
+        DanceClass danceClass = new DanceClass(ClassType.GROUP,
                                                true,
                                                BigDecimal.ONE,
                                                BigDecimal.ONE,
                                                BigDecimal.ONE);
         danceClassRepository.save(danceClass);
 
-        return new Booking(1,
-                           user,
+        return new Booking(user,
                            Room.ROOM1,
                            danceClass,
                            true,
@@ -149,25 +156,21 @@ class BookingRepositoryTest {
     }
 
     private Booking createAnotherTestBooking() {
-        User user = new User(2,
-                             "May",
+        User user = new User("May",
                              "Jones",
                              "mayjones2@gmail.com",
                              "01234617281",
-                             Permission.USER,
-                             null);
+                             Permission.USER);
         userRepository.save(user);
 
-        DanceClass danceClass = new DanceClass(1,
-                                               ClassType.GROUP,
+        DanceClass danceClass = new DanceClass(ClassType.GROUP,
                                                true,
                                                BigDecimal.ONE,
                                                BigDecimal.ONE,
                                                BigDecimal.ONE);
         danceClassRepository.save(danceClass);
 
-        return new Booking(2,
-                           user,
+        return new Booking(user,
                            Room.ROOM1,
                            danceClass,
                            true,
