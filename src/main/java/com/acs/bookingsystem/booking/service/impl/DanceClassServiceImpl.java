@@ -9,9 +9,11 @@ import com.acs.bookingsystem.booking.request.DanceClassRequest;
 import com.acs.bookingsystem.booking.service.DanceClassService;
 import com.acs.bookingsystem.booking.repository.DanceClassRepository;
 import com.acs.bookingsystem.common.exception.ErrorCode;
+import com.acs.bookingsystem.common.exception.RequestException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,10 +25,12 @@ public class DanceClassServiceImpl implements DanceClassService {
 
     @Override
     public DanceClassDTO createDanceClass(DanceClassRequest danceClassRequest) {
-        Optional<DanceClass> optionalClass = danceClassRepository.findByActiveIsTrueAndClassType(danceClassRequest.getClassType());
+        final Optional<DanceClass> optionalClass = danceClassRepository.findByActiveIsTrueAndClassType(danceClassRequest.getClassType());
         optionalClass.ifPresent(this::deactivateDanceClassType);
 
-        DanceClass danceClass = new DanceClass(danceClassRequest.getClassType(),
+        validatePrices(danceClassRequest);
+
+        final DanceClass danceClass = new DanceClass(danceClassRequest.getClassType(),
                                                 true,
                                                 danceClassRequest.getPricePer60(),
                                                 danceClassRequest.getPricePer45(),
@@ -56,11 +60,25 @@ public class DanceClassServiceImpl implements DanceClassService {
 
     private DanceClass getActiveDanceClassByType(ClassType classType) {
         return danceClassRepository.findByActiveIsTrueAndClassType(classType)
-                                   .orElseThrow(() -> new DanceClassNotFoundException(String.format("The dance class %s has not been recognised. Please contact support.", classType), ErrorCode.INVALID_BOOKING_REQUEST));
+                                   .orElseThrow(() -> new DanceClassNotFoundException(String.format("The dance class %s has not been recognised. Please contact support.", classType), ErrorCode.INVALID_DANCE_CLASS_REQUEST));
     }
 
     private void deactivateDanceClassType(DanceClass danceClass) {
             danceClass.setActive(false);
             danceClassRepository.save(danceClass);
+    }
+
+    private void validatePrices(DanceClassRequest danceClassRequest){
+        final boolean allZero = danceClassRequest.getPricePer60().compareTo(BigDecimal.ZERO) == 0 &&
+                                danceClassRequest.getPricePer45().compareTo(BigDecimal.ZERO) == 0 &&
+                                danceClassRequest.getPricePer30().compareTo(BigDecimal.ZERO) == 0;
+
+        final boolean allGreaterThanZero = danceClassRequest.getPricePer60().compareTo(BigDecimal.ZERO) > 0 &&
+                                           danceClassRequest.getPricePer45().compareTo(BigDecimal.ZERO) > 0 &&
+                                           danceClassRequest.getPricePer30().compareTo(BigDecimal.ZERO) > 0;
+
+        if (!allZero && !allGreaterThanZero) {
+            throw new RequestException("Prices for dance class must be all be 0 or all greater than 0.", ErrorCode.INVALID_DANCE_CLASS_REQUEST);
+        }
     }
 }

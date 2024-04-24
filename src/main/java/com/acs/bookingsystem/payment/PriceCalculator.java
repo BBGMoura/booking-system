@@ -28,12 +28,17 @@ public class PriceCalculator {
         }
 
         long durationInMins = Duration.between(dateFrom, dateTo).toMinutes();
+
+        if (durationInMins == 0) {
+            throw new RequestException("Cannot complete booking as time interval is 0 minutes.", ErrorCode.INVALID_BOOKING_REQUEST);
+        }
+
         int pay60 = 0;
         int pay45 = 0;
         int pay30 = 0;
 
         while (durationInMins > 0) {
-            if (durationInMins % INTERVAL_60 == 0 ||
+           if (durationInMins % INTERVAL_60 == 0 ||
                     (durationInMins / INTERVAL_60 > 0 && (durationInMins % INTERVAL_60 == INTERVAL_45 || durationInMins % INTERVAL_60 == INTERVAL_30))) {
                 pay60++;
                 durationInMins -= INTERVAL_60;
@@ -45,8 +50,7 @@ public class PriceCalculator {
                 pay30++;
                 durationInMins -= INTERVAL_30;
             } else {
-                throw new RequestException("Cannot complete booking as time interval is invalid.",
-                        ErrorCode.INVALID_BOOKING_REQUEST);
+                throw new RequestException("Cannot complete booking as time interval is invalid.", ErrorCode.INVALID_BOOKING_REQUEST);
             }
         }
 
