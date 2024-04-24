@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -50,15 +51,18 @@ class DanceClassServiceImplTest {
     }
 
     private static DanceClassRequest getRequest() {
-        return new DanceClassRequest(ClassType.GROUP, null, null, null);
+        return new DanceClassRequest(ClassType.GROUP,
+                                     BigDecimal.ONE,
+                                     BigDecimal.ONE,
+                                     BigDecimal.ONE);
     }
 
     @Test
     void testCreateDanceClassWithExistingActiveDanceClass() {
         // Given
         DanceClassRequest request = getRequest();
-        DanceClass existingDanceClass = new DanceClass(ClassType.GROUP, true, null, null, null);
-        DanceClass newDanceClass = new DanceClass(ClassType.GROUP, true, null, null, null);
+        DanceClass existingDanceClass = getDanceClass();
+        DanceClass newDanceClass = getDanceClass();
         DanceClassDTO expectedDto = getDanceClassDTO();
 
         when(danceClassRepository.findByActiveIsTrueAndClassType(ClassType.GROUP)).thenReturn(Optional.of(existingDanceClass));
@@ -139,10 +143,19 @@ class DanceClassServiceImplTest {
     }
 
     private static DanceClass getDanceClass() {
-        return new DanceClass(ClassType.GROUP, true, null, null, null);
+        return new DanceClass(ClassType.GROUP,
+                              true,
+                              BigDecimal.ONE,
+                              BigDecimal.ONE,
+                              BigDecimal.ONE);
     }
 
     private static DanceClassDTO getDanceClassDTO() {
-        return new DanceClassDTO(1, ClassType.GROUP, true, null,null,null);
+        return new DanceClassDTO(1,
+                                 ClassType.GROUP,
+                                 true,
+                                 BigDecimal.ONE,
+                                 BigDecimal.ONE,
+                                 BigDecimal.ONE);
     }
 }

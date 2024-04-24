@@ -21,15 +21,15 @@ class DanceClassRepositoryTest {
     void findByActiveIsTrueAndClassType() {
         //given
         DanceClass activeDanceClass = new DanceClass(ClassType.GROUP,
-                                                true,
-                                                BigDecimal.ONE,
-                                                null,
-                                                null);
+                                                     true,
+                                                     BigDecimal.ONE,
+                                                     BigDecimal.ONE,
+                                                     BigDecimal.ONE);
         DanceClass inactiveDanceClass = new DanceClass(ClassType.GROUP,
-                                                false,
-                                                null,
-                                                null,
-                                                null);
+                                                       false,
+                                                       BigDecimal.ONE,
+                                                       BigDecimal.ONE,
+                                                       BigDecimal.ONE);
         danceClassRepository.save(activeDanceClass);
         danceClassRepository.save(inactiveDanceClass);
 
@@ -37,52 +37,53 @@ class DanceClassRepositoryTest {
         Optional<DanceClass> danceClass = danceClassRepository.findByActiveIsTrueAndClassType(ClassType.GROUP);
 
         assertTrue(danceClass.isPresent());
-        assertEquals(danceClass.get().getClassType(), ClassType.GROUP);
-        assertEquals(danceClass.get().getPricePer60(), BigDecimal.ONE);
+        assertEquals(ClassType.GROUP, danceClass.get().getClassType());
+        assertEquals(BigDecimal.ONE, danceClass.get().getPricePer60());
     }
 
     @Test
     void findAllByActiveIsTrue() {
         //given
         DanceClass activeDanceClass = new DanceClass(ClassType.GROUP,
-                true,
-                BigDecimal.ONE,
-                null,
-                null);
+                                                     true,
+                                                     BigDecimal.ONE,
+                                                     BigDecimal.ONE,
+                                                     BigDecimal.ONE);
         danceClassRepository.save(activeDanceClass);
 
         activeDanceClass = new DanceClass(ClassType.PRIVATE,
-                true,
-                BigDecimal.ONE,
-                null,
-                null);
+                                          true,
+                                          BigDecimal.ONE,
+                                          BigDecimal.ONE,
+                                          BigDecimal.ONE);
         danceClassRepository.save(activeDanceClass);
 
         activeDanceClass = new DanceClass(ClassType.PRACTICE,
-                true,
-                BigDecimal.ONE,
-                null,
-                null);
+                                          true,
+                                          BigDecimal.ONE,
+                                          BigDecimal.ONE,
+                                          BigDecimal.ONE);
         danceClassRepository.save(activeDanceClass);
 
         activeDanceClass = new DanceClass(ClassType.UNAVAILABLE,
-                true,
-                BigDecimal.ONE,
-                null,
-                null);
+                                          true,
+                                          BigDecimal.ONE,
+                                          BigDecimal.ONE,
+                                          BigDecimal.ONE);
         danceClassRepository.save(activeDanceClass);
 
         DanceClass inactiveDanceClass = new DanceClass(ClassType.OTHER,
-                false,
-                BigDecimal.ONE,
-                null,
-                null);
+                                                       false,
+                                                       BigDecimal.ONE,
+                                                       BigDecimal.ONE,
+                                                       BigDecimal.ONE);
         danceClassRepository.save(inactiveDanceClass);
 
         // when
         List<DanceClass> danceClasses = danceClassRepository.findAllByActiveIsTrue();
 
         // then
-        assertEquals(4, danceClasses.size());
+        assertEquals(4,
+                     danceClasses.size());
     }
 }

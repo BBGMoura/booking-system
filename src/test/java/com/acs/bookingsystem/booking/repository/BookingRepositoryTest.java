@@ -30,7 +30,7 @@ class BookingRepositoryTest {
     DanceClassRepository danceClassRepository;
 
     @Test
-    void createABooking(){
+    void createABooking() {
         //given
         final Booking booking = createTestBooking();
 
@@ -50,7 +50,7 @@ class BookingRepositoryTest {
     }
 
     @Test
-    void findAllBookingsForRoomFromAndTo(){
+    void findAllBookingsForRoomFromAndTo() {
         //given
         final Booking booking1 = createTestBooking();
         final Booking booking2 = createAnotherTestBooking();
@@ -58,60 +58,55 @@ class BookingRepositoryTest {
         bookingRepository.save(booking2);
 
         //when
-        List<Booking> filteredBookings = bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(
-                Room.ROOM1,
-                LocalDateTime.of(2024, Month.MARCH, 30, 12, 0),
-                LocalDateTime.of(2024, Month.APRIL, 30, 13, 15));
+        List<Booking> filteredBookings = bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(Room.ROOM1,
+                                                                                                                 LocalDateTime.of(2024, Month.MARCH, 30, 12, 0),
+                                                                                                                 LocalDateTime.of(2024, Month.APRIL, 30, 13, 15));
 
         //then
         assertEquals(2, filteredBookings.size());
-        assertEquals(filteredBookings.getFirst().getBookedFrom(), LocalDateTime.of(2024, Month.MARCH,30,12,0));
-        assertEquals(filteredBookings.getLast().getBookedFrom(), LocalDateTime.of(2024, Month.MARCH,30,12,45));
+        assertEquals(filteredBookings.getFirst().getBookedFrom(),
+                     LocalDateTime.of(2024, Month.MARCH, 30, 12, 0));
+        assertEquals(filteredBookings.getLast().getBookedFrom(), LocalDateTime.of(2024, Month.MARCH, 30, 12, 45));
 
 
         //time overlaps the time range
-        List<Booking> filteredBookings2 = bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(
-                Room.ROOM1,
-                LocalDateTime.of(2024, Month.MARCH, 30, 12, 15),
-                LocalDateTime.of(2024, Month.APRIL, 30, 13, 0));
+        List<Booking> filteredBookings2 = bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(Room.ROOM1,
+                                                                                                                  LocalDateTime.of(2024, Month.MARCH, 30, 12, 15),
+                                                                                                                  LocalDateTime.of(2024, Month.APRIL, 30, 13, 0));
 
         //then
         assertEquals(2, filteredBookings2.size());
-        assertEquals(filteredBookings2.getFirst().getBookedFrom(), LocalDateTime.of(2024, Month.MARCH,30,12,0));
-        assertEquals(filteredBookings2.getLast().getBookedFrom(), LocalDateTime.of(2024, Month.MARCH,30,12,45));
+        assertEquals(filteredBookings2.getFirst().getBookedFrom(), LocalDateTime.of(2024, Month.MARCH, 30, 12, 0));
+        assertEquals(filteredBookings2.getLast().getBookedFrom(), LocalDateTime.of(2024, Month.MARCH, 30, 12, 45));
 
         // time shouldn't return any
-        List<Booking> filteredBookings3 = bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(
-                Room.ROOM1,
-                LocalDateTime.of(2024, Month.MARCH, 30, 9, 0),
-                LocalDateTime.of(2024, Month.MARCH, 30, 9, 30));
+        List<Booking> filteredBookings3 = bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(Room.ROOM1,
+                                                                                                                  LocalDateTime.of(2024, Month.MARCH, 30, 9, 0),
+                                                                                                                  LocalDateTime.of(2024, Month.MARCH, 30, 9, 30));
 
         assertEquals(0, filteredBookings3.size());
 
-        List<Booking> filteredBookings4 = bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(
-                Room.ROOM1,
-                LocalDateTime.of(2024, Month.MARCH, 30, 11, 0),
-                LocalDateTime.of(2024, Month.MARCH, 30, 12, 0));
+        List<Booking> filteredBookings4 = bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(Room.ROOM1,
+                                                                                                                  LocalDateTime.of(2024, Month.MARCH, 30, 11, 0),
+                                                                                                                  LocalDateTime.of(2024, Month.MARCH, 30, 12, 0));
 
         assertEquals(0, filteredBookings4.size());
 
-        List<Booking> filteredBookings5 = bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(
-                Room.ROOM1,
-                LocalDateTime.of(2024, Month.MARCH, 30, 12, 20),
-                LocalDateTime.of(2024, Month.MARCH, 30, 12, 50));
+        List<Booking> filteredBookings5 = bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(Room.ROOM1,
+                                                                                                                  LocalDateTime.of(2024, Month.MARCH, 30, 12, 20),
+                                                                                                                  LocalDateTime.of(2024, Month.MARCH, 30, 12, 50));
 
         assertEquals(2, filteredBookings5.size());
 
-        List<Booking> filteredBookings6 = bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(
-                Room.ROOM1,
-                LocalDateTime.of(2024, Month.MARCH, 30, 12, 20),
-                LocalDateTime.of(2024, Month.MARCH, 30, 12, 35));
+        List<Booking> filteredBookings6 = bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(Room.ROOM1,
+                                                                                                                  LocalDateTime.of(2024, Month.MARCH, 30, 12, 20),
+                                                                                                                  LocalDateTime.of(2024, Month.MARCH, 30, 12, 35));
 
         assertEquals(1, filteredBookings6.size());
     }
 
     @Test
-    void deleteABooking(){
+    void deleteABooking() {
         //given
         final Booking booking = createTestBooking();
         bookingRepository.save(booking);
@@ -125,59 +120,59 @@ class BookingRepositoryTest {
         assertTrue(deletedBooking.isEmpty());
     }
 
-    private Booking createTestBooking(){
+    private Booking createTestBooking() {
         User user = new User(1,
-                "May",
-                "Jones",
-                "mayjones@gmail.com",
-                "01234617281",
-                Permission.USER,
-                null);
+                             "May",
+                             "Jones",
+                             "mayjones@gmail.com",
+                             "01234617281",
+                             Permission.USER,
+                             null);
         userRepository.save(user);
 
         DanceClass danceClass = new DanceClass(1,
-                ClassType.GROUP,
-                true,
-                null,
-                null,
-                null);
+                                               ClassType.GROUP,
+                                               true,
+                                               BigDecimal.ONE,
+                                               BigDecimal.ONE,
+                                               BigDecimal.ONE);
         danceClassRepository.save(danceClass);
 
         return new Booking(1,
-                user,
-                Room.ROOM1,
-                danceClass,
-                true,
-                LocalDateTime.of(2024, Month.MARCH,30,12,0),
-                LocalDateTime.of(2024, Month.MARCH,30,12,30),
-                BigDecimal.TEN);
+                           user,
+                           Room.ROOM1,
+                           danceClass,
+                           true,
+                           LocalDateTime.of(2024, Month.MARCH, 30, 12, 0),
+                           LocalDateTime.of(2024, Month.MARCH, 30, 12, 30),
+                           BigDecimal.TEN);
     }
 
-    private Booking createAnotherTestBooking(){
+    private Booking createAnotherTestBooking() {
         User user = new User(2,
-                "May",
-                "Jones",
-                "mayjones2@gmail.com",
-                "01234617281",
-                Permission.USER,
-                null);
+                             "May",
+                             "Jones",
+                             "mayjones2@gmail.com",
+                             "01234617281",
+                             Permission.USER,
+                             null);
         userRepository.save(user);
 
         DanceClass danceClass = new DanceClass(1,
-                ClassType.GROUP,
-                true,
-                null,
-                null,
-                null);
+                                               ClassType.GROUP,
+                                               true,
+                                               BigDecimal.ONE,
+                                               BigDecimal.ONE,
+                                               BigDecimal.ONE);
         danceClassRepository.save(danceClass);
 
         return new Booking(2,
-                user,
-                Room.ROOM1,
-                danceClass,
-                true,
-                LocalDateTime.of(2024, Month.MARCH,30,12,45),
-                LocalDateTime.of(2024, Month.MARCH,30,13,15),
-                BigDecimal.TEN);
+                           user,
+                           Room.ROOM1,
+                           danceClass,
+                           true,
+                           LocalDateTime.of(2024, Month.MARCH, 30, 12, 45),
+                           LocalDateTime.of(2024, Month.MARCH, 30, 13, 15),
+                           BigDecimal.TEN);
     }
 }
