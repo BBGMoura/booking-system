@@ -4,9 +4,11 @@ import com.acs.bookingsystem.booking.dto.DanceClassDTO;
 import com.acs.bookingsystem.booking.enums.ClassType;
 import com.acs.bookingsystem.booking.request.DanceClassRequest;
 import com.acs.bookingsystem.booking.service.DanceClassService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,11 +17,12 @@ import java.util.List;
 @AllArgsConstructor
 @CrossOrigin(origins="localhost:8080")
 @RequestMapping("/dance-class")
+@Validated
 public class DanceClassController {
     DanceClassService danceClassService;
 
     @PostMapping()
-    public ResponseEntity<DanceClassDTO> createDanceClass(@RequestBody DanceClassRequest danceClassRequest) {
+    public ResponseEntity<DanceClassDTO> createDanceClass(@Valid @RequestBody DanceClassRequest danceClassRequest) {
         return new ResponseEntity<>(danceClassService.createDanceClass(danceClassRequest), HttpStatus.CREATED);
     }
 

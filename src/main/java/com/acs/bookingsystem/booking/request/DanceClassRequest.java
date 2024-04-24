@@ -1,7 +1,7 @@
 package com.acs.bookingsystem.booking.request;
 
 import com.acs.bookingsystem.booking.enums.ClassType;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DanceClassRequest {
-    @NotBlank
+    @NotNull
     ClassType classType;
     BigDecimal pricePer60;
     BigDecimal pricePer45;
