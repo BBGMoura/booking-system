@@ -133,7 +133,7 @@ public class BookingServiceImpl implements BookingService {
 
     private void validateTimeRange(LocalDateTime dateTime, LocalTime openingTime, LocalTime closingTime) {
         if (dateTime.toLocalTime().isBefore(openingTime) || dateTime.toLocalTime().isAfter(closingTime)) {
-            throw new RequestException("Cannot make a booking with invalid time.", ErrorCode.INVALID_BOOKING_REQUEST);
+            throw new RequestException("Cannot make a booking as booking time is not within opening times.", ErrorCode.INVALID_BOOKING_REQUEST);
         }
     }
 
