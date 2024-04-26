@@ -104,9 +104,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void validateBookingIsSameDate(LocalDateTime dateFrom, LocalDateTime dateTo) {
-        boolean sameDay = dateFrom.getDayOfYear() == dateTo.getDayOfYear();
-        boolean sameYear = dateFrom.getYear() == dateTo.getYear();
-        if (!sameYear && !sameDay) {
+        if (!dateFrom.toLocalDate().equals(dateTo.toLocalDate())) {
             throw new RequestException("Booking must start and end on the same day.", ErrorCode.INVALID_BOOKING_REQUEST);
         }
     }
