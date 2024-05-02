@@ -43,10 +43,9 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingDTO createBooking(BookingRequest bookingRequest) {
         User user = getActiveUser(bookingRequest.getUserId());
+        DanceClass danceClass = getDanceClass(bookingRequest.getClassType());
 
         validateBookingTime(bookingRequest);
-
-        DanceClass danceClass = getDanceClass(bookingRequest.getClassType());
         BigDecimal totalCost = PriceCalculator.calculateTotalPrice(bookingRequest.getDateFrom(), bookingRequest.getDateTo() , danceClass);
 
         Booking booking = new Booking(user,
