@@ -7,6 +7,7 @@ import com.acs.bookingsystem.user.request.UserUpdateRequest;
 public interface UserService {
     UserDTO registerUser(UserRegistrationRequest userRegistrationRequest);
     UserDTO getUserById(int userId);
+    UserDTO getActiveUserById(int userId);
     UserDTO updateUser(int userId, UserUpdateRequest userUpdateRequest);
-    void deleteUserById(int id);
+    void deactivateUserById(int id);
 }

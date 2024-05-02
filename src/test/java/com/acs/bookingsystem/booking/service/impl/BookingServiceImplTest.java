@@ -66,7 +66,7 @@ class BookingServiceImplTest {
         Booking booking = createBooking(user, danceClass, dateFrom, dateTo, new BigDecimal("100.00"));
         BookingDTO bookingDto = createBookingDTO(dateFrom, dateTo, new BigDecimal("100.00"));
 
-        when(userService.getUserById(1)).thenReturn(new UserDTO(1, "John", "Doe", "john.doe@example.com", "1234567890", Permission.USER));
+        when(userService.getUserById(1)).thenReturn(new UserDTO(1, "John", "Doe", "john.doe@example.com", "1234567890", true, Permission.USER));
         when(userMapper.mapDTOToUser(any(UserDTO.class))).thenReturn(user);
         when(danceClassService.getDanceClassByActiveClassType(ClassType.PRIVATE)).thenReturn(new DanceClassDTO(1, ClassType.PRIVATE, true, new BigDecimal("100.00"), BigDecimal.ZERO, BigDecimal.ZERO));
         when(danceClassMapper.mapDtoToDanceClass(any(DanceClassDTO.class))).thenReturn(danceClass);
@@ -197,7 +197,7 @@ class BookingServiceImplTest {
     }
 
     private User createUser() {
-        return new User("John", "Doe", "john.doe@example.com", "1234567890", Permission.USER);
+        return new User("John", "Doe", "john.doe@example.com", "1234567890", true, Permission.USER);
     }
 
     private DanceClass createDanceClass() {

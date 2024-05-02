@@ -12,6 +12,7 @@ public class UserMapper {
                            user.getLastName(),
                            user.getEmail(),
                            user.getPhoneNumber(),
+                           user.isActive(),
                            user.getPermission());
     }
 
@@ -21,6 +22,7 @@ public class UserMapper {
                         userDTO.lastName(),
                         userDTO.email(),
                         userDTO.phoneNumber(),
+                        userDTO.active(),
                         userDTO.permission(),
                         null);
     }

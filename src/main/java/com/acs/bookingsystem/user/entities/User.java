@@ -26,17 +26,20 @@ public class User {
     private String email;
     @Column(length=11, nullable=false)
     private String phoneNumber;
+    @Column(nullable = false)
+    private boolean active;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Permission permission;
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Account account;
 
-    public User(String firstName, String lastName, String email, String phoneNumber, Permission permission) {
+    public User(String firstName, String lastName, String email, String phoneNumber, boolean active, Permission permission) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.phoneNumber = phoneNumber;
+        this.active = active;
         this.permission = permission;
     }
 }

@@ -42,9 +42,10 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDTO createBooking(BookingRequest bookingRequest) {
+        User user = getActiveUser(bookingRequest.getUserId());
+
         validateBookingTime(bookingRequest);
 
-        User user = getUser(bookingRequest.getUserId());
         DanceClass danceClass = getDanceClass(bookingRequest.getClassType());
         BigDecimal totalCost = PriceCalculator.calculateTotalPrice(bookingRequest.getDateFrom(), bookingRequest.getDateTo() , danceClass);
 
@@ -137,11 +138,11 @@ public class BookingServiceImpl implements BookingService {
 
     private Booking findBookingById(int bookingId) {
         return bookingRepository.findById(bookingId)
-                                .orElseThrow(() -> new RequestException(String.format("Could not find booking with ID: %d", bookingId), ErrorCode.INVALID_ID));
+                                .orElseThrow(() -> new RequestException(String.format("Could not find booking with ID: %d", bookingId), ErrorCode.INVALID_BOOKING_ID));
     }
 
-    private User getUser(int id) {
-        UserDTO userDto = userService.getUserById(id);
+    private User getActiveUser(int id) {
+        UserDTO userDto = userService.getActiveUserById(id);
         return userMapper.mapDTOToUser(userDto);
     }
 

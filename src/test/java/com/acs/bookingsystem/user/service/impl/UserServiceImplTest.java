@@ -1,5 +1,7 @@
 package com.acs.bookingsystem.user.service.impl;
 
+import com.acs.bookingsystem.booking.entities.Booking;
+import com.acs.bookingsystem.booking.entities.DanceClass;
 import com.acs.bookingsystem.user.dto.UserDTO;
 import com.acs.bookingsystem.user.request.UserRegistrationRequest;
 import com.acs.bookingsystem.user.request.UserUpdateRequest;
@@ -20,6 +22,8 @@ import static org.mockito.ArgumentMatchers.any;
 import org.mockito.junit.jupiter.MockitoExtension;
 import static org.mockito.Mockito.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
@@ -115,18 +119,26 @@ class UserServiceImplTest {
     }
 
     @Test
-    void deleteUserById() {
+    void deactivateUserById() {
         //given
         int userId = 1;
         User user = createUser();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        doAnswer(invocation -> {
+            User u = invocation.getArgument(0);
+            assertFalse(u.isActive()); // Check that the user is marked as inactive
+            return null;
+        }).when(userRepository).save(any(User.class));
+
 
         //when
-        userService.deleteUserById(userId);
+        userService.deactivateUserById(userId);
+        UserDTO userRetrieved = userService.getUserById(userId);
 
         //then
-        verify(userRepository).delete(user);
+        verify(userRepository, times(1)).save(user);
+        assertFalse(user.isActive());
     }
 
     private UserRegistrationRequest createUserRegRequest() {
@@ -148,6 +160,7 @@ class UserServiceImplTest {
                         "Doe",
                         "john@example.com",
                         "1234567890",
+                        true,
                         Permission.USER);
     }
 
@@ -157,6 +170,7 @@ class UserServiceImplTest {
                            "Doe",
                            "john@example.com",
                            "1234567890",
+                           true,
                            Permission.USER);
     }
 }

@@ -86,24 +86,12 @@ class UserRepositoryTest {
         assertEquals("updated@example.com", updatedUser.get().getEmail());
     }
 
-    @Test
-    void testDeleteUser() {
-        // Given
-        User user = createTestUser();
-        userRepository.save(user);
-
-        // When
-        userRepository.delete(user);
-
-        // Then
-        assertFalse(userRepository.findByEmail("test@example.com").isPresent());
-    }
-
     private User createTestUser(){
         return new User("Monica",
                         "Lewinsky",
                         "test@example.com",
                         "07318293621",
+                        true,
                         Permission.USER);
     }
 }

@@ -136,6 +136,7 @@ class BookingRepositoryTest {
                              "Jones",
                              "mayjones@gmail.com",
                              "01234617281",
+                             true,
                              Permission.USER);
         userRepository.save(user);
 
@@ -160,6 +161,7 @@ class BookingRepositoryTest {
                              "Jones",
                              "mayjones2@gmail.com",
                              "01234617281",
+                             true,
                              Permission.USER);
         userRepository.save(user);
 

@@ -35,9 +35,9 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUser(id, userUpdateRequest));
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteProperty(@PathVariable int id) {
-        userService.deleteUserById(id);
+    @PatchMapping("/deactivate/{id}")
+    public ResponseEntity<Void> deactivateUser(@PathVariable int id) {
+        userService.deactivateUserById(id);
         return ResponseEntity.noContent().build();
     }
 

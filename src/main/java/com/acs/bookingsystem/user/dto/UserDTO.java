@@ -8,6 +8,7 @@ public record UserDTO(
          String lastName,
          String email,
          String phoneNumber,
+         boolean active,
          Permission permission
 ) {
 }

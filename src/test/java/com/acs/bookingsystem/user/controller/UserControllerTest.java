@@ -70,10 +70,10 @@ class UserControllerTest {
     }
 
     @Test
-    void deleteProperty_ShouldReturnNoContent() throws Exception {
-        doNothing().when(userService).deleteUserById(1);
+    void deactivateUser_ShouldReturnNoContent() throws Exception {
+        doNothing().when(userService).deactivateUserById(1);
 
-        mockMvc.perform(delete("/user/delete/{id}", 1))
+        mockMvc.perform(patch("/user/deactivate/{id}", 1))
                .andExpect(status().isNoContent());
     }
 
@@ -88,6 +88,6 @@ class UserControllerTest {
     }
 
     private UserDTO createUserDTO() {
-        return new UserDTO(1, "John", "Doe", "john.doe@example.com", "01234567890", Permission.USER);
+        return new UserDTO(1, "John", "Doe", "john.doe@example.com", "01234567890", true, Permission.USER);
     }
 }

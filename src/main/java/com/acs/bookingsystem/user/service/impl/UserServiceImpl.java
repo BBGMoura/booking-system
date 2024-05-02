@@ -1,5 +1,6 @@
 package com.acs.bookingsystem.user.service.impl;
 
+import com.acs.bookingsystem.common.exception.ErrorModel;
 import com.acs.bookingsystem.user.dto.UserDTO;
 import com.acs.bookingsystem.user.request.UserRegistrationRequest;
 import com.acs.bookingsystem.user.request.UserUpdateRequest;
@@ -26,12 +27,21 @@ public class UserServiceImpl implements UserService {
                                                             userRegistrationRequest.getLastName(),
                                                             userRegistrationRequest.getEmail(),
                                                             userRegistrationRequest.getPhoneNumber(),
+                                                            true,
                                                             Permission.USER));
         return userMapper.mapUserToDTO(savedUser);
     }
 
-    public UserDTO getUserById(int id){
+    public UserDTO getUserById(int id) {
         return userMapper.mapUserToDTO(findUserById(id));
+    }
+
+    public UserDTO getActiveUserById(int id) {
+        User user = findUserById(id);
+        if (!user.isActive()) {
+            throw new RequestException("User is not active with ID: "+id, ErrorCode.INACTIVE_USER);
+        }
+        return userMapper.mapUserToDTO(user);
     }
 
     public UserDTO updateUser(int userId, UserUpdateRequest userUpdateRequest) {
@@ -56,8 +66,10 @@ public class UserServiceImpl implements UserService {
         return userMapper.mapUserToDTO(updatedUser);
     }
 
-    public void deleteUserById(int id){
-        userRepository.delete(findUserById(id));
+    public void deactivateUserById(int id){
+        User user = findUserById(id);
+        user.setActive(false);
+        userRepository.save(user);
     }
 
     private void validateEmail(String email) {
@@ -69,7 +81,7 @@ public class UserServiceImpl implements UserService {
 
     private User findUserById(int id){
         return userRepository.findById(id)
-                             .orElseThrow(() -> new RequestException("Could not find user with ID "+id, ErrorCode.INVALID_ID));
+                             .orElseThrow(() -> new RequestException("Could not find user with ID "+id, ErrorCode.INVALID_USER_ID));
     }
 
 }
