@@ -137,7 +137,7 @@ public class BookingServiceImpl implements BookingService {
 
     private Booking findBookingById(int bookingId) {
         return bookingRepository.findById(bookingId)
-                                .orElseThrow(() -> new RequestException(String.format("Could not find booking with ID: %d", bookingId), ErrorCode.INVALID_BOOKING_ID));
+                                .orElseThrow(() -> new RequestException("Could not find booking with ID "+bookingId, ErrorCode.INVALID_BOOKING_ID));
     }
 
     private User getActiveUser(int id) {

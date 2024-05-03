@@ -25,7 +25,7 @@ public class UniversalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    //This will be fed back to user, so error string needs to be ready
+    //This will be fed back to user, so error message string needs to be ready
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<List<ErrorModel>> handleFieldValidation(MethodArgumentNotValidException maEx){
         List<ErrorModel> errors = maEx.getBindingResult()
@@ -34,7 +34,7 @@ public class UniversalExceptionHandler {
                                       .map(fieldError -> new ErrorModel(new Date(),
                                                                         HttpStatus.BAD_REQUEST.value(),
                                                                         fieldError.getDefaultMessage(),
-                                                                        Arrays.stream(fieldError.getCodes()).findFirst().get()))
+                                                                        fieldError.getField()))
                                       .toList();
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
@@ -56,6 +56,7 @@ public class UniversalExceptionHandler {
                                                getErrorMessage(ex.getCause()),
                                                mostSpecificCause.getClass().getName());
 
+        //debug.error
         System.out.println("JSON parse error: " + mostSpecificCause.getMessage());
 
         return new ResponseEntity<>(errorModel, HttpStatus.BAD_REQUEST);

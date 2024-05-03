@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -25,8 +24,8 @@ public class DanceClassServiceImpl implements DanceClassService {
 
     @Override
     public DanceClassDTO createDanceClass(DanceClassRequest danceClassRequest) {
-        final Optional<DanceClass> optionalClass = danceClassRepository.findByActiveIsTrueAndClassType(danceClassRequest.getClassType());
-        optionalClass.ifPresent(this::deactivateDanceClassType);
+        danceClassRepository.findByActiveIsTrueAndClassType(danceClassRequest.getClassType())
+                            .ifPresent(this::deactivateDanceClassType);
 
         validatePrices(danceClassRequest);
 
@@ -60,7 +59,7 @@ public class DanceClassServiceImpl implements DanceClassService {
 
     private DanceClass getActiveDanceClassByType(ClassType classType) {
         return danceClassRepository.findByActiveIsTrueAndClassType(classType)
-                                   .orElseThrow(() -> new DanceClassNotFoundException(String.format("The dance class %s has not been recognised. Please contact support.", classType), ErrorCode.INVALID_DANCE_CLASS_REQUEST));
+                                   .orElseThrow(() -> new DanceClassNotFoundException("The dance class"+classType+"has not been recognised. Please contact support.", ErrorCode.INVALID_DANCE_CLASS_REQUEST));
     }
 
     private void deactivateDanceClassType(DanceClass danceClass) {
