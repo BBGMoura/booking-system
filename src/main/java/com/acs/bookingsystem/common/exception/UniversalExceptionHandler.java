@@ -20,8 +20,8 @@ public class UniversalExceptionHandler {
     public ResponseEntity<ErrorModel> handleUserRequestException(RequestException uEx){
         ErrorModel error = new ErrorModel(new Date(),
                                           HttpStatus.BAD_REQUEST.value(),
-                                          uEx.getError().getDescription(),
-                                          uEx.getMessage());
+                                          uEx.getMessage(),
+                                          uEx.getError().toString());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 

@@ -1,3 +1,4 @@
+
 package com.acs.bookingsystem.booking.entities;
 
 import com.acs.bookingsystem.booking.enums.Room;

@@ -88,9 +88,16 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void validateBookingTime(BookingRequest bookingRequest){
+        validateBookingStartsBeforeEnds(bookingRequest.getDateFrom(), bookingRequest.getDateTo());
         validateBookingDoesNotOverlapActiveExistingBookings(bookingRequest);
         validateBookingIsSameDate(bookingRequest.getDateFrom(), bookingRequest.getDateTo());
         validateBookingIsWithinOpeningTime(bookingRequest.getDateFrom(), bookingRequest.getDateTo());
+    }
+
+    private void validateBookingStartsBeforeEnds(LocalDateTime dateFrom, LocalDateTime dateTo) {
+        if (dateFrom.isAfter(dateTo)) {
+            throw new RequestException("Booking start time is after end time.", ErrorCode.INVALID_BOOKING_REQUEST);
+        }
     }
 
     private void validateBookingDoesNotOverlapActiveExistingBookings(BookingRequest bookingRequest) {

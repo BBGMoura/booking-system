@@ -1,6 +1,5 @@
 package com.acs.bookingsystem.user.service.impl;
 
-import com.acs.bookingsystem.common.exception.ErrorModel;
 import com.acs.bookingsystem.user.dto.UserDTO;
 import com.acs.bookingsystem.user.request.UserRegistrationRequest;
 import com.acs.bookingsystem.user.request.UserUpdateRequest;
