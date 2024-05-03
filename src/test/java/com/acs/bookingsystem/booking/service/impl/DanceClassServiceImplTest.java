@@ -3,7 +3,7 @@ package com.acs.bookingsystem.booking.service.impl;
 import com.acs.bookingsystem.booking.dto.DanceClassDTO;
 import com.acs.bookingsystem.booking.entities.DanceClass;
 import com.acs.bookingsystem.booking.enums.ClassType;
-import com.acs.bookingsystem.booking.exception.DanceClassNotFoundException;
+import com.acs.bookingsystem.booking.exception.NotFoundException;
 import com.acs.bookingsystem.booking.mapper.DanceClassMapper;
 import com.acs.bookingsystem.booking.repository.DanceClassRepository;
 import com.acs.bookingsystem.booking.request.DanceClassRequest;
@@ -137,7 +137,7 @@ class DanceClassServiceImplTest {
         when(danceClassRepository.findByActiveIsTrueAndClassType(ClassType.GROUP)).thenReturn(Optional.empty());
 
         // When/Then
-        assertThrows(DanceClassNotFoundException.class, () -> danceClassService.deactivateDanceClass(ClassType.GROUP));
+        assertThrows(NotFoundException.class, () -> danceClassService.deactivateDanceClass(ClassType.GROUP));
         verify(danceClassRepository, times(1)).findByActiveIsTrueAndClassType(ClassType.GROUP);
         verify(danceClassRepository, never()).save(any(DanceClass.class));
     }

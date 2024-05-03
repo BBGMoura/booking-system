@@ -2,6 +2,7 @@ package com.acs.bookingsystem.booking.service.impl;
 
 import com.acs.bookingsystem.booking.config.ScheduleConfig;
 import com.acs.bookingsystem.booking.dto.BookingDTO;
+import com.acs.bookingsystem.booking.exception.NotFoundException;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.booking.dto.DanceClassDTO;
 import com.acs.bookingsystem.booking.entities.Booking;
@@ -144,7 +145,7 @@ public class BookingServiceImpl implements BookingService {
 
     private Booking findBookingById(int bookingId) {
         return bookingRepository.findById(bookingId)
-                                .orElseThrow(() -> new RequestException("Could not find booking with ID "+bookingId, ErrorCode.INVALID_BOOKING_ID));
+                                .orElseThrow(() -> new NotFoundException("Could not find booking with ID "+bookingId, ErrorCode.INVALID_BOOKING_ID));
     }
 
     private User getActiveUser(int id) {

@@ -1,5 +1,6 @@
 package com.acs.bookingsystem.user.service.impl;
 
+import com.acs.bookingsystem.booking.exception.NotFoundException;
 import com.acs.bookingsystem.user.dto.UserDTO;
 import com.acs.bookingsystem.user.request.UserRegistrationRequest;
 import com.acs.bookingsystem.user.request.UserUpdateRequest;
@@ -38,7 +39,8 @@ public class UserServiceImpl implements UserService {
     public UserDTO getActiveUserById(int id) {
         User user = findUserById(id);
         if (!user.isActive()) {
-            throw new RequestException("User is not active with ID: "+id, ErrorCode.INACTIVE_USER);
+            //add debug log with user id
+            throw new RequestException("User is not active.", ErrorCode.INACTIVE_USER);
         }
         return userMapper.mapUserToDTO(user);
     }
@@ -80,7 +82,8 @@ public class UserServiceImpl implements UserService {
 
     private User findUserById(int id){
         return userRepository.findById(id)
-                             .orElseThrow(() -> new RequestException("Could not find user with ID "+id, ErrorCode.INVALID_USER_ID));
+                             //TODO: add debug log with user id
+                             .orElseThrow(() -> new NotFoundException("Could not find user.", ErrorCode.INVALID_USER_ID));
     }
 
 }

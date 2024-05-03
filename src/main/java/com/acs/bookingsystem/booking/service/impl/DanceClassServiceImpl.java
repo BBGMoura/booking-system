@@ -3,7 +3,7 @@ package com.acs.bookingsystem.booking.service.impl;
 import com.acs.bookingsystem.booking.dto.DanceClassDTO;
 import com.acs.bookingsystem.booking.entities.DanceClass;
 import com.acs.bookingsystem.booking.enums.ClassType;
-import com.acs.bookingsystem.booking.exception.DanceClassNotFoundException;
+import com.acs.bookingsystem.booking.exception.NotFoundException;
 import com.acs.bookingsystem.booking.mapper.DanceClassMapper;
 import com.acs.bookingsystem.booking.request.DanceClassRequest;
 import com.acs.bookingsystem.booking.service.DanceClassService;
@@ -59,7 +59,7 @@ public class DanceClassServiceImpl implements DanceClassService {
 
     private DanceClass getActiveDanceClassByType(ClassType classType) {
         return danceClassRepository.findByActiveIsTrueAndClassType(classType)
-                                   .orElseThrow(() -> new DanceClassNotFoundException("The dance class"+classType+"has not been recognised. Please contact support.", ErrorCode.INVALID_DANCE_CLASS_REQUEST));
+                                   .orElseThrow(() -> new NotFoundException("The dance class "+classType+" has not been recognised. Please contact support.", ErrorCode.INVALID_DANCE_CLASS_REQUEST));
     }
 
     private void deactivateDanceClassType(DanceClass danceClass) {

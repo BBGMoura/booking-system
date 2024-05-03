@@ -1,6 +1,6 @@
 package com.acs.bookingsystem.common.exception;
 
-import com.acs.bookingsystem.booking.exception.DanceClassNotFoundException;
+import com.acs.bookingsystem.booking.exception.NotFoundException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,7 +8,6 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.context.request.WebRequest;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -39,12 +38,12 @@ public class UniversalExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(DanceClassNotFoundException.class)
-    public ResponseEntity<ErrorModel> handleDanceClassNotFound(DanceClassNotFoundException dEx){
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorModel> handleNotFound(NotFoundException nfEx){
         ErrorModel error = new ErrorModel(new Date(),
                                             HttpStatus.NOT_FOUND.value(),
-                                            dEx.getMessage(),
-                                            dEx.getError().getDescription());
+                                            nfEx.getMessage(),
+                                            nfEx.getError().toString());
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
@@ -63,10 +62,10 @@ public class UniversalExceptionHandler {
     }
 
     private static String getErrorMessage(Throwable ex) {
-        if (ex instanceof InvalidFormatException ife && ife.getTargetType().isEnum()) {
+        if (ex instanceof InvalidFormatException ifEx && ifEx.getTargetType().isEnum()) {
             return String.format("%s is not a valid class type. Must be one of : %s",
-                                 ife.getValue(),
-                                 Arrays.toString(ife.getTargetType().getEnumConstants()));
+                                 ifEx.getValue(),
+                                 Arrays.toString(ifEx.getTargetType().getEnumConstants()));
         }
         return ErrorCode.INTERNAL_ERROR.getDescription();
     }

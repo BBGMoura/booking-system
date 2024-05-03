@@ -6,15 +6,15 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class DanceClassNotFoundException extends RuntimeException {
+public class NotFoundException extends RuntimeException {
     private final ErrorCode error;
 
-    public DanceClassNotFoundException(String message, ErrorCode error) {
+    public NotFoundException(String message, ErrorCode error) {
         super(message);
         this.error = error;
     }
 
-    public DanceClassNotFoundException(String message, Throwable cause, ErrorCode error) {
+    public NotFoundException(String message, Throwable cause, ErrorCode error) {
         super(message, cause);
         this.error = error;
     }

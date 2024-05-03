@@ -1,7 +1,7 @@
 package com.acs.bookingsystem.payment;
 
 import com.acs.bookingsystem.booking.entities.DanceClass;
-import com.acs.bookingsystem.booking.exception.DanceClassNotFoundException;
+import com.acs.bookingsystem.booking.exception.NotFoundException;
 import com.acs.bookingsystem.common.exception.ErrorCode;
 import com.acs.bookingsystem.common.exception.RequestException;
 
@@ -20,7 +20,7 @@ public class PriceCalculator {
 
     public static BigDecimal calculateTotalPrice(LocalDateTime dateFrom, LocalDateTime dateTo,  DanceClass danceClass){
         if (!danceClass.isActive()) {
-            throw new DanceClassNotFoundException("Dance class type"+danceClass.getClassType()+ "is not active", ErrorCode.INVALID_BOOKING_REQUEST);
+            throw new NotFoundException("Dance class type"+danceClass.getClassType()+ "is not active", ErrorCode.INVALID_BOOKING_REQUEST);
         }
 
         if (danceClass.getPricePer30() == null || danceClass.getPricePer45() == null || danceClass.getPricePer60() == null) {
