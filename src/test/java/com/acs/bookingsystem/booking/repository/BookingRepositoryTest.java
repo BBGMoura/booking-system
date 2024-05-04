@@ -7,7 +7,6 @@ import com.acs.bookingsystem.booking.enums.Room;
 import com.acs.bookingsystem.user.entities.User;
 import com.acs.bookingsystem.user.enums.Permission;
 import com.acs.bookingsystem.user.repository.UserRepository;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -22,12 +21,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DataJpaTest
-@TestPropertySource(properties = {
-        "spring.jpa.show-sql=false",
-        "spring.jpa.properties.hibernate.format_sql=false",
-        "spring.jpa.properties.hibernate.use_sql_comments=false"
-})
+@DataJpaTest(showSql = false)
 class BookingRepositoryTest {
     @Autowired
     private BookingRepository bookingRepository;

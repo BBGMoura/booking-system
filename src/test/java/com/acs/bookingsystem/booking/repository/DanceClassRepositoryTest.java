@@ -13,12 +13,7 @@ import java.util.Optional;
 import static com.acs.bookingsystem.TestDataUtil.createDanceClass;
 import static org.junit.jupiter.api.Assertions.*;
 
-@DataJpaTest
-@TestPropertySource(properties = {
-        "spring.jpa.show-sql=false",
-        "spring.jpa.properties.hibernate.format_sql=false",
-        "spring.jpa.properties.hibernate.use_sql_comments=false"
-})
+@DataJpaTest(showSql = false)
 class DanceClassRepositoryTest {
     @Autowired
     DanceClassRepository danceClassRepository;
