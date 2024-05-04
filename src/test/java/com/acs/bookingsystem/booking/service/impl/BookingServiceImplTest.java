@@ -169,7 +169,7 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void testDeleteBookingSuccessfully() {
+    void testDeactivateBookingSuccessfully() {
         // Arrange
         User user = createUser();
         DanceClass danceClass = createDanceClass();
@@ -182,7 +182,7 @@ class BookingServiceImplTest {
         }).when(bookingRepository).save(any(Booking.class));
 
         // Act
-        bookingService.deleteBooking(1);
+        bookingService.deactivateBooking(1);
 
         // Assert
         verify(bookingRepository, times(1)).save(booking);
@@ -195,7 +195,7 @@ class BookingServiceImplTest {
         when(bookingRepository.findById(1)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(NotFoundException.class, () -> bookingService.deleteBooking(1));
+        assertThrows(NotFoundException.class, () -> bookingService.deactivateBooking(1));
     }
 
 

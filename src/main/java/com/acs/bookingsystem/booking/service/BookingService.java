@@ -13,5 +13,5 @@ public interface BookingService {
     BookingDTO getBookingById(int bookingId);
     List<BookingDTO> getAllBookingsByUser(int userId);
     List<BookingDTO> getAllByRoomAndBetweenTwoDates(Room room, LocalDateTime dateFrom, LocalDateTime dateTo);
-    void deleteBooking(int bookingId);
+    void deactivateBooking(int bookingId);
 }

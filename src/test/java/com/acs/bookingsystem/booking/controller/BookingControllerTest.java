@@ -90,10 +90,10 @@ class BookingControllerTest {
     }
 
     @Test
-    void deleteBooking_ShouldReturnNoContent() throws Exception {
-        doNothing().when(bookingService).deleteBooking(1);
+    void cancelBooking_ShouldReturnNoContent() throws Exception {
+        doNothing().when(bookingService).deactivateBooking(1);
 
-        mockMvc.perform(delete("/booking/delete/{id}", 1))
+        mockMvc.perform(patch("/booking/cancel/{id}", 1))
                .andExpect(status().isNoContent());
     }
 

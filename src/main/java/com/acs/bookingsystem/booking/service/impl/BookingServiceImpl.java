@@ -83,7 +83,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public void deleteBooking(int bookingId) {
+    public void deactivateBooking(int bookingId) {
         Booking booking = findBookingById(bookingId);
         booking.setActive(false);
         bookingRepository.save(booking);

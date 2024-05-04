@@ -44,9 +44,9 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getAllByRoomAndBetweenTwoDates(room,dateFrom,dateTo));
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteBooking(@PathVariable int id) {
-        bookingService.deleteBooking(id);
+    @PatchMapping("/cancel/{id}")
+    public ResponseEntity<Void> cancelBooking(@PathVariable int id) {
+        bookingService.deactivateBooking(id);
         return ResponseEntity.noContent().build();
     }
 }
