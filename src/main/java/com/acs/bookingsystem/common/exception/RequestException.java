@@ -1,6 +1,6 @@
 package com.acs.bookingsystem.common.exception;
 
-import com.acs.bookingsystem.common.exception.ErrorCode;
+import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import lombok.Getter;
 import lombok.Setter;
 

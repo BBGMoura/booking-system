@@ -1,12 +1,12 @@
 package com.acs.bookingsystem.user.service.impl;
 
-import com.acs.bookingsystem.booking.exception.NotFoundException;
+import com.acs.bookingsystem.common.exception.NotFoundException;
 import com.acs.bookingsystem.user.dto.UserDTO;
 import com.acs.bookingsystem.user.request.UserRegistrationRequest;
 import com.acs.bookingsystem.user.request.UserUpdateRequest;
 import com.acs.bookingsystem.user.entities.User;
 import com.acs.bookingsystem.user.enums.Permission;
-import com.acs.bookingsystem.common.exception.ErrorCode;
+import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.common.exception.RequestException;
 import com.acs.bookingsystem.user.mapper.UserMapper;
 import com.acs.bookingsystem.user.repository.UserRepository;

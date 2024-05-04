@@ -1,8 +1,8 @@
 package com.acs.bookingsystem.payment;
 
 import com.acs.bookingsystem.booking.entities.DanceClass;
-import com.acs.bookingsystem.booking.exception.NotFoundException;
-import com.acs.bookingsystem.common.exception.ErrorCode;
+import com.acs.bookingsystem.common.exception.NotFoundException;
+import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.common.exception.RequestException;
 
 import java.math.BigDecimal;

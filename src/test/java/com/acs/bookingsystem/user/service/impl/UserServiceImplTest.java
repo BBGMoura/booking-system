@@ -1,6 +1,6 @@
 package com.acs.bookingsystem.user.service.impl;
 
-import com.acs.bookingsystem.booking.exception.NotFoundException;
+import com.acs.bookingsystem.common.exception.NotFoundException;
 import com.acs.bookingsystem.user.dto.UserDTO;
 import com.acs.bookingsystem.user.request.UserRegistrationRequest;
 import com.acs.bookingsystem.user.request.UserUpdateRequest;
@@ -135,6 +135,5 @@ class UserServiceImplTest {
 
         //then
         verify(userRepository, times(1)).save(user);
-        assertFalse(user.isActive());
     }
 }

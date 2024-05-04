@@ -7,7 +7,7 @@ import com.acs.bookingsystem.booking.entities.Booking;
 import com.acs.bookingsystem.booking.entities.DanceClass;
 import com.acs.bookingsystem.booking.enums.ClassType;
 import com.acs.bookingsystem.booking.enums.Room;
-import com.acs.bookingsystem.booking.exception.NotFoundException;
+import com.acs.bookingsystem.common.exception.NotFoundException;
 import com.acs.bookingsystem.booking.mapper.BookingMapper;
 import com.acs.bookingsystem.booking.mapper.DanceClassMapper;
 import com.acs.bookingsystem.booking.repository.BookingRepository;

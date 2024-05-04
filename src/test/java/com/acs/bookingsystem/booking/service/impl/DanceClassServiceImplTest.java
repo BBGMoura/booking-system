@@ -3,7 +3,7 @@ package com.acs.bookingsystem.booking.service.impl;
 import com.acs.bookingsystem.booking.dto.DanceClassDTO;
 import com.acs.bookingsystem.booking.entities.DanceClass;
 import com.acs.bookingsystem.booking.enums.ClassType;
-import com.acs.bookingsystem.booking.exception.NotFoundException;
+import com.acs.bookingsystem.common.exception.NotFoundException;
 import com.acs.bookingsystem.booking.mapper.DanceClassMapper;
 import com.acs.bookingsystem.booking.repository.DanceClassRepository;
 import com.acs.bookingsystem.booking.request.DanceClassRequest;

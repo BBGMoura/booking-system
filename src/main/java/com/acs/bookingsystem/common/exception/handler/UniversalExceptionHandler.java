@@ -1,6 +1,9 @@
-package com.acs.bookingsystem.common.exception;
+package com.acs.bookingsystem.common.exception.handler;
 
-import com.acs.bookingsystem.booking.exception.NotFoundException;
+import com.acs.bookingsystem.common.exception.NotFoundException;
+import com.acs.bookingsystem.common.exception.model.ErrorCode;
+import com.acs.bookingsystem.common.exception.model.ErrorModel;
+import com.acs.bookingsystem.common.exception.RequestException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

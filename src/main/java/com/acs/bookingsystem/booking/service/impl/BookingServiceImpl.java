@@ -2,7 +2,7 @@ package com.acs.bookingsystem.booking.service.impl;
 
 import com.acs.bookingsystem.booking.config.ScheduleConfig;
 import com.acs.bookingsystem.booking.dto.BookingDTO;
-import com.acs.bookingsystem.booking.exception.NotFoundException;
+import com.acs.bookingsystem.common.exception.NotFoundException;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.booking.dto.DanceClassDTO;
 import com.acs.bookingsystem.booking.entities.Booking;
@@ -14,7 +14,7 @@ import com.acs.bookingsystem.booking.mapper.DanceClassMapper;
 import com.acs.bookingsystem.booking.repository.BookingRepository;
 import com.acs.bookingsystem.booking.service.BookingService;
 import com.acs.bookingsystem.booking.service.DanceClassService;
-import com.acs.bookingsystem.common.exception.ErrorCode;
+import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.common.exception.RequestException;
 import com.acs.bookingsystem.payment.PriceCalculator;
 import com.acs.bookingsystem.user.dto.UserDTO;

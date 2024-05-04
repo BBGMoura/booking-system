@@ -1,4 +1,4 @@
-package com.acs.bookingsystem.common.exception;
+package com.acs.bookingsystem.common.exception.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
