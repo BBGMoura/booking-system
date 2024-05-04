@@ -117,6 +117,17 @@ class BookingServiceImplTest {
     }
 
     @Test
+    void testCreateBookingEndsBeforeStarts_throwsException() {
+        // Arrange
+        LocalDateTime dateFrom = LocalDateTime.of(2024, 4, 21, 12, 0); // Before opening hours
+        LocalDateTime dateTo = LocalDateTime.of(2024, 4, 21, 11, 0);
+
+        // Act & Assert
+        BookingRequest bookingRequest = new BookingRequest(1, Room.ROOM1, ClassType.PRIVATE, dateFrom, dateTo);
+        assertThrows(RequestException.class, () -> bookingService.createBooking(bookingRequest));
+    }
+
+    @Test
     void testGetBookingByIdExisting() {
         // Arrange
         LocalDateTime dateFrom = LocalDateTime.of(2024, 4, 21, 10, 0);
