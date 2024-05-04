@@ -67,6 +67,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<finalName>booking-system-image</finalName>
 	</build>
 
 </project>

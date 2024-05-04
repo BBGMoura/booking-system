@@ -27,5 +27,16 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
+
     - name: Build with Maven
       run: mvn clean install
+
+    - name: Build & Push Docker image
+      uses: mr-smithers-excellent/docker-build-push@v6
+      with:
+        image: brunamoura/booking-system-image
+        tag: latest
+        registry: docker.io
+        dockerfile: Dockerfile
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
