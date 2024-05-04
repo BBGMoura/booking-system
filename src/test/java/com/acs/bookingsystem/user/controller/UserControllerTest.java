@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 
+import static com.acs.bookingsystem.TestDataUtil.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -75,19 +76,5 @@ class UserControllerTest {
 
         mockMvc.perform(patch("/user/deactivate/{id}", 1))
                .andExpect(status().isNoContent());
-    }
-
-
-
-    private UserRegistrationRequest createUserRegistrationRequest() {
-        return new UserRegistrationRequest("John", "Doe", "john.doe@example.com", "01234567890");
-    }
-
-    private UserUpdateRequest createUserUpdateRequest() {
-        return new UserUpdateRequest("Jane", "Doe", "jane.doe@example.com", "09876543211");
-    }
-
-    private UserDTO createUserDTO() {
-        return new UserDTO(1, "John", "Doe", "john.doe@example.com", "01234567890", true, Permission.USER);
     }
 }

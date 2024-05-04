@@ -1,12 +1,10 @@
 package com.acs.bookingsystem.user.service.impl;
 
-import com.acs.bookingsystem.booking.entities.Booking;
-import com.acs.bookingsystem.booking.entities.DanceClass;
+import com.acs.bookingsystem.booking.exception.NotFoundException;
 import com.acs.bookingsystem.user.dto.UserDTO;
 import com.acs.bookingsystem.user.request.UserRegistrationRequest;
 import com.acs.bookingsystem.user.request.UserUpdateRequest;
 import com.acs.bookingsystem.user.entities.User;
-import com.acs.bookingsystem.user.enums.Permission;
 import com.acs.bookingsystem.common.exception.RequestException;
 import com.acs.bookingsystem.user.mapper.UserMapper;
 import com.acs.bookingsystem.user.repository.UserRepository;
@@ -15,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
+import static com.acs.bookingsystem.TestDataUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
@@ -22,8 +21,6 @@ import static org.mockito.ArgumentMatchers.any;
 import org.mockito.junit.jupiter.MockitoExtension;
 import static org.mockito.Mockito.*;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,7 +35,7 @@ class UserServiceImplTest {
     @Test
     void registerUser() {
         // given
-        UserRegistrationRequest request = createUserRegRequest();
+        UserRegistrationRequest request = createUserRegistrationRequest();
         User user = createUser();
         UserDTO userDTO = createUserDTO();
 
@@ -60,7 +57,7 @@ class UserServiceImplTest {
     @Test
     void doNotRegisterUserDuplicateEmail() {
         //given
-        UserRegistrationRequest request = createUserRegRequest();
+        UserRegistrationRequest request = createUserRegistrationRequest();
         User user = createUser();
 
         //when
@@ -80,7 +77,7 @@ class UserServiceImplTest {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         //then
-        assertThrows(RequestException.class, () ->  userService.getUserById(userId));
+        assertThrows(NotFoundException.class, () ->  userService.getUserById(userId));
     }
 
     @Test
@@ -139,38 +136,5 @@ class UserServiceImplTest {
         //then
         verify(userRepository, times(1)).save(user);
         assertFalse(user.isActive());
-    }
-
-    private UserRegistrationRequest createUserRegRequest() {
-        return new UserRegistrationRequest("John",
-                                           "Doe",
-                                           "john@example.com",
-                                           "1234567890");
-    }
-
-    private UserUpdateRequest createUserUpdateRequest() {
-        return new UserUpdateRequest("John",
-                                     "Doe",
-                                     "john@example.com",
-                                     "1234567890");
-    }
-
-    private User createUser() {
-        return new User("John",
-                        "Doe",
-                        "john@example.com",
-                        "1234567890",
-                        true,
-                        Permission.USER);
-    }
-
-    private UserDTO createUserDTO() {
-        return new UserDTO(1,
-                           "John",
-                           "Doe",
-                           "john@example.com",
-                           "1234567890",
-                           true,
-                           Permission.USER);
     }
 }

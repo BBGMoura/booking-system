@@ -41,6 +41,7 @@ class PriceCalculatorTest {
     private LocalDateTime getStart(){
         return LocalDateTime.of(2024, Month.NOVEMBER,12,12,0,0);
     }
+
     private DanceClass getDanceClass(){
         return new DanceClass(1, ClassType.PRIVATE,true, BigDecimal.ONE,BigDecimal.TWO,BigDecimal.TEN);
     }

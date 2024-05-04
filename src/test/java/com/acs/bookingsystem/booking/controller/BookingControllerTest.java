@@ -1,7 +1,6 @@
 package com.acs.bookingsystem.booking.controller;
 
 import com.acs.bookingsystem.booking.dto.BookingDTO;
-import com.acs.bookingsystem.booking.enums.ClassType;
 import com.acs.bookingsystem.booking.enums.Room;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.booking.service.impl.BookingServiceImpl;
@@ -14,11 +13,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.acs.bookingsystem.TestDataUtil.createBookingDTO;
+import static com.acs.bookingsystem.TestDataUtil.createBookingRequest;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
@@ -39,8 +39,8 @@ class BookingControllerTest {
 
     @Test
     void createBooking_ShouldReturnCreatedBooking() throws Exception {
-        BookingRequest request = getBookingRequest();
-        BookingDTO responseDto = getBookingDTO();
+        BookingRequest request = createBookingRequest();
+        BookingDTO responseDto = createBookingDTO();
 
         given(bookingService.createBooking(any(BookingRequest.class))).willReturn(responseDto);
 
@@ -53,7 +53,7 @@ class BookingControllerTest {
 
     @Test
     void getBookingByBookingId_ShouldReturnBooking() throws Exception {
-        BookingDTO responseDto = getBookingDTO();
+        BookingDTO responseDto = createBookingDTO();
 
         given(bookingService.getBookingById(1)).willReturn(responseDto);
 
@@ -64,7 +64,7 @@ class BookingControllerTest {
 
     @Test
     void getBookingsByUserId_ShouldReturnBookingsList() throws Exception {
-        BookingDTO responseDto = getBookingDTO();
+        BookingDTO responseDto = createBookingDTO();
         List<BookingDTO> bookings = Arrays.asList(responseDto, responseDto);
 
         given(bookingService.getAllBookingsByUser(1)).willReturn(bookings);
@@ -76,7 +76,7 @@ class BookingControllerTest {
 
     @Test
     void getBookingsByRoomAndTime_ShouldReturnBookingsList() throws Exception {
-        BookingDTO responseDto = getBookingDTO();
+        BookingDTO responseDto = createBookingDTO();
         List<BookingDTO> bookings = List.of(responseDto);
 
         when(bookingService.getAllByRoomAndBetweenTwoDates(any(Room.class), any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(bookings);
@@ -97,16 +97,6 @@ class BookingControllerTest {
                .andExpect(status().isNoContent());
     }
 
-    private BookingRequest getBookingRequest() {
-        LocalDateTime from = LocalDateTime.of(2024, 4, 20, 10, 0);
-        LocalDateTime to = LocalDateTime.of(2024, 4, 20, 12, 0);
-        return new BookingRequest(1, Room.ROOM1, ClassType.PRACTICE, from, to);
-    }
-
-    private BookingDTO getBookingDTO() {
-        LocalDateTime from = LocalDateTime.of(2024, 4, 20, 10, 0);
-        LocalDateTime to = LocalDateTime.of(2024, 4, 20, 12, 0);
-        return new BookingDTO(1, 1, Room.ROOM1, true, 1, from, to, new BigDecimal("100.00"));
-    }
+   
 
 }

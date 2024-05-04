@@ -7,6 +7,7 @@ import com.acs.bookingsystem.booking.entities.Booking;
 import com.acs.bookingsystem.booking.entities.DanceClass;
 import com.acs.bookingsystem.booking.enums.ClassType;
 import com.acs.bookingsystem.booking.enums.Room;
+import com.acs.bookingsystem.booking.exception.NotFoundException;
 import com.acs.bookingsystem.booking.mapper.BookingMapper;
 import com.acs.bookingsystem.booking.mapper.DanceClassMapper;
 import com.acs.bookingsystem.booking.repository.BookingRepository;
@@ -33,6 +34,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.acs.bookingsystem.TestDataUtil.createUser;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -141,7 +143,7 @@ class BookingServiceImplTest {
         when(bookingRepository.findById(1)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(RequestException.class, () -> bookingService.getBookingById(1));
+        assertThrows(NotFoundException.class, () -> bookingService.getBookingById(1));
     }
 
     @Test
@@ -193,12 +195,9 @@ class BookingServiceImplTest {
         when(bookingRepository.findById(1)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(RequestException.class, () -> bookingService.deleteBooking(1));
+        assertThrows(NotFoundException.class, () -> bookingService.deleteBooking(1));
     }
 
-    private User createUser() {
-        return new User("John", "Doe", "john.doe@example.com", "1234567890", true, Permission.USER);
-    }
 
     private DanceClass createDanceClass() {
         BigDecimal pricePer60 = new BigDecimal("100.00");

@@ -1,5 +1,6 @@
 package com.acs.bookingsystem.booking.controller;
 
+import com.acs.bookingsystem.TestDataUtil;
 import com.acs.bookingsystem.booking.dto.DanceClassDTO;
 import com.acs.bookingsystem.booking.enums.ClassType;
 import com.acs.bookingsystem.booking.request.DanceClassRequest;
@@ -12,9 +13,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.math.BigDecimal;
 import java.util.List;
 
+import static com.acs.bookingsystem.TestDataUtil.createDanceClassDTO;
+import static com.acs.bookingsystem.TestDataUtil.createDanceClassRequest;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
@@ -34,8 +36,8 @@ class DanceClassControllerTest {
 
     @Test
     void createDanceClass_ShouldReturnCreatedDanceClass() throws Exception {
-        DanceClassRequest request = createDanceClassRequest();
-        DanceClassDTO responseDto = createDanceClassDTO();
+        DanceClassRequest request = createDanceClassRequest(ClassType.PRACTICE);
+        DanceClassDTO responseDto = createDanceClassDTO(ClassType.PRACTICE, true);
 
         given(danceClassService.createDanceClass(any(DanceClassRequest.class))).willReturn(responseDto);
 
@@ -59,7 +61,7 @@ class DanceClassControllerTest {
 
     @Test
     void getDanceClassByActiveClassType_ShouldReturnDanceClass() throws Exception {
-        DanceClassDTO responseDto = createDanceClassDTO();
+        DanceClassDTO responseDto = createDanceClassDTO(ClassType.PRIVATE, true);
 
         given(danceClassService.getDanceClassByActiveClassType(ClassType.PRIVATE)).willReturn(responseDto);
 
@@ -74,13 +76,5 @@ class DanceClassControllerTest {
 
         mockMvc.perform(delete("/dance-class/deactivate/{classType}", ClassType.PRIVATE))
                .andExpect(status().isNoContent());
-    }
-
-    private DanceClassRequest createDanceClassRequest() {
-        return new DanceClassRequest(ClassType.PRACTICE, new BigDecimal("100.00"), new BigDecimal("75.00"), new BigDecimal("50.00"));
-    }
-
-    private DanceClassDTO createDanceClassDTO() {
-        return new DanceClassDTO(1, ClassType.PRACTICE, true, new BigDecimal("100.00"), new BigDecimal("75.00"), new BigDecimal("50.00"));
     }
 }

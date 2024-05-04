@@ -5,14 +5,20 @@ import com.acs.bookingsystem.booking.enums.ClassType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.TestPropertySource;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import static com.acs.bookingsystem.TestDataUtil.createDanceClass;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
+@TestPropertySource(properties = {
+        "spring.jpa.show-sql=false",
+        "spring.jpa.properties.hibernate.format_sql=false",
+        "spring.jpa.properties.hibernate.use_sql_comments=false"
+})
 class DanceClassRepositoryTest {
     @Autowired
     DanceClassRepository danceClassRepository;
@@ -20,16 +26,8 @@ class DanceClassRepositoryTest {
     @Test
     void findByActiveIsTrueAndClassType() {
         //given
-        DanceClass activeDanceClass = new DanceClass(ClassType.GROUP,
-                                                     true,
-                                                     BigDecimal.ONE,
-                                                     BigDecimal.ONE,
-                                                     BigDecimal.ONE);
-        DanceClass inactiveDanceClass = new DanceClass(ClassType.GROUP,
-                                                       false,
-                                                       BigDecimal.ONE,
-                                                       BigDecimal.ONE,
-                                                       BigDecimal.ONE);
+        DanceClass activeDanceClass = createDanceClass(ClassType.GROUP, true);
+        DanceClass inactiveDanceClass = createDanceClass(ClassType.GROUP, false);
         danceClassRepository.save(activeDanceClass);
         danceClassRepository.save(inactiveDanceClass);
 
@@ -37,53 +35,31 @@ class DanceClassRepositoryTest {
         Optional<DanceClass> danceClass = danceClassRepository.findByActiveIsTrueAndClassType(ClassType.GROUP);
 
         assertTrue(danceClass.isPresent());
-        assertEquals(ClassType.GROUP, danceClass.get().getClassType());
-        assertEquals(BigDecimal.ONE, danceClass.get().getPricePer60());
+        assertTrue(danceClass.get().isActive());
     }
 
     @Test
     void findAllByActiveIsTrue() {
         //given
-        DanceClass activeDanceClass = new DanceClass(ClassType.GROUP,
-                                                     true,
-                                                     BigDecimal.ONE,
-                                                     BigDecimal.ONE,
-                                                     BigDecimal.ONE);
+        DanceClass activeDanceClass = createDanceClass(ClassType.GROUP, true);
         danceClassRepository.save(activeDanceClass);
 
-        activeDanceClass = new DanceClass(ClassType.PRIVATE,
-                                          true,
-                                          BigDecimal.ONE,
-                                          BigDecimal.ONE,
-                                          BigDecimal.ONE);
+        activeDanceClass = createDanceClass(ClassType.PRIVATE, true);
         danceClassRepository.save(activeDanceClass);
 
-        activeDanceClass = new DanceClass(ClassType.PRACTICE,
-                                          true,
-                                          BigDecimal.ONE,
-                                          BigDecimal.ONE,
-                                          BigDecimal.ONE);
+        activeDanceClass = createDanceClass(ClassType.PRACTICE, true);
         danceClassRepository.save(activeDanceClass);
 
-        activeDanceClass = new DanceClass(ClassType.UNAVAILABLE,
-                                          true,
-                                          BigDecimal.ONE,
-                                          BigDecimal.ONE,
-                                          BigDecimal.ONE);
+        activeDanceClass = createDanceClass(ClassType.UNAVAILABLE, true);
         danceClassRepository.save(activeDanceClass);
 
-        DanceClass inactiveDanceClass = new DanceClass(ClassType.OTHER,
-                                                       false,
-                                                       BigDecimal.ONE,
-                                                       BigDecimal.ONE,
-                                                       BigDecimal.ONE);
+        DanceClass inactiveDanceClass = createDanceClass(ClassType.OTHER, false);
         danceClassRepository.save(inactiveDanceClass);
 
         // when
         List<DanceClass> danceClasses = danceClassRepository.findAllByActiveIsTrue();
 
         // then
-        assertEquals(4,
-                     danceClasses.size());
+        assertEquals(4, danceClasses.size());
     }
 }

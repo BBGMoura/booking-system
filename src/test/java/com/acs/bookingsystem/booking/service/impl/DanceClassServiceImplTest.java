@@ -13,11 +13,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.acs.bookingsystem.TestDataUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -31,11 +31,11 @@ class DanceClassServiceImplTest {
     private DanceClassServiceImpl danceClassService;
 
     @Test
-    void createDanceClass() {
+    void createDanceClass_resultsSuccessful() {
         //given
-        DanceClassRequest request = getRequest();
-        DanceClass danceClass = getDanceClass();
-        DanceClassDTO expectedDto = getDanceClassDTO();
+        DanceClassRequest request = createDanceClassRequest(ClassType.GROUP);
+        DanceClass danceClass = createDanceClass(ClassType.GROUP,true);
+        DanceClassDTO expectedDto = createDanceClassDTO(ClassType.GROUP,true);
 
         when(danceClassRepository.save(any(DanceClass.class))).thenReturn(danceClass);
         when(danceClassMapper.mapDanceClassToDTO(danceClass)).thenReturn(expectedDto);
@@ -50,20 +50,15 @@ class DanceClassServiceImplTest {
         verify(danceClassMapper, times(1)).mapDanceClassToDTO(danceClass);
     }
 
-    private static DanceClassRequest getRequest() {
-        return new DanceClassRequest(ClassType.GROUP,
-                                     BigDecimal.ONE,
-                                     BigDecimal.ONE,
-                                     BigDecimal.ONE);
-    }
+
 
     @Test
     void testCreateDanceClassWithExistingActiveDanceClass() {
         // Given
-        DanceClassRequest request = getRequest();
-        DanceClass existingDanceClass = getDanceClass();
-        DanceClass newDanceClass = getDanceClass();
-        DanceClassDTO expectedDto = getDanceClassDTO();
+        DanceClassRequest request = createDanceClassRequest(ClassType.GROUP);
+        DanceClass existingDanceClass = createDanceClass(ClassType.GROUP,true);
+        DanceClass newDanceClass = createDanceClass(ClassType.GROUP,true);
+        DanceClassDTO expectedDto = createDanceClassDTO(ClassType.GROUP,true);
 
         when(danceClassRepository.findByActiveIsTrueAndClassType(ClassType.GROUP)).thenReturn(Optional.of(existingDanceClass));
         when(danceClassRepository.save(any(DanceClass.class))).thenReturn(newDanceClass);
@@ -84,7 +79,7 @@ class DanceClassServiceImplTest {
     void getAllActiveDanceClassTypes() {
         // Given
         List<ClassType> expectedClassTypes = Collections.singletonList(ClassType.GROUP);
-        DanceClass danceClass = getDanceClass();
+        DanceClass danceClass = createDanceClass(ClassType.GROUP,true);
 
         when(danceClassRepository.findAllByActiveIsTrue()).thenReturn(Collections.singletonList(danceClass));
 
@@ -100,8 +95,8 @@ class DanceClassServiceImplTest {
     @Test
     void testGetDanceClassByActiveClassType() {
         // Given
-        DanceClass danceClass = getDanceClass();
-        DanceClassDTO expectedDto = getDanceClassDTO();
+        DanceClass danceClass = createDanceClass(ClassType.GROUP,true);
+        DanceClassDTO expectedDto = createDanceClassDTO(ClassType.GROUP,true);
 
         when(danceClassRepository.findByActiveIsTrueAndClassType(ClassType.GROUP)).thenReturn(Optional.of(danceClass));
         when(danceClassMapper.mapDanceClassToDTO(danceClass)).thenReturn(expectedDto);
@@ -119,7 +114,7 @@ class DanceClassServiceImplTest {
     @Test
     void testDeactivateDanceClass() {
         // Given
-        DanceClass danceClass = getDanceClass();
+        DanceClass danceClass = createDanceClass(ClassType.GROUP,true);
         when(danceClassRepository.findByActiveIsTrueAndClassType(ClassType.GROUP)).thenReturn(Optional.of(danceClass));
 
         // When
@@ -132,7 +127,8 @@ class DanceClassServiceImplTest {
     }
 
     @Test
-    void testDeactivateDanceClass_NotFound() {
+    void
+    testDeactivateDanceClass_NotFound() {
         // Given
         when(danceClassRepository.findByActiveIsTrueAndClassType(ClassType.GROUP)).thenReturn(Optional.empty());
 
@@ -142,20 +138,4 @@ class DanceClassServiceImplTest {
         verify(danceClassRepository, never()).save(any(DanceClass.class));
     }
 
-    private static DanceClass getDanceClass() {
-        return new DanceClass(ClassType.GROUP,
-                              true,
-                              BigDecimal.ONE,
-                              BigDecimal.ONE,
-                              BigDecimal.ONE);
-    }
-
-    private static DanceClassDTO getDanceClassDTO() {
-        return new DanceClassDTO(1,
-                                 ClassType.GROUP,
-                                 true,
-                                 BigDecimal.ONE,
-                                 BigDecimal.ONE,
-                                 BigDecimal.ONE);
-    }
 }

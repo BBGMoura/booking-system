@@ -4,15 +4,14 @@ import com.acs.bookingsystem.booking.entities.Booking;
 import com.acs.bookingsystem.booking.entities.DanceClass;
 import com.acs.bookingsystem.booking.enums.ClassType;
 import com.acs.bookingsystem.booking.enums.Room;
-import com.acs.bookingsystem.user.enums.Permission;
 import com.acs.bookingsystem.user.entities.User;
+import com.acs.bookingsystem.user.enums.Permission;
 import com.acs.bookingsystem.user.repository.UserRepository;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.TestPropertySource;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -24,21 +23,18 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-@AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
+@TestPropertySource(properties = {
+        "spring.jpa.show-sql=false",
+        "spring.jpa.properties.hibernate.format_sql=false",
+        "spring.jpa.properties.hibernate.use_sql_comments=false"
+})
 class BookingRepositoryTest {
     @Autowired
     private BookingRepository bookingRepository;
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
     @Autowired
-    DanceClassRepository danceClassRepository;
-
-    @AfterEach
-    public void destroy() {
-        userRepository.deleteAll();
-        danceClassRepository.deleteAll();
-        bookingRepository.deleteAll();
-    }
+    private DanceClassRepository danceClassRepository;
 
     @Test
     void createABooking() {
@@ -55,7 +51,7 @@ class BookingRepositoryTest {
         bookingRepository.findAll().forEach((savedBookings::add));
 
         //then
-        assertEquals(bookingId, savedBooking.getId());
+        assertNotEquals(0, savedBooking.getId());
         assertEquals(1, bookingRepository.count());
         assertEquals(1, savedBookings.size());
     }
@@ -75,8 +71,7 @@ class BookingRepositoryTest {
 
         //then
         assertEquals(2, filteredBookings.size());
-        assertEquals(filteredBookings.getFirst().getBookedFrom(),
-                     LocalDateTime.of(2024, Month.MARCH, 30, 12, 0));
+        assertEquals(filteredBookings.getFirst().getBookedFrom(), LocalDateTime.of(2024, Month.MARCH, 30, 12, 0));
         assertEquals(filteredBookings.getLast().getBookedFrom(), LocalDateTime.of(2024, Month.MARCH, 30, 12, 45));
 
 

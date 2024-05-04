@@ -65,6 +65,7 @@ public class BookingServiceImpl implements BookingService {
         return bookingMapper.mapBookingToDTO(findBookingById(bookingId));
     }
 
+    //TODO: implementation will be reconsidered as paging is required.
     @Override
     public List<BookingDTO> getAllBookingsByUser(int userId) {
         return bookingRepository.findAllByUserId(userId)
