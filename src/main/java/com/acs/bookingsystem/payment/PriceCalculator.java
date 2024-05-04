@@ -62,6 +62,7 @@ public class PriceCalculator {
         BigDecimal costFor30Minutes = danceClass.getPricePer30().multiply(BigDecimal.valueOf(pay30));
         BigDecimal totalCost = costFor60Minutes.add(costFor45Minutes).add(costFor30Minutes);
 
+        //TODO: improve this implementation to return an object with these values? as the logging should have the booking request id.
         LOG.debug("60 mins dance class: {} classes for price: {}. Total : {}", pay60, danceClass.getPricePer60(), costFor60Minutes);
         LOG.debug("45 mins dance class: {} classes for price: {}. Total : {}", pay45, danceClass.getPricePer45(), costFor45Minutes);
         LOG.debug("30 mins dance class: {} classes for price: {}. Total : {}", pay30, danceClass.getPricePer60(), costFor30Minutes);
