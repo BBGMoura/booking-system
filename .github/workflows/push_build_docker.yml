@@ -6,7 +6,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: CI/CD flow for booking-system
+name: Push CI/CD flow for booking-system
 
 on:
   push:
