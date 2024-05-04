@@ -22,6 +22,8 @@ import com.acs.bookingsystem.user.entities.User;
 import com.acs.bookingsystem.user.mapper.UserMapper;
 import com.acs.bookingsystem.user.service.UserService;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -33,6 +35,7 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class BookingServiceImpl implements BookingService {
+    public static final Logger LOG = LoggerFactory.getLogger(BookingServiceImpl.class);
     BookingRepository bookingRepository;
     UserService userService;
     UserMapper userMapper;
@@ -43,6 +46,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDTO createBooking(BookingRequest bookingRequest) {
+        LOG.debug("Creating booking with request: {}", bookingRequest);
+
         User user = getActiveUser(bookingRequest.getUserId());
         DanceClass danceClass = getDanceClass(bookingRequest.getClassType());
 
@@ -107,7 +112,6 @@ public class BookingServiceImpl implements BookingService {
                                                                                                    bookingRequest.getDateFrom(),
                                                                                                    bookingRequest.getDateTo());
         if (!bookings.isEmpty()) {
-            // add log: System.out.println(String.format("Cannot make booking request %s as timeslot is unavailable", bookingRequest.toString()));
             throw new RequestException("Booking timeslot is unavailable.", ErrorCode.INVALID_BOOKING_REQUEST);
         }
     }

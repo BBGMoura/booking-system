@@ -4,12 +4,15 @@ import com.acs.bookingsystem.booking.entities.DanceClass;
 import com.acs.bookingsystem.common.exception.NotFoundException;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.common.exception.RequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class PriceCalculator {
+    public static final Logger LOG = LoggerFactory.getLogger(PriceCalculator.class);
     static final long INTERVAL_60 = 60;
     static final long INTERVAL_45 = 45;
     static final long INTERVAL_30 = 30;
@@ -57,9 +60,13 @@ public class PriceCalculator {
         BigDecimal costFor60Minutes = danceClass.getPricePer60().multiply(BigDecimal.valueOf(pay60));
         BigDecimal costFor45Minutes = danceClass.getPricePer45().multiply(BigDecimal.valueOf(pay45));
         BigDecimal costFor30Minutes = danceClass.getPricePer30().multiply(BigDecimal.valueOf(pay30));
+        BigDecimal totalCost = costFor60Minutes.add(costFor45Minutes).add(costFor30Minutes);
 
-        // log: System.out.println("Total cost: £" + totalCost);
+        LOG.debug("60 mins dance class: {} classes for price: {}. Total : {}", pay60, danceClass.getPricePer60(), costFor60Minutes);
+        LOG.debug("45 mins dance class: {} classes for price: {}. Total : {}", pay45, danceClass.getPricePer45(), costFor45Minutes);
+        LOG.debug("30 mins dance class: {} classes for price: {}. Total : {}", pay30, danceClass.getPricePer60(), costFor30Minutes);
+        LOG.debug("Total Cost : {}", totalCost);
 
-        return costFor60Minutes.add(costFor45Minutes).add(costFor30Minutes);
+        return totalCost;
     }
 }

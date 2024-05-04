@@ -30,10 +30,10 @@ public class DanceClassServiceImpl implements DanceClassService {
         validatePrices(danceClassRequest);
 
         final DanceClass danceClass = new DanceClass(danceClassRequest.getClassType(),
-                                                true,
-                                                danceClassRequest.getPricePer60(),
-                                                danceClassRequest.getPricePer45(),
-                                                danceClassRequest.getPricePer30());
+                                                     true,
+                                                     danceClassRequest.getPricePer60(),
+                                                     danceClassRequest.getPricePer45(),
+                                                     danceClassRequest.getPricePer30());
 
         return danceClassMapper.mapDanceClassToDTO(danceClassRepository.save(danceClass));
     }

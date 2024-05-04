@@ -12,12 +12,17 @@ import com.acs.bookingsystem.user.mapper.UserMapper;
 import com.acs.bookingsystem.user.repository.UserRepository;
 import com.acs.bookingsystem.user.service.UserService;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
+    private static final Logger LOG = LoggerFactory.getLogger(UserServiceImpl.class);
     private UserRepository userRepository;
     private UserMapper userMapper;
 
@@ -39,13 +44,14 @@ public class UserServiceImpl implements UserService {
     public UserDTO getActiveUserById(int id) {
         User user = findUserById(id);
         if (!user.isActive()) {
-            //add debug log with user id
+            LOG.debug("User with ID: {} is not active.", id);
             throw new RequestException("User is not active.", ErrorCode.INACTIVE_USER);
         }
         return userMapper.mapUserToDTO(user);
     }
 
     public UserDTO updateUser(int userId, UserUpdateRequest userUpdateRequest) {
+        LOG.debug("Updating user with request: {}", userUpdateRequest);
         User userToUpdate = findUserById(userId);
 
         if (userUpdateRequest.getEmail() != null && !userUpdateRequest.getEmail().trim().isEmpty()) {
@@ -81,9 +87,11 @@ public class UserServiceImpl implements UserService {
     }
 
     private User findUserById(int id){
-        return userRepository.findById(id)
-                             //TODO: add debug log with user id
-                             .orElseThrow(() -> new NotFoundException("Could not find user.", ErrorCode.INVALID_USER_ID));
+        Optional<User> userOptional = userRepository.findById(id);
+        if (userOptional.isEmpty()) {
+            LOG.debug("User with ID: {} is not found.", id);
+            throw new NotFoundException("Could not find user.", ErrorCode.INVALID_USER_ID);
+        }
+        return userOptional.get();
     }
-
 }
