@@ -4,7 +4,10 @@ import com.acs.bookingsystem.common.exception.NotFoundException;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.common.exception.model.ErrorModel;
 import com.acs.bookingsystem.common.exception.RequestException;
+import com.acs.bookingsystem.user.service.impl.UserServiceImpl;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -18,6 +21,9 @@ import java.util.List;
 
 @ControllerAdvice
 public class UniversalExceptionHandler {
+        private static final Logger LOG = LoggerFactory.getLogger(UniversalExceptionHandler.class);
+
+
     @ExceptionHandler(RequestException.class)
     public ResponseEntity<ErrorModel> handleUserRequestException(RequestException uEx){
         ErrorModel error = new ErrorModel(new Date(),
@@ -59,7 +65,7 @@ public class UniversalExceptionHandler {
                                                mostSpecificCause.getClass().getName());
 
         //debug.error
-        System.out.println("JSON parse error: " + mostSpecificCause.getMessage());
+        LOG.debug("JSON parse error: {}", mostSpecificCause.getMessage());
 
         return new ResponseEntity<>(errorModel, HttpStatus.BAD_REQUEST);
     }
