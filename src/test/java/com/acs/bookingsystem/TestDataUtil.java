@@ -49,12 +49,12 @@ public class TestDataUtil {
     public static BookingRequest createBookingRequest() {
         LocalDateTime from = LocalDateTime.of(2024, 4, 20, 10, 0);
         LocalDateTime to = LocalDateTime.of(2024, 4, 20, 12, 0);
-        return new BookingRequest(1, Room.ROOM1, ClassType.PRACTICE, from, to);
+        return new BookingRequest(1, Room.ASTAIRE, ClassType.PRACTICE, from, to);
     }
 
     public static BookingDTO createBookingDTO() {
         LocalDateTime from = LocalDateTime.of(2024, 4, 20, 10, 0);
         LocalDateTime to = LocalDateTime.of(2024, 4, 20, 12, 0);
-        return new BookingDTO(1, 1, Room.ROOM1, true, 1, from, to, new BigDecimal("100.00"));
+        return new BookingDTO(1, 1, Room.ASTAIRE, true, 1, from, to, new BigDecimal("100.00"));
     }
 }

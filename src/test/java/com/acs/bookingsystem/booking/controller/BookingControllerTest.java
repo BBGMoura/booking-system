@@ -82,7 +82,8 @@ class BookingControllerTest {
         when(bookingService.getAllByRoomAndBetweenTwoDates(any(Room.class), any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(bookings);
 
         mockMvc.perform(get("/booking/schedule")
-                                .param("room", "ROOM1")
+                                .param("room", "ASTAIRE" +
+                                        "")
                                 .param("dateFrom", "2024-04-20T10:00")
                                 .param("dateTo", "2024-04-20T12:00"))
                .andExpect(status().isOk())
