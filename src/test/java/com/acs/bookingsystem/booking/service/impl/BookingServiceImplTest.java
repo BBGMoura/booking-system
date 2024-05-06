@@ -78,7 +78,7 @@ class BookingServiceImplTest {
         when(scheduleConfig.getSundayClosing()).thenReturn(LocalTime.parse("21:00"));
 
         // When
-        BookingRequest bookingRequest = new BookingRequest(1, Room.ROOM1, ClassType.PRIVATE, dateFrom, dateTo);
+        BookingRequest bookingRequest = new BookingRequest(1, Room.ASTAIRE, ClassType.PRIVATE, dateFrom, dateTo);
         BookingDTO result = bookingService.createBooking(bookingRequest);
 
         // Then
@@ -99,7 +99,7 @@ class BookingServiceImplTest {
                 .thenReturn(Collections.singletonList(booking));
 
         // Act & Assert
-        BookingRequest bookingRequest = new BookingRequest(1, Room.ROOM1, ClassType.PRIVATE, dateFrom, dateTo);
+        BookingRequest bookingRequest = new BookingRequest(1, Room.ASTAIRE, ClassType.PRIVATE, dateFrom, dateTo);
         assertThrows(RequestException.class, () -> bookingService.createBooking(bookingRequest));
     }
 
@@ -112,7 +112,7 @@ class BookingServiceImplTest {
         when(scheduleConfig.getSundayClosing()).thenReturn(LocalTime.parse("21:00"));
 
         // Act & Assert
-        BookingRequest bookingRequest = new BookingRequest(1, Room.ROOM1, ClassType.PRIVATE, dateFrom, dateTo);
+        BookingRequest bookingRequest = new BookingRequest(1, Room.ASTAIRE, ClassType.PRIVATE, dateFrom, dateTo);
         assertThrows(RequestException.class, () -> bookingService.createBooking(bookingRequest));
     }
 
@@ -123,7 +123,7 @@ class BookingServiceImplTest {
         LocalDateTime dateTo = LocalDateTime.of(2024, 4, 21, 11, 0);
 
         // Act & Assert
-        BookingRequest bookingRequest = new BookingRequest(1, Room.ROOM1, ClassType.PRIVATE, dateFrom, dateTo);
+        BookingRequest bookingRequest = new BookingRequest(1, Room.ASTAIRE, ClassType.PRIVATE, dateFrom, dateTo);
         assertThrows(RequestException.class, () -> bookingService.createBooking(bookingRequest));
     }
 
@@ -216,11 +216,11 @@ class BookingServiceImplTest {
     }
 
     private Booking createBooking(User user, DanceClass danceClass, LocalDateTime from, LocalDateTime to, BigDecimal price) {
-        return new Booking(user, Room.ROOM1, danceClass, true, from, to, price);
+        return new Booking(user, Room.ASTAIRE, danceClass, true, from, to, price);
     }
 
     private BookingDTO createBookingDTO(LocalDateTime from, LocalDateTime to, BigDecimal price) {
-        return new BookingDTO(1, 1, Room.ROOM1, true, 1, from, to, price);
+        return new BookingDTO(1, 1, Room.ASTAIRE, true, 1, from, to, price);
     }
 
 }

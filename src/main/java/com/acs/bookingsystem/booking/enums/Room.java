@@ -6,10 +6,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum Room {
-    ROOM1("1"),
-    ROOM2("2"),
-    ROOM3("3"),
-    ROOM4("4");
+    ASTAIRE("1"),
+    BUSSELL("2"),
+    ALEX_MOORE("3"),
+    FOSSE("4");
 
     private final String code;
 }
