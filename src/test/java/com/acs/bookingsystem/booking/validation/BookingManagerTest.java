@@ -166,9 +166,9 @@ class BookingManagerTest {
 
         Optional<String> result = bookingManager.validateSharedBookingRequest(bookingRequest);
 
-        assertEquals(Optional.of("Booking as timeslot is unavailable.Can only book 3 at a time."), result);
+        assertEquals(Optional.of("Booking as timeslot is unavailable. Can only book 3 at a time."), result);
     }
-    
+
     private Booking createBooking(User user, DanceClass danceClass, LocalDateTime from, LocalDateTime to, BigDecimal price) {
         return Booking.builder()
                       .user(user)
