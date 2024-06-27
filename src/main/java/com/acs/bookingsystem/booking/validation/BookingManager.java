@@ -24,16 +24,26 @@ public class BookingManager {
     private static final int MAXIMUM_SLOTS = 3;
 
     public Optional<String> validateBookingTime(BookingRequest bookingRequest) {
+        Optional<String> results = validateBookingRequest(bookingRequest);
+
+        if (results.isPresent()) {
+            return results;
+        }
+
+        return validateSharedBookingRequest(bookingRequest);
+    }
+
+    protected Optional<String> validateBookingRequest(BookingRequest bookingRequest) {
+        if (endsBeforeStarts(bookingRequest.dateFrom(), bookingRequest.dateTo())) {
+            return Optional.of("Booking start time is after end time.");
+        }
+
         if(isNotLongerThan15Minutes(bookingRequest)) {
             return Optional.of("Booking must be a minimum of 15 minutes.");
         }
 
         if (isNotIntervalOf5Minutes(bookingRequest)) {
             return Optional.of("Booking interval is invalid. Must be in intervals of 5 minutes.");
-        }
-
-        if (endsBeforeStarts(bookingRequest.dateFrom(), bookingRequest.dateTo())) {
-            return Optional.of("Booking start time is after end time.");
         }
 
         if (overlapsNonShareableExistingBookings(bookingRequest)) {
@@ -48,16 +58,20 @@ public class BookingManager {
             return Optional.of("Cannot make a booking as booking time is not within opening times.");
         }
 
+        return Optional.empty();
+    }
+
+    protected Optional<String> validateSharedBookingRequest(BookingRequest bookingRequest) {
         List<Booking> shareableBookings = getBookings(bookingRequest, true);
 
         if (isNotShareableAndOverlapsShareableBookings(bookingRequest, shareableBookings)) {
             return Optional.of("Cannot make a non-shareable booking which overlaps other bookings.");
         }
 
-        if (overlapsThreeOrMoreShareableBookings(shareableBookings, bookingRequest)) {
-            return Optional.of("Cannot make booking as timeslot is unavailable.");
+        if (overlapsThreeOrMoreShareableBookings(shareableBookings,
+                                                 bookingRequest)) {
+            return Optional.of("Booking as timeslot is unavailable.Can only book " + MAXIMUM_SLOTS + " at a time.");
         }
-
         return Optional.empty();
     }
 
