@@ -4,7 +4,6 @@ import com.acs.bookingsystem.common.exception.NotFoundException;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.common.exception.model.ErrorModel;
 import com.acs.bookingsystem.common.exception.RequestException;
-import com.acs.bookingsystem.user.service.impl.UserServiceImpl;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +32,6 @@ public class UniversalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    //This will be fed back to user, so error message string needs to be ready
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<List<ErrorModel>> handleFieldValidation(MethodArgumentNotValidException maEx){
         List<ErrorModel> errors = maEx.getBindingResult()
@@ -64,7 +62,6 @@ public class UniversalExceptionHandler {
                                                getErrorMessage(ex.getCause()),
                                                mostSpecificCause.getClass().getName());
 
-        //debug.error
         LOG.debug("JSON parse error: {}", mostSpecificCause.getMessage());
 
         return new ResponseEntity<>(errorModel, HttpStatus.BAD_REQUEST);

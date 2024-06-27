@@ -1,7 +1,6 @@
 package com.acs.bookingsystem;
 
 import com.acs.bookingsystem.user.controller.UserController;
-import jakarta.validation.constraints.Null;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -16,6 +16,7 @@ public interface BookingRepository extends CrudRepository<Booking, Integer> {
      * <ul>
      *     <li>The booking is active.</li>
      *     <li>The booking is associated with the specified room.</li>
+     *     <li>The booking can be or not be shareable. </li>
      *     <li>The time range of the booking overlaps with the specified time range from {@code dateFrom} to {@code dateTo} in any of the following ways:
      *         <ol>
      *             <li>The requested time falls entirely within the bounds of a booking.</li>
@@ -34,6 +35,7 @@ public interface BookingRepository extends CrudRepository<Booking, Integer> {
     @Query("SELECT b FROM Booking b " +
             "WHERE b.room = :room " +
             "AND b.active = true " +
+            "AND (:shareable IS NULL OR b.shareable = :shareable) " +
             "AND (" +
             "     (:dateFrom > b.bookedFrom AND :dateTo < b.bookedTo) OR" +
             "     (b.bookedFrom >= :dateFrom AND b.bookedTo <= :dateTo) OR " +
@@ -41,6 +43,7 @@ public interface BookingRepository extends CrudRepository<Booking, Integer> {
             "     (b.bookedTo > :dateFrom AND b.bookedFrom < :dateFrom AND b.bookedTo < :dateTo)" +
             ")")
     List<Booking> findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(@Param("room") Room room,
+                                                                        @Param("shareable") boolean shareable,
                                                                         @Param("dateFrom") LocalDateTime dateFrom,
                                                                         @Param("dateTo") LocalDateTime dateTo);
 

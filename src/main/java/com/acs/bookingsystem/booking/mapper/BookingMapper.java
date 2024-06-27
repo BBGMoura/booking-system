@@ -12,6 +12,7 @@ public class BookingMapper {
                               booking.getUser().getId(),
                               booking.getRoom(),
                               booking.isActive(),
+                              booking.isShareable(),
                               booking.getDanceClass()
                                      .getId(),
                               booking.getBookedFrom(),

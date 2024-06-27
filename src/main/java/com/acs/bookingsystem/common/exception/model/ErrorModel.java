@@ -1,15 +1,13 @@
 package com.acs.bookingsystem.common.exception.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Builder;
 
 import java.util.Date;
 
-@Getter
-@AllArgsConstructor
-public class ErrorModel {
-    private Date timestamp;
-    private int status;
-    private String error;
-    private String message;
+@Builder
+public record ErrorModel (
+     Date timestamp,
+     int status,
+     String error,
+     String message) {
 }

@@ -59,6 +59,7 @@ class BookingRepositoryTest {
 
         //when
         List<Booking> filteredBookings = bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(Room.ASTAIRE,
+                                                                                                                 false,
                                                                                                                  LocalDateTime.of(2024, Month.MARCH, 30, 12, 0),
                                                                                                                  LocalDateTime.of(2024, Month.MARCH, 30, 13, 15));
 
@@ -70,6 +71,7 @@ class BookingRepositoryTest {
 
         //time overlaps the time range
         List<Booking> filteredBookings2 = bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(Room.ASTAIRE,
+                                                                                                                  false,
                                                                                                                   LocalDateTime.of(2024, Month.MARCH, 30, 12, 15),
                                                                                                                   LocalDateTime.of(2024, Month.MARCH, 30, 13, 0));
 
@@ -80,24 +82,28 @@ class BookingRepositoryTest {
 
         // time shouldn't return any
         List<Booking> filteredBookings3 = bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(Room.ASTAIRE,
+                                                                                                                  false,
                                                                                                                   LocalDateTime.of(2024, Month.MARCH, 30, 9, 0),
                                                                                                                   LocalDateTime.of(2024, Month.MARCH, 30, 9, 30));
 
         assertEquals(0, filteredBookings3.size());
 
         List<Booking> filteredBookings4 = bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(Room.ASTAIRE,
+                                                                                                                  false,
                                                                                                                   LocalDateTime.of(2024, Month.MARCH, 30, 11, 0),
                                                                                                                   LocalDateTime.of(2024, Month.MARCH, 30, 12, 0));
 
         assertEquals(0, filteredBookings4.size());
 
         List<Booking> filteredBookings5 = bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(Room.ASTAIRE,
+                                                                                                                  false,
                                                                                                                   LocalDateTime.of(2024, Month.MARCH, 30, 12, 20),
                                                                                                                   LocalDateTime.of(2024, Month.MARCH, 30, 12, 50));
 
         assertEquals(2, filteredBookings5.size());
 
         List<Booking> filteredBookings6 = bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(Room.ASTAIRE,
+                                                                                                                  false,
                                                                                                                   LocalDateTime.of(2024, Month.MARCH, 30, 12, 20),
                                                                                                                   LocalDateTime.of(2024, Month.MARCH, 30, 12, 35));
 
@@ -105,18 +111,21 @@ class BookingRepositoryTest {
 
         //booking present already within time range
         List<Booking> filteredBookings7 = bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(Room.ASTAIRE,
+                                                                                                                  false,
                                                                                                                   LocalDateTime.of(2024,Month.MARCH, 30, 12,0),
                                                                                                                   LocalDateTime.of(2024, Month.MARCH,30, 12, 30));
         assertEquals(1, filteredBookings7.size());
 
         //booking present already within time range
         List<Booking> filteredBookings8 = bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(Room.ASTAIRE,
+                                                                                                                  false,
                                                                                                                   LocalDateTime.of(2024,Month.MARCH, 30, 12,10),
                                                                                                                   LocalDateTime.of(2024, Month.MARCH,30, 12, 20));
         assertEquals(1, filteredBookings8.size());
 
         //booking present already within time range
         List<Booking> filteredBookings9 = bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(Room.ASTAIRE,
+                                                                                                                  false,
                                                                                                                   LocalDateTime.of(2024,Month.MARCH, 30, 13,15),
                                                                                                                   LocalDateTime.of(2024, Month.MARCH,30, 13, 50));
         assertEquals(0, filteredBookings9.size());
@@ -153,13 +162,16 @@ class BookingRepositoryTest {
                                                BigDecimal.ONE);
         danceClassRepository.save(danceClass);
 
-        return new Booking(user,
-                           Room.ASTAIRE,
-                           danceClass,
-                           true,
-                           LocalDateTime.of(2024, Month.MARCH, 30, 12, 0),
-                           LocalDateTime.of(2024, Month.MARCH, 30, 12, 30),
-                           BigDecimal.TEN);
+        return Booking.builder()
+                      .user(user)
+                      .room(Room.ASTAIRE)
+                      .danceClass(danceClass)
+                      .active(true)
+                      .shareable(false)
+                      .bookedFrom(LocalDateTime.of(2024, Month.MARCH, 30, 12, 0))
+                      .bookedTo(LocalDateTime.of(2024, Month.MARCH, 30, 12, 30))
+                      .totalPrice(BigDecimal.TEN)
+                      .build();
     }
 
     private Booking createAnotherTestBooking() {
@@ -178,12 +190,15 @@ class BookingRepositoryTest {
                                                BigDecimal.ONE);
         danceClassRepository.save(danceClass);
 
-        return new Booking(user,
-                           Room.ASTAIRE,
-                           danceClass,
-                           true,
-                           LocalDateTime.of(2024, Month.MARCH, 30, 12, 45),
-                           LocalDateTime.of(2024, Month.MARCH, 30, 13, 15),
-                           BigDecimal.TEN);
+        return Booking.builder()
+                      .user(user)
+                      .room(Room.ASTAIRE)
+                      .danceClass(danceClass)
+                      .active(true)
+                      .shareable(false)
+                      .bookedFrom(LocalDateTime.of(2024, Month.MARCH, 30, 12, 45))
+                      .bookedTo(LocalDateTime.of(2024, Month.MARCH, 30, 13, 15))
+                      .totalPrice(BigDecimal.TEN)
+                      .build();
     }
 }

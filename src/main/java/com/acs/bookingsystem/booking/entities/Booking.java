@@ -4,19 +4,17 @@ package com.acs.bookingsystem.booking.entities;
 import com.acs.bookingsystem.booking.enums.Room;
 import com.acs.bookingsystem.user.entities.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@ToString
 @Entity
 @Getter
-@Setter
-@NoArgsConstructor
+@Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -29,22 +27,19 @@ public class Booking {
     @ManyToOne
     @JoinColumn(referencedColumnName="id", nullable = false)
     private DanceClass danceClass;
-    @Column(nullable = false)
+    @Column
     private boolean active;
+    @Column
+    private boolean shareable;
     @Column(nullable = false)
     private LocalDateTime bookedFrom;
     @Column(nullable = false)
     private LocalDateTime bookedTo;
+    //TODO: move this into a different class?
     @Column(nullable = false)
     private BigDecimal totalPrice;
 
-    public Booking(User user, Room room, DanceClass danceClass, boolean active, LocalDateTime bookedFrom, LocalDateTime bookedTo, BigDecimal totalPrice) {
-        this.user = user;
-        this.room = room;
-        this.danceClass = danceClass;
-        this.active = active;
-        this.bookedFrom = bookedFrom;
-        this.bookedTo = bookedTo;
-        this.totalPrice = totalPrice;
+    public void deactivate() {
+        this.active = false;
     }
 }

@@ -1,7 +1,7 @@
 package com.acs.bookingsystem.booking.service.impl;
 
-import com.acs.bookingsystem.booking.config.ScheduleConfig;
 import com.acs.bookingsystem.booking.dto.BookingDTO;
+import com.acs.bookingsystem.booking.validation.BookingManager;
 import com.acs.bookingsystem.common.exception.NotFoundException;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.booking.dto.DanceClassDTO;
@@ -14,8 +14,8 @@ import com.acs.bookingsystem.booking.mapper.DanceClassMapper;
 import com.acs.bookingsystem.booking.repository.BookingRepository;
 import com.acs.bookingsystem.booking.service.BookingService;
 import com.acs.bookingsystem.booking.service.DanceClassService;
-import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.common.exception.RequestException;
+import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.payment.PriceCalculator;
 import com.acs.bookingsystem.user.dto.UserDTO;
 import com.acs.bookingsystem.user.entities.User;
@@ -27,9 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.DayOfWeek;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -37,32 +35,44 @@ import java.util.List;
 public class BookingServiceImpl implements BookingService {
     public static final Logger LOG = LoggerFactory.getLogger(BookingServiceImpl.class);
     BookingRepository bookingRepository;
+    BookingManager bookingManager;
     UserService userService;
     UserMapper userMapper;
     DanceClassService danceClassService;
     DanceClassMapper danceClassMapper;
     BookingMapper bookingMapper;
-    ScheduleConfig scheduleConfig;
 
     @Override
     public BookingDTO createBooking(BookingRequest bookingRequest) {
         LOG.debug("Creating booking with request: {}", bookingRequest);
 
-        User user = getActiveUser(bookingRequest.getUserId());
-        DanceClass danceClass = getDanceClass(bookingRequest.getClassType());
+        User user = getActiveUser(bookingRequest.userId());
+        DanceClass danceClass = getDanceClass(bookingRequest.classType());
 
-        validateBookingTime(bookingRequest);
-        BigDecimal totalCost = PriceCalculator.calculateTotalPrice(bookingRequest.getDateFrom(), bookingRequest.getDateTo() , danceClass);
+        bookingManager.validateBookingTime(bookingRequest)
+                      .ifPresent(errorMessage -> {
+                             throw new RequestException(errorMessage, ErrorCode.INVALID_BOOKING_REQUEST);
+                         });
 
-        Booking booking = new Booking(user,
-                                      bookingRequest.getRoom(),
-                                      danceClass,
-                                      true,
-                                      bookingRequest.getDateFrom(),
-                                      bookingRequest.getDateTo(),
-                                      totalCost);
+
+        BigDecimal totalCost = PriceCalculator.calculateTotalPrice(bookingRequest.dateFrom(), bookingRequest.dateTo(), danceClass);
+        Booking booking = Booking.builder()
+                                 .user(user)
+                                 .room(bookingRequest.room())
+                                 .danceClass(danceClass)
+                                 .active(true)
+                                 .shareable(bookingRequest.isShareable())
+                                 .bookedFrom(bookingRequest.dateFrom())
+                                 .bookedTo(bookingRequest.dateTo())
+                                 .totalPrice(totalCost)
+                                 .build();
 
         return bookingMapper.mapBookingToDTO(bookingRepository.save(booking));
+    }
+
+    @Override
+    public BookingDTO addUserToBooking(int userId, int bookingId) {
+        return null;
     }
 
     @Override
@@ -79,73 +89,21 @@ public class BookingServiceImpl implements BookingService {
                                 .toList();
     }
 
+
     @Override
     public List<BookingDTO> getAllByRoomAndBetweenTwoDates(Room room, LocalDateTime dateFrom, LocalDateTime dateTo) {
-        return bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(room, dateFrom, dateTo)
-                                .stream()
-                                .map(bookingMapper::mapBookingToDTO)
-                                .toList();
+//        return bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(room, dateFrom, dateTo)
+//                                .stream()
+//                                .map(bookingMapper::mapBookingToDTO)
+//                                .toList();
+        return List.of();
     }
 
     @Override
     public void deactivateBooking(int bookingId) {
         Booking booking = findBookingById(bookingId);
-        booking.setActive(false);
+        booking.deactivate();
         bookingRepository.save(booking);
-    }
-
-    private void validateBookingTime(BookingRequest bookingRequest){
-        validateBookingStartsBeforeEnds(bookingRequest.getDateFrom(), bookingRequest.getDateTo());
-        validateBookingDoesNotOverlapActiveExistingBookings(bookingRequest);
-        validateBookingIsSameDate(bookingRequest.getDateFrom(), bookingRequest.getDateTo());
-        validateBookingIsWithinOpeningTime(bookingRequest.getDateFrom(), bookingRequest.getDateTo());
-    }
-
-    private void validateBookingStartsBeforeEnds(LocalDateTime dateFrom, LocalDateTime dateTo) {
-        if (dateFrom.isAfter(dateTo)) {
-            throw new RequestException("Booking start time is after end time.", ErrorCode.INVALID_BOOKING_REQUEST);
-        }
-    }
-
-    private void validateBookingDoesNotOverlapActiveExistingBookings(BookingRequest bookingRequest) {
-        List<Booking> bookings = bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(bookingRequest.getRoom(),
-                                                                                                   bookingRequest.getDateFrom(),
-                                                                                                   bookingRequest.getDateTo());
-        if (!bookings.isEmpty()) {
-            throw new RequestException("Booking timeslot is unavailable.", ErrorCode.INVALID_BOOKING_REQUEST);
-        }
-    }
-
-    private void validateBookingIsSameDate(LocalDateTime dateFrom, LocalDateTime dateTo) {
-        if (!dateFrom.toLocalDate().equals(dateTo.toLocalDate())) {
-            throw new RequestException("Booking must start and end on the same day.", ErrorCode.INVALID_BOOKING_REQUEST);
-        }
-    }
-
-    private void validateBookingIsWithinOpeningTime(LocalDateTime dateFrom, LocalDateTime dateTo) {
-        DayOfWeek dayOfWeek = dateFrom.getDayOfWeek();
-        LocalTime openingTime;
-        LocalTime closingTime;
-
-        if (dayOfWeek == DayOfWeek.SATURDAY) {
-            openingTime = scheduleConfig.getSaturdayOpening();
-            closingTime = scheduleConfig.getSaturdayClosing();
-        } else if (dayOfWeek == DayOfWeek.SUNDAY) {
-            openingTime = scheduleConfig.getSundayOpening();
-            closingTime = scheduleConfig.getSundayClosing();
-        } else {
-            openingTime = scheduleConfig.getWeekdayOpening();
-            closingTime = scheduleConfig.getWeekdayClosing();
-        }
-
-        validateTimeRange(dateFrom,openingTime,closingTime);
-        validateTimeRange(dateTo,openingTime,closingTime);
-    }
-
-    private void validateTimeRange(LocalDateTime dateTime, LocalTime openingTime, LocalTime closingTime) {
-        if (dateTime.toLocalTime().isBefore(openingTime) || dateTime.toLocalTime().isAfter(closingTime)) {
-            throw new RequestException("Cannot make a booking as booking time is not within opening times.", ErrorCode.INVALID_BOOKING_REQUEST);
-        }
     }
 
     private Booking findBookingById(int bookingId) {
