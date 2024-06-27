@@ -10,7 +10,6 @@ import java.util.List;
 
 public interface BookingService {
     BookingDTO createBooking(BookingRequest bookingRequest);
-    BookingDTO addUserToBooking(int userId, int bookingId);
     BookingDTO getBookingById(int bookingId);
     List<BookingDTO> getAllBookingsByUser(int userId);
     List<BookingDTO> getAllByRoomAndBetweenTwoDates(Room room, LocalDateTime dateFrom, LocalDateTime dateTo);

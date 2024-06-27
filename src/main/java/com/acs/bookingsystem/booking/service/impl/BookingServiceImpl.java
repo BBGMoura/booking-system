@@ -71,11 +71,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingDTO addUserToBooking(int userId, int bookingId) {
-        return null;
-    }
-
-    @Override
     public BookingDTO getBookingById(int bookingId) {
         return bookingMapper.mapBookingToDTO(findBookingById(bookingId));
     }
