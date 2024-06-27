@@ -68,10 +68,10 @@ public class BookingManager {
             return Optional.of("Cannot make a non-shareable booking which overlaps other bookings.");
         }
 
-        if (overlapsThreeOrMoreShareableBookings(shareableBookings,
-                                                 bookingRequest)) {
-            return Optional.of("Booking as timeslot is unavailable.Can only book " + MAXIMUM_SLOTS + " at a time.");
+        if (overlapsThreeOrMoreShareableBookings(shareableBookings, bookingRequest)) {
+            return Optional.of("Booking as timeslot is unavailable. Can only book " + MAXIMUM_SLOTS + " at a time.");
         }
+
         return Optional.empty();
     }
 

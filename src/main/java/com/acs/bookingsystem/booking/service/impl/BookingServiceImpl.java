@@ -92,11 +92,10 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDTO> getAllByRoomAndBetweenTwoDates(Room room, LocalDateTime dateFrom, LocalDateTime dateTo) {
-//        return bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(room, dateFrom, dateTo)
-//                                .stream()
-//                                .map(bookingMapper::mapBookingToDTO)
-//                                .toList();
-        return List.of();
+        return bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(room, null,dateFrom, dateTo)
+                                .stream()
+                                .map(bookingMapper::mapBookingToDTO)
+                                .toList();
     }
 
     @Override

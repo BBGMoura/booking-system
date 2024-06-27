@@ -43,7 +43,7 @@ public interface BookingRepository extends CrudRepository<Booking, Integer> {
             "     (b.bookedTo > :dateFrom AND b.bookedFrom < :dateFrom AND b.bookedTo < :dateTo)" +
             ")")
     List<Booking> findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(@Param("room") Room room,
-                                                                        @Param("shareable") boolean shareable,
+                                                                        @Param("shareable") Boolean shareable,
                                                                         @Param("dateFrom") LocalDateTime dateFrom,
                                                                         @Param("dateTo") LocalDateTime dateTo);
 
