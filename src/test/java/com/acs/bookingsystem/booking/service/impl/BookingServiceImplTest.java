@@ -17,7 +17,6 @@ import com.acs.bookingsystem.booking.service.DanceClassService;
 import com.acs.bookingsystem.common.exception.RequestException;
 import com.acs.bookingsystem.user.dto.UserDTO;
 import com.acs.bookingsystem.user.entities.User;
-import com.acs.bookingsystem.user.enums.Permission;
 import com.acs.bookingsystem.user.mapper.UserMapper;
 import com.acs.bookingsystem.user.service.UserService;
 
@@ -30,8 +29,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -71,7 +68,7 @@ class BookingServiceImplTest {
         Booking booking = createBooking(user, danceClass, dateFrom, dateTo, new BigDecimal("100.00"));
         BookingDTO bookingDto = createBookingDTO(dateFrom, dateTo, new BigDecimal("100.00"));
 
-        when(userService.getActiveUserById(1)).thenReturn(new UserDTO(1, "John", "Doe", "john.doe@example.com", "1234567890", true, Permission.USER));
+        when(userService.getActiveUserById(1)).thenReturn(new UserDTO(1, "John", "Doe", "john.doe@example.com", "1234567890"));
         when(userMapper.mapDTOToUser(any(UserDTO.class))).thenReturn(user);
         when(danceClassService.getDanceClassByActiveClassType(ClassType.PRIVATE)).thenReturn(new DanceClassDTO(1, ClassType.PRIVATE, true, new BigDecimal("100.00"), BigDecimal.ZERO, BigDecimal.ZERO));
         when(danceClassMapper.mapDtoToDanceClass(any(DanceClassDTO.class))).thenReturn(danceClass);

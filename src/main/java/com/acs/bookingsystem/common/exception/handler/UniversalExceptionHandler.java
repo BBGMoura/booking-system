@@ -1,9 +1,10 @@
 package com.acs.bookingsystem.common.exception.handler;
 
+import com.acs.bookingsystem.common.exception.AuthorizationException;
 import com.acs.bookingsystem.common.exception.NotFoundException;
+import com.acs.bookingsystem.common.exception.RequestException;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.common.exception.model.ErrorModel;
-import com.acs.bookingsystem.common.exception.RequestException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +66,24 @@ public class UniversalExceptionHandler {
         LOG.debug("JSON parse error: {}", mostSpecificCause.getMessage());
 
         return new ResponseEntity<>(errorModel, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AuthorizationException.class)
+    public ResponseEntity<ErrorModel> handleInvalidAuthorization(AuthorizationException authEx) {
+        ErrorModel error = new ErrorModel(new Date(),
+                                          HttpStatus.FORBIDDEN.value(),
+                                          authEx.getError()
+                                                .getDescription(),
+                                          authEx.getError().toString());
+
+        if (LOG.isErrorEnabled()) {
+            LOG.error("Authorization Exception caused by: {}. Stack trace: {}",
+                      authEx.getCause(),
+                      Arrays.toString(authEx.getStackTrace()));
+        }
+
+
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
     private static String getErrorMessage(Throwable ex) {

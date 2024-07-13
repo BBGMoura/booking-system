@@ -13,7 +13,13 @@ public enum ErrorCode {
     INTERNAL_BOOKING_ERROR("Internal Booking Error. Please Contact support."),
     INVALID_DANCE_CLASS_REQUEST("Dance Class request is invalid."),
     INTERNAL_ERROR("Internal Error. Please contact support."),
-    INACTIVE_USER("User is is not active.");
+    INACTIVE_USER("User is is not active."),
+    INVALID_INVITATION_REQUEST("Invitation request is invalid."),
+    INVALID_REGISTRATION_REQUEST("Registration request is invalid."),
+    INVALID_TOKEN("Invalid token."),
+    USER_ERROR("Invalid user request."),
+    AUTHENTICATION_ERROR("Authentication Error. Please contact support."),
+    INVALID_UPDATE_REQUEST("Update request is invalid.");
 
     private final String description;
 }

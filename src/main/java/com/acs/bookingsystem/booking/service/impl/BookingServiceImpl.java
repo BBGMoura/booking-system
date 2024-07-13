@@ -105,6 +105,7 @@ public class BookingServiceImpl implements BookingService {
                                 .orElseThrow(() -> new NotFoundException("Could not find booking with ID "+bookingId, ErrorCode.INVALID_BOOKING_ID));
     }
 
+    //TODO: update implementation as active user might not be necessary anymore, just get user
     private User getActiveUser(int id) {
         UserDTO userDto = userService.getActiveUserById(id);
         return userMapper.mapDTOToUser(userDto);

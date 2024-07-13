@@ -11,9 +11,7 @@ public class UserMapper {
                            user.getFirstName(),
                            user.getLastName(),
                            user.getEmail(),
-                           user.getPhoneNumber(),
-                           user.isActive(),
-                           user.getPermission());
+                           user.getPhoneNumber());
     }
 
     public User mapDTOToUser(UserDTO userDTO){
@@ -22,8 +20,7 @@ public class UserMapper {
                         userDTO.lastName(),
                         userDTO.email(),
                         userDTO.phoneNumber(),
-                        userDTO.active(),
-                        userDTO.permission(),
+                        null,
                         null);
     }
 }

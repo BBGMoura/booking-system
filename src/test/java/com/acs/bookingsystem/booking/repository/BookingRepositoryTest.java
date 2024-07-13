@@ -150,9 +150,7 @@ class BookingRepositoryTest {
         User user = new User("May",
                              "Jones",
                              "mayjones@gmail.com",
-                             "01234617281",
-                             true,
-                             Permission.USER);
+                             "01234617281");
         userRepository.save(user);
 
         DanceClass danceClass = new DanceClass(ClassType.GROUP,
@@ -178,9 +176,7 @@ class BookingRepositoryTest {
         User user = new User("May",
                              "Jones",
                              "mayjones2@gmail.com",
-                             "01234617281",
-                             true,
-                             Permission.USER);
+                             "01234617281");
         userRepository.save(user);
 
         DanceClass danceClass = new DanceClass(ClassType.GROUP,

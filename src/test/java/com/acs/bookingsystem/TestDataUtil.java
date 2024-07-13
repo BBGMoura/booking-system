@@ -11,7 +11,7 @@ import com.acs.bookingsystem.booking.request.DanceClassRequest;
 import com.acs.bookingsystem.user.dto.UserDTO;
 import com.acs.bookingsystem.user.entities.User;
 import com.acs.bookingsystem.user.enums.Permission;
-import com.acs.bookingsystem.user.request.UserRegistrationRequest;
+import com.acs.bookingsystem.user.request.UserRequest;
 import com.acs.bookingsystem.user.request.UserUpdateRequest;
 
 import java.math.BigDecimal;
@@ -19,15 +19,15 @@ import java.time.LocalDateTime;
 
 public class TestDataUtil {
     public static User createUser() {
-        return new User("John", "Doe", "john@example.com", "01234567890", true, Permission.USER);
+        return new User("John", "Doe", "john@example.com", "01234567890");
     }
 
     public static UserDTO createUserDTO() {
-        return new UserDTO(1, "John", "Doe", "john@example.com", "01234567890", true, Permission.USER);
+        return new UserDTO(1, "John", "Doe", "john@example.com", "01234567890");
     }
 
-    public static UserRegistrationRequest createUserRegistrationRequest() {
-        return new UserRegistrationRequest("John", "Doe", "john@example.com", "01234567890");
+    public static UserRequest createUserRegistrationRequest() {
+        return new UserRequest("John", "Doe", "john@example.com", "01234567890");
     }
 
     public static UserUpdateRequest createUserUpdateRequest() {
