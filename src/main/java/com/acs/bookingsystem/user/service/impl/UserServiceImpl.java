@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
 
     public UserDTO createUser(@Valid UserRequest userRequest) {
-        validateEmail(userRequest.getEmail());
+//        validateEmail(userRequest.getEmail());
         final User savedUser = userRepository.save(User.builder()
                                                        .firstName(userRequest.getFirstName())
                                                        .lastName(userRequest.getLastName())
