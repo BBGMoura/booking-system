@@ -8,18 +8,14 @@ import com.acs.bookingsystem.booking.enums.ClassType;
 import com.acs.bookingsystem.booking.enums.Room;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.booking.request.DanceClassRequest;
-import com.acs.bookingsystem.user.dto.UserDTO;
-import com.acs.bookingsystem.user.entities.User;
-import com.acs.bookingsystem.user.enums.Permission;
-import com.acs.bookingsystem.user.request.UserRequest;
-import com.acs.bookingsystem.user.request.UserUpdateRequest;
+
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class TestDataUtil {
-    public static User createUser() {
-        return new User("John", "Doe", "john@example.com", "01234567890");
+    public static userOld createTestUser() {
+        return new userOld("John", "Doe", "john@example.com", "01234567890");
     }
 
     public static UserDTO createUserDTO() {
@@ -31,7 +27,7 @@ public class TestDataUtil {
     }
 
     public static UserUpdateRequest createUserUpdateRequest() {
-        return new UserUpdateRequest("John", "Doe", "john@example.com", "01234567890");
+        return new UserUpdateRequest("John", "Doe", "01234567890");
     }
 
     public static DanceClass createDanceClass(ClassType classType, boolean isActive) {

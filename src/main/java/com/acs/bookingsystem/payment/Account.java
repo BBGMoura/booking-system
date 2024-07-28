@@ -1,6 +1,5 @@
 package com.acs.bookingsystem.payment;
 
-import com.acs.bookingsystem.user.entities.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,8 +23,6 @@ public class Account implements Serializable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int id;
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(referencedColumnName = "id", nullable = false)
-    private User user;
     @Column(nullable = false)
     private BigDecimal outstandingBalance;
 }

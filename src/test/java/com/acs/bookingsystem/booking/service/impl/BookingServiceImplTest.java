@@ -15,10 +15,10 @@ import com.acs.bookingsystem.booking.repository.BookingRepository;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.booking.service.DanceClassService;
 import com.acs.bookingsystem.common.exception.RequestException;
-import com.acs.bookingsystem.user.dto.UserDTO;
-import com.acs.bookingsystem.user.entities.User;
-import com.acs.bookingsystem.user.mapper.UserMapper;
-import com.acs.bookingsystem.user.service.UserService;
+import com.acs.bookingsystem.userold.dto.UserDTO;
+import com.acs.bookingsystem.userold.entities.userOld;
+import com.acs.bookingsystem.userold.mapper.UserMapper;
+import com.acs.bookingsystem.userold.service.UserOldService;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +32,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static com.acs.bookingsystem.TestDataUtil.createUser;
+import static com.acs.bookingsystem.TestDataUtil.createTestUser;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -42,7 +42,7 @@ class BookingServiceImplTest {
     @Mock
     private BookingRepository bookingRepository;
     @Mock
-    private UserService userService;
+    private UserOldService userOldService;
     @Mock
     private UserMapper userMapper;
     @Mock
@@ -63,13 +63,13 @@ class BookingServiceImplTest {
         // Given
         LocalDateTime dateFrom = LocalDateTime.of(2024, 4, 21, 10, 0);
         LocalDateTime dateTo = LocalDateTime.of(2024, 4, 21, 11, 0);
-        User user = createUser();
+        userOld userOld = createTestUser();
         DanceClass danceClass = createDanceClass();
-        Booking booking = createBooking(user, danceClass, dateFrom, dateTo, new BigDecimal("100.00"));
+        Booking booking = createBooking(userOld, danceClass, dateFrom, dateTo, new BigDecimal("100.00"));
         BookingDTO bookingDto = createBookingDTO(dateFrom, dateTo, new BigDecimal("100.00"));
 
-        when(userService.getActiveUserById(1)).thenReturn(new UserDTO(1, "John", "Doe", "john.doe@example.com", "1234567890"));
-        when(userMapper.mapDTOToUser(any(UserDTO.class))).thenReturn(user);
+        when(userOldService.getActiveUserById(1)).thenReturn(new UserDTO(1, "John", "Doe", "john.doe@example.com", "1234567890"));
+        when(userMapper.mapDTOToUser(any(UserDTO.class))).thenReturn(userOld);
         when(danceClassService.getDanceClassByActiveClassType(ClassType.PRIVATE)).thenReturn(new DanceClassDTO(1, ClassType.PRIVATE, true, new BigDecimal("100.00"), BigDecimal.ZERO, BigDecimal.ZERO));
         when(danceClassMapper.mapDtoToDanceClass(any(DanceClassDTO.class))).thenReturn(danceClass);
         when(bookingMapper.mapBookingToDTO(any(Booking.class))).thenReturn(bookingDto);
@@ -89,9 +89,9 @@ class BookingServiceImplTest {
         // Arrange
         LocalDateTime dateFrom = LocalDateTime.of(2024, 4, 21, 10, 0);
         LocalDateTime dateTo = LocalDateTime.of(2024, 4, 21, 11, 0);
-        User user = createUser();
+        userOld userOld = createTestUser();
         DanceClass danceClass = createDanceClass();
-        Booking booking = createBooking(user, danceClass, dateFrom, dateTo, new BigDecimal("100.00"));
+        Booking booking = createBooking(userOld, danceClass, dateFrom, dateTo, new BigDecimal("100.00"));
 
         // Act & Assert
         BookingRequest bookingRequest = new BookingRequest(1, Room.ASTAIRE, ClassType.PRIVATE, false, dateFrom, dateTo);
@@ -132,9 +132,9 @@ class BookingServiceImplTest {
         // Arrange
         LocalDateTime dateFrom = LocalDateTime.of(2024, 4, 21, 10, 0);
         LocalDateTime dateTo = LocalDateTime.of(2024, 4, 21, 11, 0);
-        User user = createUser();
+        userOld userOld = createTestUser();
         DanceClass danceClass = createDanceClass();
-        Booking booking = createBooking(user, danceClass, dateFrom, dateTo, new BigDecimal("100.00"));
+        Booking booking = createBooking(userOld, danceClass, dateFrom, dateTo, new BigDecimal("100.00"));
         BookingDTO bookingDto = createBookingDTO(dateFrom, dateTo, new BigDecimal("100.00"));
 
         when(bookingRepository.findById(1)).thenReturn(Optional.of(booking));
@@ -160,12 +160,12 @@ class BookingServiceImplTest {
     @Test
     void testGetAllBookingsByUserWithMultipleBookings() {
         // Arrange
-        User user = createUser();
+        userOld userOld = createTestUser();
         DanceClass danceClass = createDanceClass();
-        Booking booking1 = createBooking(user, danceClass, LocalDateTime.of(2024, 4, 21, 10, 0), LocalDateTime.of(2024, 4, 21, 12, 0), new BigDecimal("100.00"));
-        Booking booking2 = createBooking(user, danceClass, LocalDateTime.of(2024, 4, 22, 10, 0), LocalDateTime.of(2024, 4, 22, 12, 0), new BigDecimal("100.00"));
+        Booking booking1 = createBooking(userOld, danceClass, LocalDateTime.of(2024, 4, 21, 10, 0), LocalDateTime.of(2024, 4, 21, 12, 0), new BigDecimal("100.00"));
+        Booking booking2 = createBooking(userOld, danceClass, LocalDateTime.of(2024, 4, 22, 10, 0), LocalDateTime.of(2024, 4, 22, 12, 0), new BigDecimal("100.00"));
         List<Booking> bookings = List.of(booking1, booking2);
-        when(bookingRepository.findAllByUserId(1)).thenReturn(bookings);
+        when(bookingRepository.findAllByUserOldId(1)).thenReturn(bookings);
         when(bookingMapper.mapBookingToDTO(any(Booking.class))).thenAnswer(invocation -> {
             Booking b = invocation.getArgument(0);
             return createBookingDTO(b.getBookedFrom(), b.getBookedTo(), b.getTotalPrice());
@@ -182,9 +182,9 @@ class BookingServiceImplTest {
     @Test
     void testDeactivateBookingSuccessfully() {
         // Arrange
-        User user = createUser();
+        userOld userOld = createTestUser();
         DanceClass danceClass = createDanceClass();
-        Booking booking = createBooking(user, danceClass, LocalDateTime.of(2024, 4, 21, 10, 0), LocalDateTime.of(2024, 4, 21, 12, 0), new BigDecimal("100.00"));
+        Booking booking = createBooking(userOld, danceClass, LocalDateTime.of(2024, 4, 21, 10, 0), LocalDateTime.of(2024, 4, 21, 12, 0), new BigDecimal("100.00"));
         when(bookingRepository.findById(1)).thenReturn(Optional.of(booking));
         doAnswer(invocation -> {
             Booking b = invocation.getArgument(0);
@@ -215,9 +215,9 @@ class BookingServiceImplTest {
         return new DanceClass(ClassType.PRIVATE, true, pricePer60, BigDecimal.ZERO, BigDecimal.ZERO);
     }
 
-    private Booking createBooking(User user, DanceClass danceClass, LocalDateTime from, LocalDateTime to, BigDecimal price) {
+    private Booking createBooking(userOld userOld, DanceClass danceClass, LocalDateTime from, LocalDateTime to, BigDecimal price) {
         return Booking.builder()
-                      .user(user)
+                      .userOld(userOld)
                       .room(Room.ASTAIRE)
                       .danceClass(danceClass)
                       .active(true)

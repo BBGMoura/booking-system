@@ -1,15 +1,15 @@
 package com.acs.bookingsystem.user.service;
 
-import com.acs.bookingsystem.authorization.entity.AuthUser;
-import com.acs.bookingsystem.user.dto.UserDTO;
-import com.acs.bookingsystem.user.request.UserRequest;
-import com.acs.bookingsystem.user.request.UserUpdateRequest;
+import com.acs.bookingsystem.user.entity.User;
+import com.acs.bookingsystem.user.model.UserProfile;
+import com.acs.bookingsystem.user.request.UpdateUserCredentialRequest;
+import org.springframework.data.domain.Page;
 
 public interface UserService {
-    UserDTO createUser(UserRequest userRequest);
-    UserDTO getUserById(int userId);
-    UserDTO getActiveUserById(int userId);
-    UserDTO updateUser(int userId, UserUpdateRequest userUpdateRequest);
-    void updateUserEmail(int userId, String updatedEmail);
-    UserDTO saveAuthToUser(int userId, AuthUser authUser);
+    User createUser(User user);
+    UserProfile getUserProfile(int userId);
+    Page<UserProfile> getUserProfiles(int page, int size);
+    void updateUser(int userId, UpdateUserCredentialRequest request);
+    void updateUserStatus(int userId, boolean enable);
+    void resetPassword(String email);
 }

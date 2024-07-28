@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class EmailUtil {
-    private final EmailConfig emailConfig;
+    private EmailProperties emailProperties;
     private static final Logger LOG = LoggerFactory.getLogger(EmailUtil.class);
     private static final String RESET_PASSWORD = "Reset Password";
     @Value("${email.invitation.subject}")
@@ -32,14 +32,14 @@ public class EmailUtil {
     }
 
     public void sendEmail(String recipientEmail, String subject, String content) {
-        try (Mailer mailer = MailerBuilder.withSMTPServer(emailConfig.getSmtpServer(),
-                                                          emailConfig.getPort(),
-                                                          emailConfig.getSenderEmail(),
-                                                          emailConfig.getPassword())
+        try (Mailer mailer = MailerBuilder.withSMTPServer(emailProperties.getSmtpServer(),
+                                                          emailProperties.getPort(),
+                                                          emailProperties.getSenderEmail(),
+                                                          emailProperties.getPassword())
                 .withTransportStrategy(TransportStrategy.SMTPS)
                                           .buildMailer()) {
             Email email = EmailBuilder.startingBlank()
-                                      .from(emailConfig.getSenderEmail())
+                                      .from(emailProperties.getSenderEmail())
                                       .to(recipientEmail)
                                       .withSubject(subject)
                                       .withPlainText(content)

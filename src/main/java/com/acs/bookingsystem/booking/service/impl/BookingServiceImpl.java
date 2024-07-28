@@ -17,10 +17,10 @@ import com.acs.bookingsystem.booking.service.DanceClassService;
 import com.acs.bookingsystem.common.exception.RequestException;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.payment.PriceCalculator;
-import com.acs.bookingsystem.user.dto.UserDTO;
-import com.acs.bookingsystem.user.entities.User;
-import com.acs.bookingsystem.user.mapper.UserMapper;
-import com.acs.bookingsystem.user.service.UserService;
+import com.acs.bookingsystem.userold.dto.UserDTO;
+import com.acs.bookingsystem.userold.entities.userOld;
+import com.acs.bookingsystem.userold.mapper.UserMapper;
+import com.acs.bookingsystem.userold.service.UserOldService;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +36,7 @@ public class BookingServiceImpl implements BookingService {
     public static final Logger LOG = LoggerFactory.getLogger(BookingServiceImpl.class);
     BookingRepository bookingRepository;
     BookingManager bookingManager;
-    UserService userService;
+    UserOldService userOldService;
     UserMapper userMapper;
     DanceClassService danceClassService;
     DanceClassMapper danceClassMapper;
@@ -46,7 +46,7 @@ public class BookingServiceImpl implements BookingService {
     public BookingDTO createBooking(BookingRequest bookingRequest) {
         LOG.debug("Creating booking with request: {}", bookingRequest);
 
-        User user = getActiveUser(bookingRequest.userId());
+        userOld userOld = getActiveUser(bookingRequest.userId());
         DanceClass danceClass = getDanceClass(bookingRequest.classType());
 
         bookingManager.validateBookingTime(bookingRequest)
@@ -57,7 +57,7 @@ public class BookingServiceImpl implements BookingService {
 
         BigDecimal totalCost = PriceCalculator.calculateTotalPrice(bookingRequest.dateFrom(), bookingRequest.dateTo(), danceClass);
         Booking booking = Booking.builder()
-                                 .user(user)
+                                 .userOld(userOld)
                                  .room(bookingRequest.room())
                                  .danceClass(danceClass)
                                  .active(true)
@@ -78,7 +78,7 @@ public class BookingServiceImpl implements BookingService {
     //TODO: implementation will be reconsidered as paging is required.
     @Override
     public List<BookingDTO> getAllBookingsByUser(int userId) {
-        return bookingRepository.findAllByUserId(userId)
+        return bookingRepository.findAllByUserOldId(userId)
                                 .stream()
                                 .map(bookingMapper::mapBookingToDTO)
                                 .toList();
@@ -106,8 +106,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     //TODO: update implementation as active user might not be necessary anymore, just get user
-    private User getActiveUser(int id) {
-        UserDTO userDto = userService.getActiveUserById(id);
+    private userOld getActiveUser(int id) {
+        UserDTO userDto = userOldService.getActiveUserById(id);
         return userMapper.mapDTOToUser(userDto);
     }
 

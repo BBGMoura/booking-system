@@ -4,9 +4,8 @@ import com.acs.bookingsystem.booking.entities.Booking;
 import com.acs.bookingsystem.booking.entities.DanceClass;
 import com.acs.bookingsystem.booking.enums.ClassType;
 import com.acs.bookingsystem.booking.enums.Room;
-import com.acs.bookingsystem.user.entities.User;
-import com.acs.bookingsystem.user.enums.Permission;
-import com.acs.bookingsystem.user.repository.UserRepository;
+import com.acs.bookingsystem.userold.entities.userOld;
+import com.acs.bookingsystem.userold.repository.UserOldRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -25,7 +24,7 @@ class BookingRepositoryTest {
     @Autowired
     private BookingRepository bookingRepository;
     @Autowired
-    private UserRepository userRepository;
+    private UserOldRepository userOldRepository;
     @Autowired
     private DanceClassRepository danceClassRepository;
 
@@ -147,11 +146,11 @@ class BookingRepositoryTest {
     }
 
     private Booking createTestBooking() {
-        User user = new User("May",
-                             "Jones",
-                             "mayjones@gmail.com",
-                             "01234617281");
-        userRepository.save(user);
+        userOld userOld = new userOld("May",
+                                      "Jones",
+                                      "mayjones@gmail.com",
+                                      "01234617281");
+        userOldRepository.save(userOld);
 
         DanceClass danceClass = new DanceClass(ClassType.GROUP,
                                                true,
@@ -161,7 +160,7 @@ class BookingRepositoryTest {
         danceClassRepository.save(danceClass);
 
         return Booking.builder()
-                      .user(user)
+                      .userOld(userOld)
                       .room(Room.ASTAIRE)
                       .danceClass(danceClass)
                       .active(true)
@@ -173,11 +172,11 @@ class BookingRepositoryTest {
     }
 
     private Booking createAnotherTestBooking() {
-        User user = new User("May",
-                             "Jones",
-                             "mayjones2@gmail.com",
-                             "01234617281");
-        userRepository.save(user);
+        userOld userOld = new userOld("May",
+                                      "Jones",
+                                      "mayjones2@gmail.com",
+                                      "01234617281");
+        userOldRepository.save(userOld);
 
         DanceClass danceClass = new DanceClass(ClassType.GROUP,
                                                true,
@@ -187,7 +186,7 @@ class BookingRepositoryTest {
         danceClassRepository.save(danceClass);
 
         return Booking.builder()
-                      .user(user)
+                      .userOld(userOld)
                       .room(Room.ASTAIRE)
                       .danceClass(danceClass)
                       .active(true)

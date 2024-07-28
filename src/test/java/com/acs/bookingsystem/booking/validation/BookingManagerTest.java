@@ -16,8 +16,7 @@ import com.acs.bookingsystem.booking.enums.ClassType;
 import com.acs.bookingsystem.booking.enums.Room;
 import com.acs.bookingsystem.booking.repository.BookingRepository;
 import com.acs.bookingsystem.booking.request.BookingRequest;
-import com.acs.bookingsystem.user.entities.User;
-import org.junit.jupiter.api.BeforeEach;
+import com.acs.bookingsystem.userold.entities.userOld;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -155,9 +154,9 @@ class BookingManagerTest {
                 now.plusMinutes(30)
         );
 
-        Booking booking1 = createBooking(new User(), new DanceClass(), now, now.plusMinutes(30), BigDecimal.TEN);
-        Booking booking2 = createBooking(new User(), new DanceClass(), now, now.plusMinutes(30), BigDecimal.TEN);
-        Booking booking3 = createBooking(new User(), new DanceClass(), now, now.plusMinutes(30), BigDecimal.TEN);
+        Booking booking1 = createBooking(new userOld(), new DanceClass(), now, now.plusMinutes(30), BigDecimal.TEN);
+        Booking booking2 = createBooking(new userOld(), new DanceClass(), now, now.plusMinutes(30), BigDecimal.TEN);
+        Booking booking3 = createBooking(new userOld(), new DanceClass(), now, now.plusMinutes(30), BigDecimal.TEN);
 
 
         when(bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(
@@ -169,9 +168,9 @@ class BookingManagerTest {
         assertEquals(Optional.of("Booking as timeslot is unavailable. Can only book 3 at a time."), result);
     }
 
-    private Booking createBooking(User user, DanceClass danceClass, LocalDateTime from, LocalDateTime to, BigDecimal price) {
+    private Booking createBooking(userOld userOld, DanceClass danceClass, LocalDateTime from, LocalDateTime to, BigDecimal price) {
         return Booking.builder()
-                      .user(user)
+                      .userOld(userOld)
                       .room(Room.ASTAIRE)
                       .danceClass(danceClass)
                       .active(true)

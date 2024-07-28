@@ -2,7 +2,6 @@
 package com.acs.bookingsystem.booking.entities;
 
 import com.acs.bookingsystem.booking.enums.Room;
-import com.acs.bookingsystem.user.entities.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,7 +20,7 @@ public class Booking {
     private int id;
     @ManyToOne
     @JoinColumn(referencedColumnName="id", nullable = false)
-    private User user;
+    private com.acs.bookingsystem.userold.entities.userOld userOld;
     @Enumerated(EnumType.STRING)
     private Room room;
     @ManyToOne
