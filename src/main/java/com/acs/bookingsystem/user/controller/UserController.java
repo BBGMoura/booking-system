@@ -4,6 +4,10 @@ import com.acs.bookingsystem.common.security.CurrentUser;
 import com.acs.bookingsystem.user.entity.User;
 import com.acs.bookingsystem.user.model.UserProfile;
 import com.acs.bookingsystem.user.request.UpdateUserCredentialRequest;
+import com.acs.bookingsystem.user.request.UpdateUserRequest;
+import com.acs.bookingsystem.user.response.UserStatusResponse;
+import com.acs.bookingsystem.user.service.AuthenticateService;
+import com.acs.bookingsystem.user.service.UserProfileService;
 import com.acs.bookingsystem.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,23 +20,23 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Validated
 public class UserController {
-    private UserService userService;
+    private AuthenticateService authenticateService;
+    private UserProfileService userProfileService;
 
     @GetMapping
     public ResponseEntity<UserProfile> getUserProfile(@CurrentUser User user) {
-        return ResponseEntity.ok(userService.getUserProfile(user.getId()));
+        return ResponseEntity.ok(userProfileService.getUserProfile(user.getId()));
     }
 
     @PutMapping
     public ResponseEntity<Void> updateUserCredentials(@CurrentUser User user,
-                                                      @Valid @RequestBody UpdateUserCredentialRequest request) {
-        userService.updateUser(user.getId(),request);
+                                                      @Valid @RequestBody UpdateUserRequest request) {
+        authenticateService.updateUserCredentials(user.getId(), request);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/disable")
-    public ResponseEntity<Void> disableUser(@CurrentUser User user){
-        userService.updateUserStatus(user.getId(), false);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<UserStatusResponse> disableUser(@CurrentUser User user) {
+        return ResponseEntity.ok( authenticateService.updatedEnabledStatus(user.getId(), false));
     }
 }

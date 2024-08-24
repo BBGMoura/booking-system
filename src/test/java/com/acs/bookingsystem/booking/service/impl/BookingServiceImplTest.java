@@ -165,7 +165,7 @@ class BookingServiceImplTest {
         Booking booking1 = createBooking(userOld, danceClass, LocalDateTime.of(2024, 4, 21, 10, 0), LocalDateTime.of(2024, 4, 21, 12, 0), new BigDecimal("100.00"));
         Booking booking2 = createBooking(userOld, danceClass, LocalDateTime.of(2024, 4, 22, 10, 0), LocalDateTime.of(2024, 4, 22, 12, 0), new BigDecimal("100.00"));
         List<Booking> bookings = List.of(booking1, booking2);
-        when(bookingRepository.findAllByUserOldId(1)).thenReturn(bookings);
+        when(bookingRepository.findAllByUserId(1)).thenReturn(bookings);
         when(bookingMapper.mapBookingToDTO(any(Booking.class))).thenAnswer(invocation -> {
             Booking b = invocation.getArgument(0);
             return createBookingDTO(b.getBookedFrom(), b.getBookedTo(), b.getTotalPrice());

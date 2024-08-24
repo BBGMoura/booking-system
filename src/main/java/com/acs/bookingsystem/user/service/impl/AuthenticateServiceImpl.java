@@ -1,30 +1,24 @@
 package com.acs.bookingsystem.user.service.impl;
 
 import com.acs.bookingsystem.user.entity.UserInfo;
-import com.acs.bookingsystem.user.request.InviteRequest;
+import com.acs.bookingsystem.user.request.*;
 import com.acs.bookingsystem.user.response.InvitationResponse;
-import com.acs.bookingsystem.user.request.AuthenticationRequest;
-import com.acs.bookingsystem.user.request.RegisterRequest;
 import com.acs.bookingsystem.user.response.AuthenticationResponse;
 import com.acs.bookingsystem.user.response.RegistrationResponse;
 import com.acs.bookingsystem.common.email.EmailUtil;
-import com.acs.bookingsystem.common.exception.RequestException;
-import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.common.security.util.JwtUtil;
 import com.acs.bookingsystem.common.security.util.PasswordUtil;
 import com.acs.bookingsystem.user.entity.User;
-import com.acs.bookingsystem.user.repository.UserRepository;
-import com.acs.bookingsystem.user.service.AuthenticationService;
+import com.acs.bookingsystem.user.response.UserStatusResponse;
+import com.acs.bookingsystem.user.service.AuthenticateService;
 import com.acs.bookingsystem.user.service.UserInfoService;
 import com.acs.bookingsystem.user.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -32,32 +26,20 @@ import org.springframework.validation.annotation.Validated;
 @Service
 @RequiredArgsConstructor
 @Validated
-@PropertySource("classpath:email.properties")
-public class AuthenticationServiceImpl implements AuthenticationService {
-    private UserRepository userRepository;
-    private UserDetailsService userDetailsService;
-    private PasswordEncoder passwordEncoder;
-    private JwtUtil jwtUtil;
+public class AuthenticateServiceImpl implements AuthenticateService {
     private AuthenticationManager authenticationManager;
+    private UserDetailsService userDetailsService;
+    private UserInfoService userInfoService;
     private UserService userService;
+    private JwtUtil jwtUtil;
     private EmailUtil emailUtil;
     private PasswordUtil passwordUtil;
-    private UserInfoService userInfoService;
+
 
     @Override
     @Secured("ADMIN")
     public InvitationResponse invite(InviteRequest request) {
-        userRepository.findByEmail(request.email())
-                      .ifPresent(authUser -> {
-                              throw new RequestException("User with email: " + request.email() + " is already invited.",
-                                                         ErrorCode.INVALID_INVITATION_REQUEST);
-                          });
-
-        final User user = User.builder()
-                              .email(request.email())
-                              .permission(request.permission())
-                              .build();
-        userRepository.save(user);
+        final User user = userService.createUser(request.email(), request.permission());
 
         emailUtil.sendInvitationEmail(request.email());
 
@@ -71,14 +53,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     @Transactional
     public RegistrationResponse register(RegisterRequest request) {
-         User user = userRepository.findByEmail(request.email())
-                                   .orElseThrow(() -> new RequestException("Email " + request.email() + " has not been invited to register for the booking system.",
-                                                                                            ErrorCode.INVALID_REGISTRATION_REQUEST));
+        String encodedPassword = passwordUtil.encodePassword(request.password());
 
-        user.setPassword(passwordEncoder.encode(request.password()));
-        user.setLocked(false);
-        user.setEnabled(true);
-        user = userService.createUser(user);
+        final User user = userService.registerUser(request.email(), encodedPassword);
 
         UserInfo userInfo = UserInfo.builder()
                                     .firstName(request.firstName())
@@ -89,6 +66,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         userInfo = userInfoService.createUserInfo(userInfo);
 
         final String jwtToken = jwtUtil.generateToken(user);
+
         return RegistrationResponse.builder()
                                    .token(jwtToken)
                                    .userId(user.getId())
@@ -109,7 +87,41 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                                                         request.password())
         );
         final UserDetails user = userDetailsService.loadUserByUsername(request.email());
+
         final String jwtToken = jwtUtil.generateToken(user);
+
         return AuthenticationResponse.builder().token(jwtToken).build();
+    }
+
+    @Override
+    public void updateUserCredentials(int userId, UpdateUserRequest request) {
+        String encodedPassword = passwordUtil.encodePassword(request.password());
+
+        User user = userService.updateUserCredentials(userId, request.email(), encodedPassword);
+
+        String jwtToken = jwtUtil.generateToken(user);
+
+        AuthenticationResponse.builder().token(jwtToken).build();
+    }
+
+    @Override
+    public UserStatusResponse updatedEnabledStatus(int userId, boolean enabled) {
+        User user = userService.updateEnableStatus(userId, enabled);
+
+        return UserStatusResponse.builder()
+                                 .userId(user.getId())
+                                 .enabled(user.getEnabled())
+                                 .build();
+    }
+
+    @Override
+    public void resetPassword(String email) {
+        final String newPassword = passwordUtil.generateNewPassword();
+
+        String encodedPassword = passwordUtil.encodePassword(newPassword);
+
+        userService.resetPassword(email, encodedPassword);
+
+        emailUtil.sendPasswordResetEmail(email, newPassword);
     }
 }

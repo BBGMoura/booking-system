@@ -22,7 +22,6 @@ public class EmailUtil {
     @Value("${email.invitation.body}")
     private String emailInvitationBody;
 
-
     public void sendPasswordResetEmail(String recipientEmail, String password) {
         sendEmail(recipientEmail, RESET_PASSWORD, password);
     }
@@ -31,12 +30,12 @@ public class EmailUtil {
         sendEmail(recipientEmail, emailInvitationSubject, emailInvitationBody);
     }
 
-    public void sendEmail(String recipientEmail, String subject, String content) {
+    private void sendEmail(String recipientEmail, String subject, String content) {
         try (Mailer mailer = MailerBuilder.withSMTPServer(emailProperties.getSmtpServer(),
                                                           emailProperties.getPort(),
                                                           emailProperties.getSenderEmail(),
                                                           emailProperties.getPassword())
-                .withTransportStrategy(TransportStrategy.SMTPS)
+                                          .withTransportStrategy(TransportStrategy.SMTPS)
                                           .buildMailer()) {
             Email email = EmailBuilder.startingBlank()
                                       .from(emailProperties.getSenderEmail())

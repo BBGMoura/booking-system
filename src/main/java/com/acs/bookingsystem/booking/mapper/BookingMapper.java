@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 public class BookingMapper {
     public BookingDTO mapBookingToDTO(Booking booking) {
         return new BookingDTO(booking.getId(),
-                              booking.getUserOld().getId(),
+                              booking.getUser().getId(),
                               booking.getRoom(),
                               booking.isActive(),
                               booking.isShareable(),

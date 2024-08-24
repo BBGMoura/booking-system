@@ -2,11 +2,9 @@ package com.acs.bookingsystem.user.controller;
 
 import com.acs.bookingsystem.user.request.AuthenticationRequest;
 import com.acs.bookingsystem.user.request.RegisterRequest;
-import com.acs.bookingsystem.user.request.ResetPasswordRequest;
 import com.acs.bookingsystem.user.response.AuthenticationResponse;
 import com.acs.bookingsystem.user.response.RegistrationResponse;
-import com.acs.bookingsystem.user.service.AuthenticationService;
-import com.acs.bookingsystem.user.service.UserService;
+import com.acs.bookingsystem.user.service.AuthenticateService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,22 +16,15 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Validated
 public class AuthenticationController {
-    private AuthenticationService authenticationService;
-    private UserService userService;
+    private AuthenticateService authenticateService;
 
     @PostMapping("/register")
     public ResponseEntity<RegistrationResponse> register(@Valid @RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authenticationService.register(request));
+        return ResponseEntity.ok(authenticateService.register(request));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
-        return ResponseEntity.ok(authenticationService.authenticate(request));
-    }
-
-    @PatchMapping("/password")
-    public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
-        userService.resetPassword(request.email());
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<AuthenticationResponse> authenticate(@Valid @RequestBody AuthenticationRequest request) {
+        return ResponseEntity.ok(authenticateService.authenticate(request));
     }
 }

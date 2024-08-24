@@ -17,7 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-@EnableMethodSecurity
+@EnableMethodSecurity // Enables method-level security like @PreAuthorize
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
@@ -25,9 +25,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable) // Disable CSRF protection for stateless APIs
+        http.csrf(AbstractHttpConfigurer::disable) // Disable CSRF protection for stateless APIs -> not needed if using JWT token
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/auth/**",
+                                     "/password/**",
                                      "/swagger-ui/**",
                                      "/v3/api-docs/**",
                                      "/swagger-ui.html",
@@ -39,10 +40,10 @@ public class SecurityConfig {
                     .authenticated() // Must be authenticated
             )
             .headers(headers -> headers
-                    .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable) // Allow iframe embedding for H2 console
+                    .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable) // Allow iframe embedding for H2 console (disables X-Frame-Options header allowing iframe embedding)
             )
             .sessionManagement(session -> session
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Use stateless sessions
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Use stateless sessions -> no HTTP session is created or used by Spring Security. This is common if using JWT tokens, as they are stateless and don't require server-side storage.
             )
             .authenticationProvider(authenticationProvider) // Custom authentication provider
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class); // JWT filter before default filter

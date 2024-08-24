@@ -1,15 +1,16 @@
 package com.acs.bookingsystem.user.service;
 
 import com.acs.bookingsystem.user.entity.User;
-import com.acs.bookingsystem.user.model.UserProfile;
-import com.acs.bookingsystem.user.request.UpdateUserCredentialRequest;
+import com.acs.bookingsystem.user.enums.Permission;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface UserService {
-    User createUser(User user);
-    UserProfile getUserProfile(int userId);
-    Page<UserProfile> getUserProfiles(int page, int size);
-    void updateUser(int userId, UpdateUserCredentialRequest request);
-    void updateUserStatus(int userId, boolean enable);
-    void resetPassword(String email);
+    User getUserById(int userId);
+    User createUser(String email, Permission permission);
+    User registerUser(String email, String password);
+    User updateUserCredentials(int userId, String email, String password);
+    User updateEnableStatus(int userId, boolean enabled);
+    void resetPassword(String email, String password);
+    Page<User> getUsers(Pageable pageable);
 }

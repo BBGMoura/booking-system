@@ -22,7 +22,6 @@ public class Account implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int id;
-    @OneToOne(fetch = FetchType.LAZY)
     @Column(nullable = false)
     private BigDecimal outstandingBalance;
 }

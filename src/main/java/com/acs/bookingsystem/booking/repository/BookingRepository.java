@@ -47,5 +47,5 @@ public interface BookingRepository extends CrudRepository<Booking, Integer> {
                                                                         @Param("dateFrom") LocalDateTime dateFrom,
                                                                         @Param("dateTo") LocalDateTime dateTo);
 
-    List<Booking> findAllByUserOldId(int userId);
+    List<Booking> findAllByUserId(int userId);
 }
