@@ -9,6 +9,6 @@ public record UserProfile(int userId,
                           String lastName,
                           String email,
                           String phoneNumber,
-                          boolean status,
+                          boolean enabled,
                           Permission permission) {
 }

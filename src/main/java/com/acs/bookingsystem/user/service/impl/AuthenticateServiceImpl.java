@@ -4,7 +4,7 @@ import com.acs.bookingsystem.user.entity.UserInfo;
 import com.acs.bookingsystem.user.request.*;
 import com.acs.bookingsystem.user.response.InvitateResponse;
 import com.acs.bookingsystem.user.response.AuthenticateResponse;
-import com.acs.bookingsystem.user.response.RegistrateResponse;
+import com.acs.bookingsystem.user.response.RegisterResponse;
 import com.acs.bookingsystem.common.email.EmailUtil;
 import com.acs.bookingsystem.common.security.util.JwtUtil;
 import com.acs.bookingsystem.common.security.util.PasswordUtil;
@@ -52,7 +52,7 @@ public class AuthenticateServiceImpl implements AuthenticateService {
 
     @Override
     @Transactional
-    public RegistrateResponse register(RegisterRequest request) {
+    public RegisterResponse register(RegisterRequest request) {
         String encodedPassword = passwordUtil.encodePassword(request.password());
 
         final User user = userService.registerUser(request.email(), encodedPassword);
@@ -67,7 +67,7 @@ public class AuthenticateServiceImpl implements AuthenticateService {
 
         final String jwtToken = jwtUtil.generateToken(user);
 
-        return RegistrateResponse.builder()
+        return RegisterResponse.builder()
                                  .token(jwtToken)
                                  .userId(user.getId())
                                  .firstName(userInfo.getFirstName())

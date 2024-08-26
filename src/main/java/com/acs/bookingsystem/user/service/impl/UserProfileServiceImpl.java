@@ -6,17 +6,17 @@ import com.acs.bookingsystem.user.model.UserProfile;
 import com.acs.bookingsystem.user.service.UserInfoService;
 import com.acs.bookingsystem.user.service.UserProfileService;
 import com.acs.bookingsystem.user.service.UserService;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class UserProfileServiceImpl implements UserProfileService {
-    private UserService userService;
-    private UserInfoService userInfoService;
+    private final UserService userService;
+    private final UserInfoService userInfoService;
 
     @Override
     public UserProfile getUserProfile(int userId) {
@@ -51,7 +51,7 @@ public class UserProfileServiceImpl implements UserProfileService {
                 .lastName(userInfo.getLastName())
                 .phoneNumber(userInfo.getPhoneNumber())
                 .email(user.getUsername())
-                .status(user.isEnabled())
+                .enabled(user.isEnabled())
                 .permission(user.getPermission())
                 .build();
     }
