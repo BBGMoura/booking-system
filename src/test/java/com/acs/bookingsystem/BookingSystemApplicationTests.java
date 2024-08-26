@@ -1,6 +1,6 @@
 package com.acs.bookingsystem;
 
-import com.acs.bookingsystem.userold.controller.UserOldController;
+import com.acs.bookingsystem.user.controller.UserController;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,11 +10,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 class BookingSystemApplicationTests {
 
 	@Autowired
-	UserOldController userOldController;
+	UserController userController;
 
 	@Test
 	void contextLoads() {
-		Assertions.assertNotNull(userOldController);
+		Assertions.assertNotNull(userController);
 	}
 
 }

@@ -1,6 +1,6 @@
 package com.acs.bookingsystem.common.email;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.simplejavamail.api.email.Email;
 import org.simplejavamail.api.mailer.Mailer;
 import org.simplejavamail.api.mailer.config.TransportStrategy;
@@ -8,26 +8,20 @@ import org.simplejavamail.email.EmailBuilder;
 import org.simplejavamail.mailer.MailerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class EmailUtil {
-    private EmailProperties emailProperties;
+    private final EmailProperties emailProperties;
     private static final Logger LOG = LoggerFactory.getLogger(EmailUtil.class);
-    private static final String RESET_PASSWORD = "Reset Password";
-    @Value("${email.invitation.subject}")
-    private String emailInvitationSubject;
-    @Value("${email.invitation.body}")
-    private String emailInvitationBody;
 
     public void sendPasswordResetEmail(String recipientEmail, String password) {
-        sendEmail(recipientEmail, RESET_PASSWORD, password);
+        sendEmail(recipientEmail, EmailProperties.RESET_PASSWORD, password);
     }
 
     public void sendInvitationEmail(String recipientEmail) {
-        sendEmail(recipientEmail, emailInvitationSubject, emailInvitationBody);
+        sendEmail(recipientEmail, emailProperties.getEmailInvitationSubject(), emailProperties.getEmailInvitationBody());
     }
 
     private void sendEmail(String recipientEmail, String subject, String content) {

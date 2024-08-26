@@ -30,5 +30,5 @@ public class BookingHistory {
     private LocalDateTime createdOn;
     @ManyToOne
     @JoinColumn(referencedColumnName="id", nullable = false)
-    private User updatingUserOld;
+    private User user;
 }

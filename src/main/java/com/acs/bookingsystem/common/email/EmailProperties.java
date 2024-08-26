@@ -17,4 +17,11 @@ public class EmailProperties {
     private String smtpServer;
     @Value("${port}")
     private int port;
+
+    @Value("${email.invitation.subject}")
+    private String emailInvitationSubject;
+    @Value("${email.invitation.body}")
+    private String emailInvitationBody;
+    public static final String RESET_PASSWORD = "Reset Password";
+
 }

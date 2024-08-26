@@ -2,9 +2,9 @@ package com.acs.bookingsystem.user.service.impl;
 
 import com.acs.bookingsystem.user.entity.UserInfo;
 import com.acs.bookingsystem.user.request.*;
-import com.acs.bookingsystem.user.response.InvitationResponse;
-import com.acs.bookingsystem.user.response.AuthenticationResponse;
-import com.acs.bookingsystem.user.response.RegistrationResponse;
+import com.acs.bookingsystem.user.response.InvitateResponse;
+import com.acs.bookingsystem.user.response.AuthenticateResponse;
+import com.acs.bookingsystem.user.response.RegistrateResponse;
 import com.acs.bookingsystem.common.email.EmailUtil;
 import com.acs.bookingsystem.common.security.util.JwtUtil;
 import com.acs.bookingsystem.common.security.util.PasswordUtil;
@@ -13,7 +13,7 @@ import com.acs.bookingsystem.user.response.UserStatusResponse;
 import com.acs.bookingsystem.user.service.AuthenticateService;
 import com.acs.bookingsystem.user.service.UserInfoService;
 import com.acs.bookingsystem.user.service.UserService;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,35 +24,35 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
 @Validated
 public class AuthenticateServiceImpl implements AuthenticateService {
-    private AuthenticationManager authenticationManager;
-    private UserDetailsService userDetailsService;
-    private UserInfoService userInfoService;
-    private UserService userService;
-    private JwtUtil jwtUtil;
-    private EmailUtil emailUtil;
-    private PasswordUtil passwordUtil;
+    private final AuthenticationManager authenticationManager;
+    private final UserDetailsService userDetailsService;
+    private final UserInfoService userInfoService;
+    private final UserService userService;
+    private final JwtUtil jwtUtil;
+    private final EmailUtil emailUtil;
+    private final PasswordUtil passwordUtil;
 
 
     @Override
     @Secured("ADMIN")
-    public InvitationResponse invite(InviteRequest request) {
+    public InvitateResponse invite(InviteRequest request) {
         final User user = userService.createUser(request.email(), request.permission());
 
         emailUtil.sendInvitationEmail(request.email());
 
-        return InvitationResponse.builder()
-                                 .userId(user.getId())
-                                 .email(user.getEmail())
-                                 .permission(user.getPermission())
-                                 .build();
+        return InvitateResponse.builder()
+                               .userId(user.getId())
+                               .email(user.getEmail())
+                               .permission(user.getPermission())
+                               .build();
     }
 
     @Override
     @Transactional
-    public RegistrationResponse register(RegisterRequest request) {
+    public RegistrateResponse register(RegisterRequest request) {
         String encodedPassword = passwordUtil.encodePassword(request.password());
 
         final User user = userService.registerUser(request.email(), encodedPassword);
@@ -67,21 +67,21 @@ public class AuthenticateServiceImpl implements AuthenticateService {
 
         final String jwtToken = jwtUtil.generateToken(user);
 
-        return RegistrationResponse.builder()
-                                   .token(jwtToken)
-                                   .userId(user.getId())
-                                   .firstName(userInfo.getFirstName())
-                                   .lastName(userInfo.getLastName())
-                                   .email(user.getEmail())
-                                   .phoneNumber(userInfo.getPhoneNumber())
-                                   .userInfoId(userInfo.getId())
-                                   .permission(user.getPermission())
-                                   .enabled(user.isEnabled())
-                                   .build();
+        return RegistrateResponse.builder()
+                                 .token(jwtToken)
+                                 .userId(user.getId())
+                                 .firstName(userInfo.getFirstName())
+                                 .lastName(userInfo.getLastName())
+                                 .email(user.getEmail())
+                                 .phoneNumber(userInfo.getPhoneNumber())
+                                 .userInfoId(userInfo.getId())
+                                 .permission(user.getPermission())
+                                 .enabled(user.isEnabled())
+                                 .build();
     }
 
     @Override
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public AuthenticateResponse authenticate(AuthenticateRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(),
                                                         request.password())
@@ -90,7 +90,7 @@ public class AuthenticateServiceImpl implements AuthenticateService {
 
         final String jwtToken = jwtUtil.generateToken(user);
 
-        return AuthenticationResponse.builder().token(jwtToken).build();
+        return AuthenticateResponse.builder().token(jwtToken).build();
     }
 
     @Override
@@ -101,7 +101,7 @@ public class AuthenticateServiceImpl implements AuthenticateService {
 
         String jwtToken = jwtUtil.generateToken(user);
 
-        AuthenticationResponse.builder().token(jwtToken).build();
+        AuthenticateResponse.builder().token(jwtToken).build();
     }
 
     @Override

@@ -6,15 +6,15 @@ import com.acs.bookingsystem.user.entity.User;
 import com.acs.bookingsystem.user.enums.Permission;
 import com.acs.bookingsystem.user.repository.UserRepository;
 import com.acs.bookingsystem.user.service.UserService;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class UserServiceImpl implements UserService {
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public User getUserById(int userId) {
         return userRepository.findById(userId)

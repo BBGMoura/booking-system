@@ -6,7 +6,11 @@ import com.acs.bookingsystem.user.entity.UserInfo;
 import com.acs.bookingsystem.user.repository.UserInfoRepository;
 import com.acs.bookingsystem.user.request.UpdateUserInfoRequest;
 import com.acs.bookingsystem.user.service.UserInfoService;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
 
+@Service
+@AllArgsConstructor
 public class UserInfoServiceImpl implements UserInfoService {
     private UserInfoRepository userInfoRepository;
 
