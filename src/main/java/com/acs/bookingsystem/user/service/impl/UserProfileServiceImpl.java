@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -29,7 +30,7 @@ public class UserProfileServiceImpl implements UserProfileService {
 
     @Override
     public Page<UserProfile> getUserProfiles(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("user.lastName").ascending());
+        Pageable pageable = PageRequest.of(page, size);
 
         Page<User> userPage = userService.getUsers(pageable);
 
@@ -39,9 +40,10 @@ public class UserProfileServiceImpl implements UserProfileService {
                                                      UserInfo userInfo = userInfoService.getUserInfoByUserId(user.getId());
                                                      return createUserProfile(user, userInfo);
                                                  })
+                                                 .sorted(Comparator.comparing(UserProfile::lastName))
                                                  .toList();
 
-        return new PageImpl<>(userProfiles, pageable,userPage.getTotalElements());
+        return new PageImpl<>(userProfiles, pageable, userPage.getTotalElements());
     }
 
     private UserProfile createUserProfile(User user, UserInfo userInfo){
@@ -55,5 +57,4 @@ public class UserProfileServiceImpl implements UserProfileService {
                 .permission(user.getPermission())
                 .build();
     }
-
 }
