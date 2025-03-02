@@ -1,97 +1,85 @@
 package com.acs.bookingsystem.user.service.impl;
 
-import com.acs.bookingsystem.common.exception.NotFoundException;
-import com.acs.bookingsystem.user.dto.UserDTO;
-import com.acs.bookingsystem.user.request.UserRegistrationRequest;
-import com.acs.bookingsystem.user.request.UserUpdateRequest;
-import com.acs.bookingsystem.user.entities.User;
-import com.acs.bookingsystem.user.enums.Permission;
-import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.common.exception.RequestException;
-import com.acs.bookingsystem.user.mapper.UserMapper;
+import com.acs.bookingsystem.common.exception.model.ErrorCode;
+import com.acs.bookingsystem.user.entity.User;
+import com.acs.bookingsystem.user.enums.Permission;
 import com.acs.bookingsystem.user.repository.UserRepository;
 import com.acs.bookingsystem.user.service.UserService;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
-
 
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
-    private static final Logger LOG = LoggerFactory.getLogger(UserServiceImpl.class);
-    private UserRepository userRepository;
-    private UserMapper userMapper;
+    private final UserRepository userRepository;
 
-    public UserDTO registerUser(UserRegistrationRequest userRegistrationRequest) {
-        validateEmail(userRegistrationRequest.getEmail());
-        final User savedUser = userRepository.save(new User(userRegistrationRequest.getFirstName(),
-                                                            userRegistrationRequest.getLastName(),
-                                                            userRegistrationRequest.getEmail(),
-                                                            userRegistrationRequest.getPhoneNumber(),
-                                                            true,
-                                                            Permission.USER));
-        return userMapper.mapUserToDTO(savedUser);
+    public User getUserById(int userId) {
+        return userRepository.findById(userId)
+                             .orElseThrow(() ->
+                                     new RequestException("Cannot find user. Please contact support.",
+                                             ErrorCode.INVALID_USER_ID));
     }
 
-    public UserDTO getUserById(int id) {
-        return userMapper.mapUserToDTO(findUserById(id));
+    @Override
+    public Page<User> getUsers(Pageable pageable) {
+        return userRepository.findAll(pageable);
     }
 
-    public UserDTO getActiveUserById(int id) {
-        User user = findUserById(id);
-        if (!user.isActive()) {
-            LOG.debug("User with ID: {} is not active.", id);
-            throw new RequestException("User is not active.", ErrorCode.INACTIVE_USER);
-        }
-        return userMapper.mapUserToDTO(user);
-    }
-
-    public UserDTO updateUser(int userId, UserUpdateRequest userUpdateRequest) {
-        LOG.debug("Updating user with request: {}", userUpdateRequest);
-        User userToUpdate = findUserById(userId);
-
-        if (userUpdateRequest.getEmail() != null && !userUpdateRequest.getEmail().trim().isEmpty()) {
-            validateEmail(userUpdateRequest.getEmail());
-            userToUpdate.setEmail(userUpdateRequest.getEmail());
-        }
-        if (userUpdateRequest.getFirstName() != null && !userUpdateRequest.getFirstName().trim().isEmpty()) {
-            userToUpdate.setFirstName(userUpdateRequest.getFirstName());
-        }
-        if (userUpdateRequest.getLastName() != null && !userUpdateRequest.getLastName().trim().isEmpty()) {
-            userToUpdate.setLastName(userUpdateRequest.getLastName());
-        }
-        if (userUpdateRequest.getPhoneNumber() != null && !userUpdateRequest.getPhoneNumber().trim().isEmpty()) {
-            userToUpdate.setPhoneNumber(userUpdateRequest.getPhoneNumber());
-        }
-
-        User updatedUser = userRepository.save(userToUpdate);
-
-        return userMapper.mapUserToDTO(updatedUser);
-    }
-
-    public void deactivateUserById(int id){
-        User user = findUserById(id);
-        user.setActive(false);
-        userRepository.save(user);
-    }
-
-    private void validateEmail(String email) {
+    @Override
+    public User createUser(String email, Permission permission) {
         userRepository.findByEmail(email)
                       .ifPresent(user -> {
-                          throw new RequestException("Email "+email+" is already in use", ErrorCode.EMAIL_ALREADY_EXISTS);
+                                    throw new RequestException("User with email: " + email + " is already invited.",
+                                            ErrorCode.INVALID_INVITATION_REQUEST);
                       });
+
+        final User user = User.builder()
+                                .email(email)
+                                .permission(permission)
+                                .build();
+        return userRepository.save(user);
     }
 
-    private User findUserById(int id){
-        Optional<User> userOptional = userRepository.findById(id);
-        if (userOptional.isEmpty()) {
-            LOG.debug("User with ID: {} is not found.", id);
-            throw new NotFoundException("Could not find user.", ErrorCode.INVALID_USER_ID);
+    @Override
+    public User registerUser(String email, String password) {
+        User user = userRepository.findByEmail(email)
+                                  .orElseThrow(() ->
+                                            new RequestException("Email " + email + " has not been invited to register for the booking system.",
+                                                    ErrorCode.INVALID_REGISTRATION_REQUEST));
+
+        user.setPassword(password);
+        user.setLocked(false);
+        user.setEnabled(true);
+        return userRepository.save(user);
+   }
+
+    public User updateUserCredentials(int userId, String email, String password) {
+        User user = getUserById(userId);
+
+        if (email != null && !email.isBlank()) {
+            user.setEmail(email);
         }
-        return userOptional.get();
+        if (password != null && !password.isBlank()) {
+            user.setPassword(password);
+        }
+        return userRepository.save(user);
+    }
+
+    public User updateEnableStatus(int userId, boolean enabled) {
+        User user = getUserById(userId);
+        user.setEnabled(enabled);
+        return userRepository.save(user);
+    }
+
+    @Override
+    public void resetPassword(String email, String password) {
+        final User user = userRepository.findByEmail(email)
+                                        .orElseThrow(() ->
+                                                new RequestException("Cannot find user with email " + email,
+                                                        ErrorCode.USER_ERROR));
+        user.setPassword(password);
     }
 }

@@ -17,9 +17,7 @@ import com.acs.bookingsystem.booking.service.DanceClassService;
 import com.acs.bookingsystem.common.exception.RequestException;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.payment.PriceCalculator;
-import com.acs.bookingsystem.user.dto.UserDTO;
-import com.acs.bookingsystem.user.entities.User;
-import com.acs.bookingsystem.user.mapper.UserMapper;
+import com.acs.bookingsystem.user.entity.User;
 import com.acs.bookingsystem.user.service.UserService;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -37,7 +35,6 @@ public class BookingServiceImpl implements BookingService {
     BookingRepository bookingRepository;
     BookingManager bookingManager;
     UserService userService;
-    UserMapper userMapper;
     DanceClassService danceClassService;
     DanceClassMapper danceClassMapper;
     BookingMapper bookingMapper;
@@ -46,7 +43,8 @@ public class BookingServiceImpl implements BookingService {
     public BookingDTO createBooking(BookingRequest bookingRequest) {
         LOG.debug("Creating booking with request: {}", bookingRequest);
 
-        User user = getActiveUser(bookingRequest.userId());
+        User user = userService.getUserById(bookingRequest.userId());
+
         DanceClass danceClass = getDanceClass(bookingRequest.classType());
 
         bookingManager.validateBookingTime(bookingRequest)
@@ -103,11 +101,6 @@ public class BookingServiceImpl implements BookingService {
     private Booking findBookingById(int bookingId) {
         return bookingRepository.findById(bookingId)
                                 .orElseThrow(() -> new NotFoundException("Could not find booking with ID "+bookingId, ErrorCode.INVALID_BOOKING_ID));
-    }
-
-    private User getActiveUser(int id) {
-        UserDTO userDto = userService.getActiveUserById(id);
-        return userMapper.mapDTOToUser(userDto);
     }
 
     private DanceClass getDanceClass(ClassType classType) {

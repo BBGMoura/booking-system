@@ -19,4 +19,3 @@ public class RequestException extends RuntimeException {
         this.error = error;
     }
 }
-

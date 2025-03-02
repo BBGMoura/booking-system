@@ -1,7 +1,7 @@
 package com.acs.bookingsystem.booking.entities;
 
 import com.acs.bookingsystem.booking.enums.BookingStatus;
-import com.acs.bookingsystem.user.entities.User;
+import com.acs.bookingsystem.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,5 +30,5 @@ public class BookingHistory {
     private LocalDateTime createdOn;
     @ManyToOne
     @JoinColumn(referencedColumnName="id", nullable = false)
-    private User updatingUser;
+    private User user;
 }

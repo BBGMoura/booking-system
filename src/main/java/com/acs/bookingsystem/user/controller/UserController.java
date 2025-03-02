@@ -1,44 +1,40 @@
 package com.acs.bookingsystem.user.controller;
 
-import com.acs.bookingsystem.user.dto.UserDTO;
-import com.acs.bookingsystem.user.request.UserRegistrationRequest;
-import com.acs.bookingsystem.user.request.UserUpdateRequest;
-import com.acs.bookingsystem.user.service.UserService;
+import com.acs.bookingsystem.common.security.CurrentUser;
+import com.acs.bookingsystem.user.entity.User;
+import com.acs.bookingsystem.user.model.UserProfile;
+import com.acs.bookingsystem.user.request.UpdateUserRequest;
+import com.acs.bookingsystem.user.response.UserStatusResponse;
+import com.acs.bookingsystem.user.service.AuthenticateService;
+import com.acs.bookingsystem.user.service.UserProfileService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin(origins="localhost:8080")
 @RequestMapping("/user")
 @AllArgsConstructor
 @Validated
 public class UserController {
-    private UserService userService;
+    private AuthenticateService authenticateService;
+    private UserProfileService userProfileService;
 
-    @PostMapping("/register")
-    public ResponseEntity<UserDTO> registerUser(@Valid @RequestBody UserRegistrationRequest userRegistrationRequest) {
-        return new ResponseEntity<>(userService.registerUser(userRegistrationRequest), HttpStatus.CREATED);
+    @GetMapping
+    public ResponseEntity<UserProfile> getUserProfile(@CurrentUser User user) {
+        return ResponseEntity.ok(userProfileService.getUserProfile(user.getId()));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable int id) {
-        return ResponseEntity.ok(userService.getUserById(id));
-    }
-
-    @PutMapping("/update/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable int id,
-                                              @Valid @RequestBody UserUpdateRequest userUpdateRequest) {
-        return ResponseEntity.ok(userService.updateUser(id, userUpdateRequest));
-    }
-
-    @PatchMapping("/deactivate/{id}")
-    public ResponseEntity<Void> deactivateUser(@PathVariable int id) {
-        userService.deactivateUserById(id);
+    @PutMapping
+    public ResponseEntity<Void> updateUserCredentials(@CurrentUser User user,
+                                                      @Valid @RequestBody UpdateUserRequest request) {
+        authenticateService.updateUserCredentials(user.getId(), request);
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/disable")
+    public ResponseEntity<UserStatusResponse> disableUser(@CurrentUser User user) {
+        return ResponseEntity.ok( authenticateService.updatedEnabledStatus(user.getId(), false));
+    }
 }

@@ -2,7 +2,7 @@
 package com.acs.bookingsystem.booking.entities;
 
 import com.acs.bookingsystem.booking.enums.Room;
-import com.acs.bookingsystem.user.entities.User;
+import com.acs.bookingsystem.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
