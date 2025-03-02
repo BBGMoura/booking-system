@@ -11,6 +11,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -86,6 +90,16 @@ public class UniversalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorModel> handleAuthenticationException(AuthenticationException exception) {
+        ErrorModel error = new ErrorModel(new Date(),
+                                          HttpStatus.FORBIDDEN.value(),
+                                          determineAuthenticationErrorMessage(exception),
+                                          exception.getMessage());
+
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
+
     private static String getErrorMessage(Throwable ex) {
         if (ex instanceof InvalidFormatException ifEx && ifEx.getTargetType().isEnum()) {
             return String.format("%s is not a valid class type. Must be one of : %s",
@@ -94,4 +108,15 @@ public class UniversalExceptionHandler {
         }
         return ErrorCode.INTERNAL_ERROR.getDescription();
     }
+
+    private String determineAuthenticationErrorMessage(AuthenticationException exception) {
+        return switch (exception) {
+            case BadCredentialsException badCredentialsException -> "Invalid username or password.";
+            case LockedException lockedException -> "Account is locked. Please contact support.";
+            case DisabledException disabledException -> "Account is disabled. Please contact support.";
+            case null -> "Authentication failed: Unknown error.";
+            default -> "Authentication failed: " + exception.getMessage();
+        };
+    }
+
 }
