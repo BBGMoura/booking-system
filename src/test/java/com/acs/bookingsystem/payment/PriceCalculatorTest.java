@@ -2,13 +2,10 @@ package com.acs.bookingsystem.payment;
 
 import com.acs.bookingsystem.booking.entities.DanceClass;
 import com.acs.bookingsystem.booking.enums.ClassType;
-import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.Month;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PriceCalculatorTest {
 //    @Test
@@ -43,6 +40,6 @@ class PriceCalculatorTest {
     }
 
     private DanceClass getDanceClass(){
-        return new DanceClass(1, ClassType.PRIVATE,true, BigDecimal.ONE,BigDecimal.TWO,BigDecimal.TEN);
+        return new DanceClass(1, ClassType.PRIVATE,true, BigDecimal.ONE);
     }
 }

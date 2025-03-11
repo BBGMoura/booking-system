@@ -8,8 +8,6 @@ public record DanceClassDTO(
         int id,
         ClassType classType,
         boolean active,
-        BigDecimal pricePer60,
-        BigDecimal pricePer45,
-        BigDecimal pricePer30
+        BigDecimal pricePerHour
 ) {
 }

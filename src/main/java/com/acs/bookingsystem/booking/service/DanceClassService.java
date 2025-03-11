@@ -7,8 +7,8 @@ import com.acs.bookingsystem.booking.request.DanceClassRequest;
 import java.util.List;
 
 public interface DanceClassService {
-    DanceClassDTO createDanceClass(DanceClassRequest danceClass);
+    DanceClassDTO createDanceClass(DanceClassRequest danceClassRequest);
     List<ClassType> getAllActiveDanceClassTypes();
-    DanceClassDTO getDanceClassByActiveClassType(ClassType classType);
-    void deactivateDanceClass(ClassType danceClass);
+    DanceClassDTO getActiveDanceClassByClassType(ClassType classType);
+    void deactivateDanceClassByClassType(ClassType classType);
 }

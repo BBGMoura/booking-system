@@ -1,9 +1,6 @@
 package com.acs.bookingsystem.booking.service.impl;
 
 import com.acs.bookingsystem.booking.dto.BookingDTO;
-import com.acs.bookingsystem.booking.validation.BookingManager;
-import com.acs.bookingsystem.common.exception.NotFoundException;
-import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.booking.dto.DanceClassDTO;
 import com.acs.bookingsystem.booking.entities.Booking;
 import com.acs.bookingsystem.booking.entities.DanceClass;
@@ -12,8 +9,11 @@ import com.acs.bookingsystem.booking.enums.Room;
 import com.acs.bookingsystem.booking.mapper.BookingMapper;
 import com.acs.bookingsystem.booking.mapper.DanceClassMapper;
 import com.acs.bookingsystem.booking.repository.BookingRepository;
+import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.booking.service.BookingService;
 import com.acs.bookingsystem.booking.service.DanceClassService;
+import com.acs.bookingsystem.booking.validation.BookingManager;
+import com.acs.bookingsystem.common.exception.NotFoundException;
 import com.acs.bookingsystem.common.exception.RequestException;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.payment.PriceCalculator;
@@ -104,7 +104,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private DanceClass getDanceClass(ClassType classType) {
-        DanceClassDTO danceClassDTO = danceClassService.getDanceClassByActiveClassType(classType);
+        DanceClassDTO danceClassDTO = danceClassService.getActiveDanceClassByClassType(classType);
         return danceClassMapper.mapDtoToDanceClass(danceClassDTO);
     }
 }

@@ -13,9 +13,6 @@ import java.time.LocalDateTime;
 
 public class PriceCalculator {
     public static final Logger LOG = LoggerFactory.getLogger(PriceCalculator.class);
-    static final long INTERVAL_60 = 60;
-    static final long INTERVAL_45 = 45;
-    static final long INTERVAL_30 = 30;
 
     private PriceCalculator() {
         throw new IllegalStateException("Price Calculator is an util class.");
@@ -27,7 +24,7 @@ public class PriceCalculator {
             throw new NotFoundException("Dance class type"+danceClass.getClassType()+ "is not active", ErrorCode.INVALID_BOOKING_REQUEST);
         }
 
-        if (danceClass.getPricePer30() == null || danceClass.getPricePer45() == null || danceClass.getPricePer60() == null) {
+        if (danceClass.getPricePerHour() == null) {
             return BigDecimal.ZERO;
         }
 

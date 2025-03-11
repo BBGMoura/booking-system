@@ -22,15 +22,11 @@ public class DanceClass {
     private ClassType classType;
     @Column(nullable=false)
     private boolean active;
-    private BigDecimal pricePer60;
-    private BigDecimal pricePer45;
-    private BigDecimal pricePer30;
+    private BigDecimal pricePerHour;
 
-    public DanceClass(ClassType classType, boolean active, BigDecimal pricePer60, BigDecimal pricePer45, BigDecimal pricePer30) {
+    public DanceClass(ClassType classType, boolean active, BigDecimal pricePerHour) {
         this.classType = classType;
         this.active = active;
-        this.pricePer60 = pricePer60;
-        this.pricePer45 = pricePer45;
-        this.pricePer30 = pricePer30;
+        this.pricePerHour = pricePerHour;
     }
 }

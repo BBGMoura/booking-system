@@ -19,13 +19,5 @@ public class DanceClassRequest {
     @DecimalMin(value = "0.0")
     @Digits(integer = 3, fraction = 2)
     @NotNull
-    BigDecimal pricePer60;
-    @DecimalMin(value = "0.0")
-    @Digits(integer = 3, fraction = 2)
-    @NotNull
-    BigDecimal pricePer45;
-    @DecimalMin(value = "0.0")
-    @Digits(integer = 3, fraction = 2)
-    @NotNull
-    BigDecimal pricePer30;
+    BigDecimal pricePerHour;
 }
