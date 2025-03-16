@@ -2,7 +2,7 @@ package com.acs.bookingsystem.user.controller;
 
 import com.acs.bookingsystem.user.model.UserProfile;
 import com.acs.bookingsystem.user.request.InviteRequest;
-import com.acs.bookingsystem.user.response.InvitateResponse;
+import com.acs.bookingsystem.user.response.InviteResponse;
 import com.acs.bookingsystem.user.service.AuthenticateService;
 import com.acs.bookingsystem.user.service.UserProfileService;
 import jakarta.validation.Valid;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/admin")
 @AllArgsConstructor
 @Validated
-public class AdminController {
+public class UserAdminController {
     private final AuthenticateService authenticateService;
     private final UserProfileService userProfileService;
 
@@ -32,11 +32,11 @@ public class AdminController {
     }
 
     @PostMapping("/user/invite")
-    public ResponseEntity<InvitateResponse> inviteUser(@Valid @RequestBody InviteRequest request) {
+    public ResponseEntity<InviteResponse> inviteUser(@Valid @RequestBody InviteRequest request) {
         return ResponseEntity.ok(authenticateService.invite(request));
     }
 
-    @PutMapping("/user/{userId}/status")
+    @PatchMapping("/user/{userId}/status")
     public ResponseEntity<Void> updateUserStatus(@PathVariable int userId,
                                                  @RequestParam boolean enable){
         authenticateService.updatedEnabledStatus(userId,enable);

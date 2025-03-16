@@ -1,8 +1,10 @@
 package com.acs.bookingsystem.booking.controller;
 
+import com.acs.bookingsystem.booking.DanceClassTestData;
 import com.acs.bookingsystem.booking.service.DanceClassService;
 import com.acs.bookingsystem.common.security.config.SecurityConfig;
 import com.acs.bookingsystem.common.security.util.JwtUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -39,8 +41,6 @@ class DanceClassAdminControllerTest {
 
     @Test
     void givenUserHasUserAuthority_whenCreateDanceClass_thenReturnForbidden() throws Exception {
-        when(danceClassService.createDanceClass(any())).thenReturn(DanceClassTestData.danceClass);
-
         mockMvc.perform(post("/admin/dance-class"))
                 .andExpect(status().isForbidden());
     }
@@ -51,7 +51,7 @@ class DanceClassAdminControllerTest {
         when(danceClassService.createDanceClass(any())).thenReturn(DanceClassTestData.danceClass);
 
         mockMvc.perform(post("/admin/dance-class").contentType(MediaType.APPLICATION_JSON)
-                                                             .content(DanceClassTestData.danceClassRequestJson))
+                                                             .content(new ObjectMapper().writeValueAsString(DanceClassTestData.danceClassRequest)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", equalTo(1)))
                 .andExpect(jsonPath("$.classType", equalTo("PRIVATE")))
