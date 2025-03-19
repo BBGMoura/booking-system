@@ -1,5 +1,6 @@
 package com.acs.bookingsystem.user.controller;
 
+import com.acs.bookingsystem.common.JsonConfig;
 import com.acs.bookingsystem.common.security.config.SecurityConfig;
 import com.acs.bookingsystem.common.security.util.JwtUtil;
 import com.acs.bookingsystem.user.UserTestData;
@@ -11,8 +12,8 @@ import com.acs.bookingsystem.user.service.UserProfileService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -27,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserAdminController.class)
-@ImportAutoConfiguration(SecurityConfig.class)
+@Import({SecurityConfig.class, JwtUtil.class, JsonConfig.class})
 class UserAdminControllerTest {
 
     @Autowired
@@ -38,9 +39,6 @@ class UserAdminControllerTest {
 
     @MockitoBean
     private UserProfileService userProfileService;
-
-    @MockitoBean
-    private JwtUtil jwtUtil;
 
     @MockitoBean
     private AuthenticationProvider authenticationProvider;

@@ -7,8 +7,8 @@ import com.acs.bookingsystem.common.security.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(DanceClassAdminController.class)
-@ImportAutoConfiguration(SecurityConfig.class)
+@Import({SecurityConfig.class, JwtUtil.class})
 class DanceClassAdminControllerTest {
 
     @Autowired
@@ -32,9 +32,6 @@ class DanceClassAdminControllerTest {
 
     @MockitoBean
     private DanceClassService danceClassService;
-
-    @MockitoBean
-    private JwtUtil jwtUtil;
 
     @MockitoBean
     private AuthenticationProvider authenticationProvider;
