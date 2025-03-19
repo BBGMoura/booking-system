@@ -10,6 +10,7 @@ import com.acs.bookingsystem.user.response.InviteResponse;
 import com.acs.bookingsystem.user.service.AuthenticateService;
 import com.acs.bookingsystem.user.service.UserProfileService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -28,11 +29,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserAdminController.class)
-@Import({SecurityConfig.class, JwtUtil.class, JsonConfig.class})
+@Import({SecurityConfig.class, JsonConfig.class})
 class UserAdminControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private JwtUtil jwtUtil;
 
     @MockitoBean
     private AuthenticateService authenticateService;
@@ -57,6 +64,7 @@ class UserAdminControllerTest {
 
     @Test
     @WithMockUser(authorities = {"ADMIN"})
+    @DisplayName("Admin can successfully create a dance class")
     void givenAdminAuthority_whenGetUser_thenReturnOk() throws Exception {
         when(userProfileService.getUserProfile(1)).thenReturn(adminUserProfile);
 
@@ -94,7 +102,7 @@ class UserAdminControllerTest {
         when(authenticateService.invite(inviteRequest)).thenReturn(inviteResponse);
 
         mockMvc.perform(post("/admin/user/invite").contentType(MediaType.APPLICATION_JSON)
-                                .content(new ObjectMapper().writeValueAsString(inviteRequest)))
+                                .content(objectMapper.writeValueAsString(inviteRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userId").exists())
                 .andExpect(jsonPath("$.email").value(inviteResponse.email()))
@@ -106,7 +114,7 @@ class UserAdminControllerTest {
     void givenAdminAuthority_whenUpdateUserStatus_shouldReturnNoContent() throws Exception {
 
         mockMvc.perform(patch("/admin/user/{userId}/status", 1)
-                                .param("enable", String.valueOf(true)))
+                                .param("enable", Boolean.TRUE.toString()))
                 .andExpect(status().isNoContent());
     }
 

@@ -10,13 +10,13 @@ import java.util.List;
 public class DanceClassTestData {
 
     public static final List<ClassType> classTypes = List.of(ClassType.PRACTICE,
-                                                       ClassType.PRIVATE,
-                                                       ClassType.GROUP);
+                                                             ClassType.PRIVATE,
+                                                             ClassType.GROUP);
 
     public static final DanceClassDTO danceClass = new DanceClassDTO(1,
-                                                               ClassType.PRIVATE,
-                                                               true,
-                                                               BigDecimal.ZERO);
+                                                                     ClassType.PRIVATE,
+                                                                     true,
+                                                                     BigDecimal.ZERO);
 
     public static final DanceClassRequest danceClassRequest = new DanceClassRequest(ClassType.PRIVATE,
                                                                                     BigDecimal.ZERO);

@@ -24,11 +24,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(DanceClassAdminController.class)
-@Import({SecurityConfig.class, JwtUtil.class})
+@Import({SecurityConfig.class})
 class DanceClassAdminControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private JwtUtil jwtUtil;
 
     @MockitoBean
     private DanceClassService danceClassService;
@@ -48,7 +54,7 @@ class DanceClassAdminControllerTest {
         when(danceClassService.createDanceClass(any())).thenReturn(DanceClassTestData.danceClass);
 
         mockMvc.perform(post("/admin/dance-class").contentType(MediaType.APPLICATION_JSON)
-                                                             .content(new ObjectMapper().writeValueAsString(DanceClassTestData.danceClassRequest)))
+                                                             .content(objectMapper.writeValueAsString(DanceClassTestData.danceClassRequest)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", equalTo(1)))
                 .andExpect(jsonPath("$.classType", equalTo("PRIVATE")))

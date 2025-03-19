@@ -25,11 +25,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WithMockUser(authorities = {"USER"})
 @WebMvcTest(DanceClassController.class)
-@Import({SecurityConfig.class, JwtUtil.class})
+@Import({SecurityConfig.class})
 class DanceClassControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockitoBean
+    private JwtUtil jwtUtil;
 
     @MockitoBean
     private DanceClassService danceClassService;
