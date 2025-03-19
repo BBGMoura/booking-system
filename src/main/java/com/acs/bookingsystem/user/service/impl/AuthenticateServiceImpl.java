@@ -2,7 +2,7 @@ package com.acs.bookingsystem.user.service.impl;
 
 import com.acs.bookingsystem.user.entity.UserInfo;
 import com.acs.bookingsystem.user.request.*;
-import com.acs.bookingsystem.user.response.InvitateResponse;
+import com.acs.bookingsystem.user.response.InviteResponse;
 import com.acs.bookingsystem.user.response.AuthenticateResponse;
 import com.acs.bookingsystem.user.response.RegisterResponse;
 import com.acs.bookingsystem.common.email.EmailUtil;
@@ -38,12 +38,12 @@ public class AuthenticateServiceImpl implements AuthenticateService {
 
     @Override
     @Secured("ADMIN")
-    public InvitateResponse invite(InviteRequest request) {
+    public InviteResponse invite(InviteRequest request) {
         final User user = userService.createUser(request.email(), request.permission());
 
         emailUtil.sendInvitationEmail(request.email());
 
-        return InvitateResponse.builder()
+        return InviteResponse.builder()
                                .userId(user.getId())
                                .email(user.getEmail())
                                .permission(user.getPermission())
