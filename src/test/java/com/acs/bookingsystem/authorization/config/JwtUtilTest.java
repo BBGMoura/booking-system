@@ -1,6 +1,6 @@
 package com.acs.bookingsystem.authorization.config;
 
-import com.acs.bookingsystem.common.security.util.JwtUtil;
+import com.acs.bookingsystem.security.util.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

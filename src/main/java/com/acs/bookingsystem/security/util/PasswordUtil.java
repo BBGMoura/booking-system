@@ -1,4 +1,4 @@
-package com.acs.bookingsystem.common.security.util;
+package com.acs.bookingsystem.security.util;
 
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

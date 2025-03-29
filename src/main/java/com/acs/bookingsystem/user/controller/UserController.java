@@ -1,6 +1,6 @@
 package com.acs.bookingsystem.user.controller;
 
-import com.acs.bookingsystem.common.security.CurrentUser;
+import com.acs.bookingsystem.security.CurrentUser;
 import com.acs.bookingsystem.user.entity.User;
 import com.acs.bookingsystem.user.model.UserProfile;
 import com.acs.bookingsystem.user.request.UpdateUserRequest;

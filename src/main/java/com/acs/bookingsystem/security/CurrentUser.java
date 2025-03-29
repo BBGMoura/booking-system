@@ -1,4 +1,4 @@
-package com.acs.bookingsystem.common.security;
+package com.acs.bookingsystem.security;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 

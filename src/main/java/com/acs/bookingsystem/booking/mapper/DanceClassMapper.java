@@ -10,13 +10,15 @@ public class DanceClassMapper {
         return new DanceClassDTO(danceClass.getId(),
                                  danceClass.getClassType(),
                                  danceClass.isActive(),
-                                 danceClass.getPricePerHour());
+                                 danceClass.getPricePerHour(),
+                                 danceClass.getRole());
     }
 
     public DanceClass mapDtoToDanceClass(DanceClassDTO danceClassDTO){
         return new DanceClass(danceClassDTO.id(),
                               danceClassDTO.classType(),
                               danceClassDTO.active(),
-                              danceClassDTO.pricePerHour());
+                              danceClassDTO.pricePerHour(),
+                              danceClassDTO.role());
     }
 }

@@ -1,6 +1,7 @@
 package com.acs.bookingsystem.booking.entities;
 
 import com.acs.bookingsystem.booking.enums.ClassType;
+import com.acs.bookingsystem.user.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,10 +24,13 @@ public class DanceClass {
     @Column(nullable=false)
     private boolean active;
     private BigDecimal pricePerHour;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
-    public DanceClass(ClassType classType, boolean active, BigDecimal pricePerHour) {
+    public DanceClass(ClassType classType, boolean active, BigDecimal pricePerHour, Role role) {
         this.classType = classType;
         this.active = active;
         this.pricePerHour = pricePerHour;
+        this.role = role;
     }
 }

@@ -6,15 +6,15 @@ import com.acs.bookingsystem.user.response.InviteResponse;
 import com.acs.bookingsystem.user.response.AuthenticateResponse;
 import com.acs.bookingsystem.user.response.RegisterResponse;
 import com.acs.bookingsystem.common.email.EmailUtil;
-import com.acs.bookingsystem.common.security.util.JwtUtil;
-import com.acs.bookingsystem.common.security.util.PasswordUtil;
+import com.acs.bookingsystem.security.util.JwtUtil;
+import com.acs.bookingsystem.security.util.PasswordUtil;
 import com.acs.bookingsystem.user.entity.User;
 import com.acs.bookingsystem.user.response.UserStatusResponse;
 import com.acs.bookingsystem.user.service.AuthenticateService;
 import com.acs.bookingsystem.user.service.UserInfoService;
 import com.acs.bookingsystem.user.service.UserService;
 import lombok.AllArgsConstructor;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -37,16 +37,16 @@ public class AuthenticateServiceImpl implements AuthenticateService {
 
 
     @Override
-    @Secured("ADMIN")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public InviteResponse invite(InviteRequest request) {
-        final User user = userService.createUser(request.email(), request.permission());
+        final User user = userService.createUser(request.email(), request.role());
 
         emailUtil.sendInvitationEmail(request.email());
 
         return InviteResponse.builder()
                                .userId(user.getId())
                                .email(user.getEmail())
-                               .permission(user.getPermission())
+                               .role(user.getRole())
                                .build();
     }
 
@@ -75,7 +75,7 @@ public class AuthenticateServiceImpl implements AuthenticateService {
                                  .email(user.getEmail())
                                  .phoneNumber(userInfo.getPhoneNumber())
                                  .userInfoId(userInfo.getId())
-                                 .permission(user.getPermission())
+                                 .role(user.getRole())
                                  .enabled(user.isEnabled())
                                  .build();
     }

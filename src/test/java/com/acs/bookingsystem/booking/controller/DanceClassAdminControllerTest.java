@@ -2,8 +2,9 @@ package com.acs.bookingsystem.booking.controller;
 
 import com.acs.bookingsystem.booking.DanceClassTestData;
 import com.acs.bookingsystem.booking.service.DanceClassService;
-import com.acs.bookingsystem.common.security.config.SecurityConfig;
-import com.acs.bookingsystem.common.security.util.JwtUtil;
+import com.acs.bookingsystem.security.config.SecurityConfig;
+import com.acs.bookingsystem.security.util.JwtUtil;
+import com.acs.bookingsystem.user.enums.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,9 +50,9 @@ class DanceClassAdminControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = {"ADMIN"})
+    @WithMockUser(roles = {"ADMIN"})
     void givenAdminCreateDanceClass_thenReturnCreated() throws Exception {
-        when(danceClassService.createDanceClass(any())).thenReturn(DanceClassTestData.danceClass);
+        when(danceClassService.createDanceClass(any())).thenReturn(DanceClassTestData.danceClassDTO);
 
         mockMvc.perform(post("/admin/dance-class").contentType(MediaType.APPLICATION_JSON)
                                                              .content(objectMapper.writeValueAsString(DanceClassTestData.danceClassRequest)))
@@ -59,11 +60,12 @@ class DanceClassAdminControllerTest {
                 .andExpect(jsonPath("$.id", equalTo(1)))
                 .andExpect(jsonPath("$.classType", equalTo("PRIVATE")))
                 .andExpect(jsonPath("$.active", equalTo(Boolean.TRUE)))
-                .andExpect(jsonPath("$.pricePerHour", equalTo(0)));
+                .andExpect(jsonPath("$.pricePerHour", equalTo(0)))
+                .andExpect(jsonPath("$.role", equalTo(Role.ROLE_USER.toString())));
     }
 
     @Test
-    @WithMockUser(authorities = {"ADMIN"})
+    @WithMockUser(roles = {"ADMIN"})
     void givenAdminGetAllClassTypes_thenReturnOkay() throws Exception {
         mockMvc.perform(get("/admin/class-types"))
                 .andExpect(status().isOk())
@@ -72,7 +74,7 @@ class DanceClassAdminControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = {"ADMIN"})
+    @WithMockUser(roles = {"ADMIN"})
     void givenAdminDeactivateDanceClassType_thenReturnNoContent() throws Exception {
         mockMvc.perform(patch("/admin/dance-classes/{classType}/deactivate", "PRIVATE"))
                 .andExpect(status().isNoContent());

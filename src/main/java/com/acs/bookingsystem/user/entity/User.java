@@ -1,6 +1,6 @@
 package com.acs.bookingsystem.user.entity;
 
-import com.acs.bookingsystem.user.enums.Permission;
+import com.acs.bookingsystem.user.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,7 +24,7 @@ public class User implements UserDetails {
     private String email;
     private String password;
     @Enumerated(EnumType.STRING)
-    private Permission permission;
+    private Role role;
     private Boolean locked;
     private Boolean enabled;
     @OneToOne(mappedBy = "user", fetch = FetchType.EAGER)
@@ -32,7 +32,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority(permission.name()));
+        return Collections.singletonList(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override

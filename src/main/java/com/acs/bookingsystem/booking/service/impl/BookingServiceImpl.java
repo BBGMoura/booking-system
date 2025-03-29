@@ -18,6 +18,7 @@ import com.acs.bookingsystem.common.exception.RequestException;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.payment.PriceCalculator;
 import com.acs.bookingsystem.user.entity.User;
+import com.acs.bookingsystem.user.enums.Role;
 import com.acs.bookingsystem.user.service.UserService;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -45,7 +46,7 @@ public class BookingServiceImpl implements BookingService {
 
         User user = userService.getUserById(bookingRequest.userId());
 
-        DanceClass danceClass = getDanceClass(bookingRequest.classType());
+        DanceClass danceClass = getDanceClass(bookingRequest.classType(), user.getRole());
 
         bookingManager.validateBookingTime(bookingRequest)
                       .ifPresent(errorMessage -> {
@@ -103,8 +104,8 @@ public class BookingServiceImpl implements BookingService {
                                 .orElseThrow(() -> new NotFoundException("Could not find booking with ID "+bookingId, ErrorCode.INVALID_BOOKING_ID));
     }
 
-    private DanceClass getDanceClass(ClassType classType) {
-        DanceClassDTO danceClassDTO = danceClassService.getActiveDanceClassByClassType(classType);
+    private DanceClass getDanceClass(ClassType classType, Role role) {
+        DanceClassDTO danceClassDTO = danceClassService.getActiveDanceClass(classType, role);
         return danceClassMapper.mapDtoToDanceClass(danceClassDTO);
     }
 }

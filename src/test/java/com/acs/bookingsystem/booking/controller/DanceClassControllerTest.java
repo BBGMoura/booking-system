@@ -4,8 +4,9 @@ import com.acs.bookingsystem.booking.DanceClassTestData;
 import com.acs.bookingsystem.booking.dto.DanceClassDTO;
 import com.acs.bookingsystem.booking.enums.ClassType;
 import com.acs.bookingsystem.booking.service.DanceClassService;
-import com.acs.bookingsystem.common.security.config.SecurityConfig;
-import com.acs.bookingsystem.common.security.util.JwtUtil;
+import com.acs.bookingsystem.security.config.SecurityConfig;
+import com.acs.bookingsystem.security.util.JwtUtil;
+import com.acs.bookingsystem.user.enums.Role;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -18,6 +19,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -41,11 +44,11 @@ class DanceClassControllerTest {
     private AuthenticationProvider authenticationProvider;
 
     private final List<ClassType> classTypes = DanceClassTestData.classTypes;
-    private final DanceClassDTO danceClass = DanceClassTestData.danceClass;
+    private final DanceClassDTO danceClass = DanceClassTestData.danceClassDTO;
 
     @Test
     public void givenGetAllActiveDanceClassTypes_thenReturnOk() throws Exception {
-        when(danceClassService.getAllActiveDanceClassTypes()).thenReturn(classTypes);
+        when(danceClassService.getAllActiveDanceClassTypes(any())).thenReturn(classTypes);
 
         mockMvc.perform(get("/dance-classes/class-types"))
                 .andExpect(status().isOk())
@@ -55,13 +58,15 @@ class DanceClassControllerTest {
 
     @Test
     public void givenGetDanceClassByClassType_thenReturnOk() throws Exception {
-        when(danceClassService.getActiveDanceClassByClassType(ClassType.PRIVATE)).thenReturn(danceClass);
+        when(danceClassService.getActiveDanceClass(any(), any())).thenReturn(danceClass);
 
         mockMvc.perform(get("/dance-classes").param("classType", "PRIVATE"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(danceClass.id()))
                 .andExpect(jsonPath("$.classType").value(danceClass.classType().toString()))
                 .andExpect(jsonPath("$.active").value(danceClass.active()))
-                .andExpect(jsonPath("$.pricePerHour").value(danceClass.pricePerHour()));
+                .andExpect(jsonPath("$.pricePerHour").value(danceClass.pricePerHour()))
+                .andExpect(jsonPath("$.role", equalTo(Role.ROLE_USER.toString())));
+        ;
     }
 }
