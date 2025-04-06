@@ -1,5 +1,6 @@
 package com.acs.bookingsystem.user;
 
+import com.acs.bookingsystem.user.entity.User;
 import com.acs.bookingsystem.user.enums.Role;
 import com.acs.bookingsystem.user.model.UserProfile;
 import com.acs.bookingsystem.user.request.InviteRequest;
@@ -10,6 +11,13 @@ import org.springframework.data.domain.PageImpl;
 import java.util.List;
 
 public class UserTestData {
+
+    public static final User user = User.builder()
+            .email("test@example.com")
+            .role(Role.ROLE_USER)
+            .locked(false)
+            .enabled(true)
+            .build();
 
     public static final UserProfile adminUserProfile = UserProfile.builder()
             .userId(1)
@@ -31,8 +39,7 @@ public class UserTestData {
             .enabled(true)
             .build();
 
-    public static final Page<UserProfile> userPage = new PageImpl<>(List.of(adminUserProfile,
-                                                                            userProfile));
+    public static final Page<UserProfile> userPage = new PageImpl<>(List.of(adminUserProfile, userProfile));
 
     public static final InviteRequest inviteRequest = new InviteRequest("example@user.com", Role.ROLE_USER);
 

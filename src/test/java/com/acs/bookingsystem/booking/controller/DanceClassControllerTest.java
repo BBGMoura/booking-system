@@ -6,12 +6,18 @@ import com.acs.bookingsystem.booking.enums.ClassType;
 import com.acs.bookingsystem.booking.service.DanceClassService;
 import com.acs.bookingsystem.security.config.SecurityConfig;
 import com.acs.bookingsystem.security.util.JwtUtil;
+import com.acs.bookingsystem.user.UserTestData;
+import com.acs.bookingsystem.user.entity.User;
 import com.acs.bookingsystem.user.enums.Role;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -45,6 +51,15 @@ class DanceClassControllerTest {
 
     private final List<ClassType> classTypes = DanceClassTestData.classTypes;
     private final DanceClassDTO danceClass = DanceClassTestData.danceClassDTO;
+    private final User user = UserTestData.user;
+
+    @BeforeEach
+    public void setup() {
+        Authentication auth = new UsernamePasswordAuthenticationToken(user,
+                                                                      null,
+                                                                      user.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
 
     @Test
     public void givenGetAllActiveDanceClassTypes_thenReturnOk() throws Exception {
@@ -67,6 +82,5 @@ class DanceClassControllerTest {
                 .andExpect(jsonPath("$.active").value(danceClass.active()))
                 .andExpect(jsonPath("$.pricePerHour").value(danceClass.pricePerHour()))
                 .andExpect(jsonPath("$.role", equalTo(Role.ROLE_USER.toString())));
-        ;
     }
 }
