@@ -1,6 +1,7 @@
 package com.acs.bookingsystem.booking.request;
 
 import com.acs.bookingsystem.booking.enums.ClassType;
+import com.acs.bookingsystem.user.enums.Role;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -21,7 +22,8 @@ class DanceClassRequestTest {
     void whenValidDanceClassRequest_thenNoViolations() {
         DanceClassRequest request = new DanceClassRequest (
                 ClassType.PRIVATE,
-                new BigDecimal("25.50")
+                new BigDecimal("25.50"),
+                Role.ROLE_USER
         );
 
         Set<ConstraintViolation<DanceClassRequest>> violations = validator.validate(request);
@@ -32,7 +34,8 @@ class DanceClassRequestTest {
     void whenNullClassType_thenValidationFails() {
         DanceClassRequest request = new DanceClassRequest(
                 null,
-                new BigDecimal("25.50")
+                new BigDecimal("25.50"),
+                Role.ROLE_USER
         );
 
         Set<ConstraintViolation<DanceClassRequest>> violations = validator.validate(request);
@@ -43,7 +46,8 @@ class DanceClassRequestTest {
     void whenNullPricePerHour_thenValidationFails() {
         DanceClassRequest request = new DanceClassRequest(
                 ClassType.PRIVATE,
-                null
+                null,
+                Role.ROLE_USER
         );
 
         Set<ConstraintViolation<DanceClassRequest>> violations = validator.validate(request);
@@ -54,7 +58,8 @@ class DanceClassRequestTest {
     void whenNegativePrice_thenValidationFails() {
         DanceClassRequest request = new DanceClassRequest(
                 ClassType.PRIVATE,
-                new BigDecimal("-10.00")
+                new BigDecimal("-10.00"),
+                Role.ROLE_USER
         );
 
         Set<ConstraintViolation<DanceClassRequest>> violations = validator.validate(request);
@@ -65,7 +70,8 @@ class DanceClassRequestTest {
     void whenTooManyDecimals_thenValidationFails() {
         DanceClassRequest request = new DanceClassRequest(
                 ClassType.PRIVATE,
-                new BigDecimal("25.555")
+                new BigDecimal("25.555"),
+                Role.ROLE_USER
         );
 
         Set<ConstraintViolation<DanceClassRequest>> violations = validator.validate(request);
@@ -74,9 +80,22 @@ class DanceClassRequestTest {
 
     @Test
     void whenPriceExceedsThreeDigits_thenValidationFails() {
+        DanceClassRequest request =  new DanceClassRequest(
+                ClassType.PRIVATE,
+                new BigDecimal("1000.00"),
+                Role.ROLE_USER
+        );
+
+        Set<ConstraintViolation<DanceClassRequest>> violations = validator.validate(request);
+        assertFalse(violations.isEmpty());
+    }
+
+    @Test
+    void whenNullRole_thenValidationFails() {
         DanceClassRequest request = new DanceClassRequest(
                 ClassType.PRIVATE,
-                new BigDecimal("1000.00")
+                new BigDecimal("25.50"),
+                null
         );
 
         Set<ConstraintViolation<DanceClassRequest>> violations = validator.validate(request);

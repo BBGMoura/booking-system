@@ -1,6 +1,6 @@
-package com.acs.bookingsystem.common.security.filter;
+package com.acs.bookingsystem.security.filter;
 
-import com.acs.bookingsystem.common.security.util.JwtUtil;
+import com.acs.bookingsystem.security.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

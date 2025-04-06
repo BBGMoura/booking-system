@@ -1,4 +1,4 @@
-package com.acs.bookingsystem.common.security;
+package com.acs.bookingsystem.security;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

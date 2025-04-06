@@ -16,6 +16,6 @@ public record RegisterRequest(@NotBlank @Size(max = 50)
                                        message = "Invalid phone number format (ex. 07112233445)") @NotBlank
                               String phoneNumber,
                               @NotBlank @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$£%^&+=?'~:;/.,*(){}]).{8,16}$",
-                                      message = "Password must have one special char, one uppercase, one lower case and one number.")
+                                                 message = "Password must have one special char, one uppercase, one lower case and one number.")
                               String password) {
 }

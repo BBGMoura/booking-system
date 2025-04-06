@@ -54,7 +54,7 @@ public class UserProfileServiceImpl implements UserProfileService {
                 .phoneNumber(userInfo.getPhoneNumber())
                 .email(user.getUsername())
                 .enabled(user.isEnabled())
-                .permission(user.getPermission())
+                .role(user.getRole())
                 .build();
     }
 }

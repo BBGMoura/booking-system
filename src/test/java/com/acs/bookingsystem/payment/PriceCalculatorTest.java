@@ -2,6 +2,7 @@ package com.acs.bookingsystem.payment;
 
 import com.acs.bookingsystem.booking.entities.DanceClass;
 import com.acs.bookingsystem.booking.enums.ClassType;
+import com.acs.bookingsystem.user.enums.Role;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -40,6 +41,6 @@ class PriceCalculatorTest {
     }
 
     private DanceClass getDanceClass(){
-        return new DanceClass(1, ClassType.PRIVATE,true, BigDecimal.ONE);
+        return new DanceClass(1, ClassType.PRIVATE, true, BigDecimal.ONE, Role.ROLE_USER);
     }
 }

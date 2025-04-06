@@ -3,7 +3,7 @@ package com.acs.bookingsystem.user.service.impl;
 import com.acs.bookingsystem.common.exception.RequestException;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.user.entity.User;
-import com.acs.bookingsystem.user.enums.Permission;
+import com.acs.bookingsystem.user.enums.Role;
 import com.acs.bookingsystem.user.repository.UserRepository;
 import com.acs.bookingsystem.user.service.UserService;
 import lombok.AllArgsConstructor;
@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createUser(String email, Permission permission) {
+    public User createUser(String email, Role role) {
         userRepository.findByEmail(email)
                       .ifPresent(user -> {
                                     throw new RequestException("User with email: " + email + " is already invited.",
@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService {
 
         final User user = User.builder()
                                 .email(email)
-                                .permission(permission)
+                                .role(role)
                                 .build();
         return userRepository.save(user);
     }

@@ -1,6 +1,6 @@
 package com.acs.bookingsystem.user.response;
 
-import com.acs.bookingsystem.user.enums.Permission;
+import com.acs.bookingsystem.user.enums.Role;
 import lombok.Builder;
 
 @Builder
@@ -11,6 +11,6 @@ public record RegisterResponse(String token,
                                String email,
                                String phoneNumber,
                                int userInfoId,
-                               Permission permission,
+                               Role role,
                                boolean enabled) {
 }

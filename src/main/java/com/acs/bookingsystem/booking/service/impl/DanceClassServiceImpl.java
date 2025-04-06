@@ -9,8 +9,9 @@ import com.acs.bookingsystem.booking.mapper.DanceClassMapper;
 import com.acs.bookingsystem.booking.request.DanceClassRequest;
 import com.acs.bookingsystem.booking.repository.DanceClassRepository;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
+import com.acs.bookingsystem.user.enums.Role;
 import lombok.AllArgsConstructor;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,62 +19,48 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class DanceClassServiceImpl implements DanceClassService {
-    DanceClassRepository danceClassRepository;
-    DanceClassMapper danceClassMapper;
+    private DanceClassRepository danceClassRepository;
+    private DanceClassMapper danceClassMapper;
 
-    @Secured("ADMIN")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public DanceClassDTO createDanceClass(DanceClassRequest danceClassRequest) {
-        danceClassRepository.findByActiveIsTrueAndClassType(danceClassRequest.getClassType())
+        danceClassRepository.findByActiveIsTrueAndClassType(danceClassRequest.classType())
                             .ifPresent(this::deactivateDanceClass);
 
-//        validatePrices(danceClassRequest);
-
-        final DanceClass danceClass = new DanceClass(danceClassRequest.getClassType(),
+        final DanceClass danceClass = new DanceClass(danceClassRequest.classType(),
                                                      true,
-                                                     danceClassRequest.getPricePerHour());
+                                                     danceClassRequest.pricePerHour(),
+                                                     danceClassRequest.role());
 
         return danceClassMapper.mapDanceClassToDTO(danceClassRepository.save(danceClass));
     }
 
-    public List<ClassType> getAllActiveDanceClassTypes() {
-        // TODO: certain class types are restricted to only admins being able to book
-        List<DanceClass> danceClasses = danceClassRepository.findAllByActiveIsTrue();
+    public List<ClassType> getAllActiveDanceClassTypes(Role role) {
+        List<DanceClass> danceClasses = danceClassRepository.findAllByActiveIsTrueAndRole(role);
         return danceClasses.stream()
                            .map(DanceClass::getClassType)
                            .toList();
     }
 
-    public DanceClassDTO getActiveDanceClassByClassType(ClassType classType) {
-        return danceClassMapper.mapDanceClassToDTO(getActiveDanceClassByType(classType));
+    public DanceClassDTO getActiveDanceClass(ClassType classType, Role role) {
+        final DanceClass danceClass = danceClassRepository.findByActiveIsTrueAndClassTypeAndRole(classType, role)
+                                                          .orElseThrow(() -> new NotFoundException("Dance class with type " + classType + "has not been found. Please contact support.",
+                                                                                                    ErrorCode.INVALID_DANCE_CLASS_REQUEST));
+        return danceClassMapper.mapDanceClassToDTO(danceClass);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void deactivateDanceClassByClassType(ClassType classType) {
-        deactivateDanceClass(getActiveDanceClassByType(classType));
+        final DanceClass danceClass = danceClassRepository.findByActiveIsTrueAndClassType(classType)
+                                                          .orElseThrow(() -> new NotFoundException("The dance class with type "+classType+" has not been recognised. Please contact support.",
+                                                                                                    ErrorCode.INVALID_DANCE_CLASS_REQUEST));
+
+        deactivateDanceClass(danceClass);
     }
 
-    private DanceClass getActiveDanceClassByType(ClassType classType) {
-        return danceClassRepository.findByActiveIsTrueAndClassType(classType)
-                                   .orElseThrow(() -> new NotFoundException("The dance class "+classType+" has not been recognised. Please contact support.", ErrorCode.INVALID_DANCE_CLASS_REQUEST));
-    }
-
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     private void deactivateDanceClass(DanceClass danceClass) {
             danceClass.setActive(false);
             danceClassRepository.save(danceClass);
     }
-
-    // TODO: VALIDATE PRICES
-
-//    private void validatePrices(DanceClassRequest danceClassRequest){
-//        final boolean allZero = danceClassRequest.getPricePerHour().compareTo(BigDecimal.ZERO) == 0 &&
-//                                danceClassRequest.getPricePer45().compareTo(BigDecimal.ZERO) == 0 &&
-//                                danceClassRequest.getPricePer30().compareTo(BigDecimal.ZERO) == 0;
-//
-//        final boolean allGreaterThanZero = danceClassRequest.getPricePerHour().compareTo(BigDecimal.ZERO) > 0 &&
-//                                           danceClassRequest.getPricePer45().compareTo(BigDecimal.ZERO) > 0 &&
-//                                           danceClassRequest.getPricePer30().compareTo(BigDecimal.ZERO) > 0;
-//
-//        if (!allZero && !allGreaterThanZero) {
-//            throw new RequestException("Prices for dance class must be all be 0 or all greater than 0.", ErrorCode.INVALID_DANCE_CLASS_REQUEST);
-//        }
-//    }
 }

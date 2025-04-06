@@ -1,4 +1,4 @@
-package com.acs.bookingsystem.common.security.config;
+package com.acs.bookingsystem.security.config;
 
 import com.acs.bookingsystem.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

@@ -8,7 +8,7 @@ public record UpdateUserRequest(@Size(max = 254)
                                                           message = "Invalid email format")
                                 String email,
                                 @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$£%^&+=?'~:;/.,*(){}]).{8,16}$",
-                                        message = "Password must have one special char, one uppercase, one lower case and one number.")
+                                         message = "Password must have one special char, one uppercase, one lower case and one number.")
                                 String password,
                                 Boolean status) {
 }

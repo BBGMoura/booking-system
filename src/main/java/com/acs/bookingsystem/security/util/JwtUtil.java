@@ -1,4 +1,4 @@
-package com.acs.bookingsystem.common.security.util;
+package com.acs.bookingsystem.security.util;
 
 import com.acs.bookingsystem.common.exception.AuthorizationException;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;

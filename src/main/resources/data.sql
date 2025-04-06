@@ -1,13 +1,13 @@
 MERGE INTO users AS target
 USING (SELECT 'admin@acs.com' AS email,
               '$2a$10$bbSF.JLzs9zICQUtWnkl2ux5Zzgk/piP2tKJQR80QkrSLjFl.ThDy' AS password,
-              'ADMIN' AS permission,
+              'ROLE_ADMIN' AS role,
               FALSE AS locked,
               TRUE AS enabled) AS source
 ON target.email = source.email
 WHEN NOT MATCHED THEN
-    INSERT (email, password, permission, locked, enabled)
-    VALUES (source.email, source.password, source.permission, source.locked, source.enabled);
+    INSERT (email, password, role, locked, enabled)
+    VALUES (source.email, source.password, source.role, source.locked, source.enabled);
 
 MERGE INTO user_info AS target
 USING (SELECT 'Admin' AS first_name,
