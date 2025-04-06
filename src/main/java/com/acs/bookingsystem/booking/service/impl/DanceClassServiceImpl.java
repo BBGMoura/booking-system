@@ -52,7 +52,7 @@ public class DanceClassServiceImpl implements DanceClassService {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void deactivateDanceClassByClassType(ClassType classType) {
         final DanceClass danceClass = danceClassRepository.findByActiveIsTrueAndClassType(classType)
-                                                          .orElseThrow(() -> new NotFoundException("The dance class with type"+classType+" has not been recognised. Please contact support.",
+                                                          .orElseThrow(() -> new NotFoundException("The dance class with type "+classType+" has not been recognised. Please contact support.",
                                                                                                     ErrorCode.INVALID_DANCE_CLASS_REQUEST));
 
         deactivateDanceClass(danceClass);
