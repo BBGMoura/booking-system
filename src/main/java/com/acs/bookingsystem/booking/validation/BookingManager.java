@@ -1,6 +1,6 @@
 package com.acs.bookingsystem.booking.validation;
 
-import com.acs.bookingsystem.booking.config.ScheduleConfig;
+import com.acs.bookingsystem.booking.config.ScheduleProperties;
 import com.acs.bookingsystem.booking.entities.Booking;
 import com.acs.bookingsystem.booking.repository.BookingRepository;
 import com.acs.bookingsystem.booking.request.BookingRequest;
@@ -18,7 +18,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class BookingManager {
     private final BookingRepository bookingRepository;
-    private final ScheduleConfig scheduleConfig;
+    private final ScheduleProperties scheduleProperties;
     private static final int MINIMUM_BOOKING_TIME = 15;
     private static final int TIME_INTERVAL = 5;
     private static final int MAXIMUM_SLOTS = 3;
@@ -105,16 +105,16 @@ public class BookingManager {
 
         switch (dayOfWeek) {
             case DayOfWeek.SATURDAY -> {
-                openingTime = scheduleConfig.getSaturdayOpening();
-                closingTime = scheduleConfig.getSaturdayClosing();
+                openingTime = scheduleProperties.getSaturday().getOpening();
+                closingTime = scheduleProperties.getSaturday().getClosing();
             }
             case DayOfWeek.SUNDAY -> {
-                openingTime = scheduleConfig.getSundayOpening();
-                closingTime = scheduleConfig.getSundayClosing();
+                openingTime = scheduleProperties.getSunday().getOpening();
+                closingTime = scheduleProperties.getSunday().getClosing();
             }
             default -> {
-                openingTime = scheduleConfig.getWeekdayOpening();
-                closingTime = scheduleConfig.getWeekdayClosing();
+                openingTime = scheduleProperties.getWeekday().getOpening();
+                closingTime = scheduleProperties.getWeekday().getClosing();
             }
         }
 

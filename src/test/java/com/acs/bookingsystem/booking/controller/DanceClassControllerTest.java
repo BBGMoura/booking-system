@@ -54,7 +54,7 @@ class DanceClassControllerTest {
     private final User user = UserTestData.user;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         Authentication auth = new UsernamePasswordAuthenticationToken(user,
                                                                       null,
                                                                       user.getAuthorities());
@@ -62,7 +62,7 @@ class DanceClassControllerTest {
     }
 
     @Test
-    public void givenGetAllActiveDanceClassTypes_thenReturnOk() throws Exception {
+    void givenGetAllActiveDanceClassTypes_thenReturnOk() throws Exception {
         when(danceClassService.getAllActiveDanceClassTypes(any())).thenReturn(classTypes);
 
         mockMvc.perform(get("/dance-classes/class-types"))
@@ -72,7 +72,7 @@ class DanceClassControllerTest {
     }
 
     @Test
-    public void givenGetDanceClassByClassType_thenReturnOk() throws Exception {
+    void givenGetDanceClassByClassType_thenReturnOk() throws Exception {
         when(danceClassService.getActiveDanceClass(any(), any())).thenReturn(danceClass);
 
         mockMvc.perform(get("/dance-classes").param("classType", "PRIVATE"))

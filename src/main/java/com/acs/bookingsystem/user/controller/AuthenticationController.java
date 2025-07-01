@@ -30,9 +30,4 @@ public class AuthenticationController {
     public ResponseEntity<AuthenticateResponse> authenticate(@Valid @RequestBody AuthenticateRequest request) {
         return ResponseEntity.ok(authenticateService.authenticate(request));
     }
-
-    @GetMapping("/role")
-    public Boolean checkRole() {
-        return roleChecker.hasRole("ROLE_ADMIN", "ROLE_USER");
-    }
 }

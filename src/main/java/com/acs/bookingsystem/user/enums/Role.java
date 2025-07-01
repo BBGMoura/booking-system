@@ -13,8 +13,6 @@ import lombok.Getter;
  *     <li>Update the role hierarchy in {@code SecurityConfig} if the new role requires a specific hierarchy.</li>
  * </ul>
  */
-@AllArgsConstructor
-@Getter
 public enum Role {
     ROLE_ADMIN,
     ROLE_USER

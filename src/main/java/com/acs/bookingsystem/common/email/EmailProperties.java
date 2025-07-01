@@ -1,27 +1,41 @@
 package com.acs.bookingsystem.common.email;
 
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-@Component
+import java.util.Map;
+
 @Getter
-@PropertySource("classpath:email.properties")
+@Setter
+@Component
+@ConfigurationProperties(prefix = "email")
 public class EmailProperties {
-    @Value("${sender.email}")
-    private String senderEmail;
-    @Value("${password}")
-    private String password;
-    @Value("${smtp.server}")
-    private String smtpServer;
-    @Value("${port}")
-    private int port;
 
-    @Value("${email.invitation.subject}")
-    private String emailInvitationSubject;
-    @Value("${email.invitation.body}")
-    private String emailInvitationBody;
-    public static final String RESET_PASSWORD = "Reset Password";
+    private Sender sender;
+    private Smtp smtp;
+    private Map<String, Template> template;
 
+
+    @Getter
+    @Setter
+    public static class Sender {
+        private String address;
+        private String password;
+    }
+
+    @Getter
+    @Setter
+    public static class Smtp {
+        private String server;
+        private int port;
+    }
+
+    @Getter
+    @Setter
+    public static class Template {
+        private String subject;
+        private String body;
+    }
 }

@@ -111,7 +111,7 @@ public class UniversalExceptionHandler {
 
     private String determineAuthenticationErrorMessage(AuthenticationException exception) {
         return switch (exception) {
-            case BadCredentialsException badCredentialsException -> "Invalid username or password.";
+            case BadCredentialsException badCredentialsException -> "Invalid email or password.";
             case LockedException lockedException -> "Account is locked. Please contact support.";
             case DisabledException disabledException -> "Account is disabled. Please contact support.";
             case null -> "Authentication failed: Unknown error.";

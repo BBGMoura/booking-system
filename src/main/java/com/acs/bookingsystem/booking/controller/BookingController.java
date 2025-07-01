@@ -16,7 +16,6 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@CrossOrigin(origins="localhost:8080")
 @RequestMapping("/booking")
 @Validated
 public class BookingController {
@@ -39,8 +38,8 @@ public class BookingController {
 
     @GetMapping("/schedule")
     public ResponseEntity<List<BookingDTO>> getBookingsByRoomAndTime(@RequestParam(name="room") Room room,
-                                                              @RequestParam(name="dateFrom") LocalDateTime dateFrom,
-                                                              @RequestParam(name="dateTo") LocalDateTime dateTo) {
+                                                                     @RequestParam(name="dateFrom") LocalDateTime dateFrom,
+                                                                     @RequestParam(name="dateTo") LocalDateTime dateTo){
         return ResponseEntity.ok(bookingService.getAllByRoomAndBetweenTwoDates(room,dateFrom,dateTo));
     }
 
