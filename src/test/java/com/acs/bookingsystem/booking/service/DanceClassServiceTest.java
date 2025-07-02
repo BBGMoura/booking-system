@@ -2,7 +2,7 @@ package com.acs.bookingsystem.booking.service;
 
 import com.acs.bookingsystem.booking.DanceClassTestData;
 import com.acs.bookingsystem.booking.dto.DanceClassDTO;
-import com.acs.bookingsystem.booking.entities.DanceClass;
+import com.acs.bookingsystem.booking.entity.DanceClass;
 import com.acs.bookingsystem.booking.mapper.DanceClassMapper;
 import com.acs.bookingsystem.booking.repository.DanceClassRepository;
 import com.acs.bookingsystem.booking.request.DanceClassRequest;

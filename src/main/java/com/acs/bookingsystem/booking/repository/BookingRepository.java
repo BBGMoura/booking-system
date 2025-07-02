@@ -1,6 +1,6 @@
 package com.acs.bookingsystem.booking.repository;
 
-import com.acs.bookingsystem.booking.entities.Booking;
+import com.acs.bookingsystem.booking.entity.Booking;
 import com.acs.bookingsystem.booking.enums.Room;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;

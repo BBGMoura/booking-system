@@ -1,7 +1,7 @@
 package com.acs.bookingsystem.booking.mapper;
 
 import com.acs.bookingsystem.booking.dto.DanceClassDTO;
-import com.acs.bookingsystem.booking.entities.DanceClass;
+import com.acs.bookingsystem.booking.entity.DanceClass;
 import org.springframework.stereotype.Service;
 
 @Service

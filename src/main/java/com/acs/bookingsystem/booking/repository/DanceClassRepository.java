@@ -1,6 +1,6 @@
 package com.acs.bookingsystem.booking.repository;
 
-import com.acs.bookingsystem.booking.entities.DanceClass;
+import com.acs.bookingsystem.booking.entity.DanceClass;
 import com.acs.bookingsystem.booking.enums.ClassType;
 import com.acs.bookingsystem.user.enums.Role;
 import org.springframework.data.repository.CrudRepository;

@@ -1,5 +1,5 @@
 
-package com.acs.bookingsystem.booking.entities;
+package com.acs.bookingsystem.booking.entity;
 
 import com.acs.bookingsystem.booking.enums.Room;
 import com.acs.bookingsystem.user.entity.User;
@@ -27,9 +27,7 @@ public class Booking {
     @ManyToOne
     @JoinColumn(referencedColumnName="id", nullable = false)
     private DanceClass danceClass;
-    @Column
     private boolean active;
-    @Column
     private boolean shareable;
     @Column(nullable = false)
     private LocalDateTime bookedFrom;

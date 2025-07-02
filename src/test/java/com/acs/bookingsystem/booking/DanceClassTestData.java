@@ -1,7 +1,7 @@
 package com.acs.bookingsystem.booking;
 
 import com.acs.bookingsystem.booking.dto.DanceClassDTO;
-import com.acs.bookingsystem.booking.entities.DanceClass;
+import com.acs.bookingsystem.booking.entity.DanceClass;
 import com.acs.bookingsystem.booking.enums.ClassType;
 import com.acs.bookingsystem.booking.request.DanceClassRequest;
 import com.acs.bookingsystem.user.enums.Role;

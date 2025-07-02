@@ -1,7 +1,7 @@
 package com.acs.bookingsystem.booking.service.impl;
 
 import com.acs.bookingsystem.booking.dto.DanceClassDTO;
-import com.acs.bookingsystem.booking.entities.DanceClass;
+import com.acs.bookingsystem.booking.entity.DanceClass;
 import com.acs.bookingsystem.booking.enums.ClassType;
 import com.acs.bookingsystem.booking.service.DanceClassService;
 import com.acs.bookingsystem.common.exception.NotFoundException;

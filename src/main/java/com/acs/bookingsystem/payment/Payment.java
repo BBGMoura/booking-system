@@ -1,6 +1,6 @@
 package com.acs.bookingsystem.payment;
 
-import com.acs.bookingsystem.booking.entities.Booking;
+import com.acs.bookingsystem.booking.entity.Booking;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,7 +1,7 @@
 package com.acs.bookingsystem.booking.validation;
 
 import com.acs.bookingsystem.booking.config.ScheduleConfig;
-import com.acs.bookingsystem.booking.entities.Booking;
+import com.acs.bookingsystem.booking.entity.Booking;
 import com.acs.bookingsystem.booking.repository.BookingRepository;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import lombok.AllArgsConstructor;

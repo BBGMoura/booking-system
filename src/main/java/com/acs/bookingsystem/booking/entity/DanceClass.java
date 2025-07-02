@@ -1,4 +1,4 @@
-package com.acs.bookingsystem.booking.entities;
+package com.acs.bookingsystem.booking.entity;
 
 import com.acs.bookingsystem.booking.enums.ClassType;
 import com.acs.bookingsystem.user.enums.Role;

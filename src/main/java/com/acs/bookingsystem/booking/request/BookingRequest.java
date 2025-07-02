@@ -8,8 +8,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
-public record BookingRequest(@NotNull int userId,
-                             @NotNull Room room,
+public record BookingRequest(@NotNull Room room,
                              @NotNull ClassType classType,
                              boolean isShareable,
                              @NotNull LocalDateTime dateFrom,

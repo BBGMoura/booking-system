@@ -2,8 +2,8 @@ package com.acs.bookingsystem.booking.service.impl;
 
 import com.acs.bookingsystem.booking.dto.BookingDTO;
 import com.acs.bookingsystem.booking.dto.DanceClassDTO;
-import com.acs.bookingsystem.booking.entities.Booking;
-import com.acs.bookingsystem.booking.entities.DanceClass;
+import com.acs.bookingsystem.booking.entity.Booking;
+import com.acs.bookingsystem.booking.entity.DanceClass;
 import com.acs.bookingsystem.booking.enums.ClassType;
 import com.acs.bookingsystem.booking.enums.Room;
 import com.acs.bookingsystem.booking.mapper.BookingMapper;
@@ -41,10 +41,10 @@ public class BookingServiceImpl implements BookingService {
     BookingMapper bookingMapper;
 
     @Override
-    public BookingDTO createBooking(BookingRequest bookingRequest) {
-        LOG.debug("Creating booking with request: {}", bookingRequest);
+    public BookingDTO createBooking(BookingRequest bookingRequest, int userId) {
+        LOG.debug("Creating booking with request: {} for user: {}", bookingRequest, userId);
 
-        User user = userService.getUserById(bookingRequest.userId());
+        User user = userService.getUserById(userId);
 
         DanceClass danceClass = getDanceClass(bookingRequest.classType(), user.getRole());
 
