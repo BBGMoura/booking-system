@@ -1,4 +1,4 @@
-package com.acs.bookingsystem.common.openApi;
+package com.acs.bookingsystem.common.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;

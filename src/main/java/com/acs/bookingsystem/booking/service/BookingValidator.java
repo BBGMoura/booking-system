@@ -1,4 +1,4 @@
-package com.acs.bookingsystem.booking.validation;
+package com.acs.bookingsystem.booking.service;
 
 import com.acs.bookingsystem.booking.config.ScheduleConfig;
 import com.acs.bookingsystem.booking.entity.Booking;
@@ -16,14 +16,14 @@ import java.util.Optional;
 
 @Component
 @AllArgsConstructor
-public class BookingManager {
+public class BookingValidator {
     private final BookingRepository bookingRepository;
     private final ScheduleConfig scheduleConfig;
     private static final int MINIMUM_BOOKING_TIME = 15;
     private static final int TIME_INTERVAL = 5;
     private static final int MAXIMUM_SLOTS = 3;
 
-    public Optional<String> validateBookingTime(BookingRequest bookingRequest) {
+    public Optional<String> validate(BookingRequest bookingRequest) {
         Optional<String> results = validateBookingRequest(bookingRequest);
 
         if (results.isPresent()) {

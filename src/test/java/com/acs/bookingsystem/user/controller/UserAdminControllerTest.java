@@ -1,6 +1,6 @@
 package com.acs.bookingsystem.user.controller;
 
-import com.acs.bookingsystem.common.JsonConfig;
+import com.acs.bookingsystem.common.config.JsonConfig;
 import com.acs.bookingsystem.security.config.SecurityConfig;
 import com.acs.bookingsystem.security.util.JwtUtil;
 import com.acs.bookingsystem.user.UserTestData;

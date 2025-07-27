@@ -1,6 +1,6 @@
 package com.acs.bookingsystem.booking.controller;
 
-import com.acs.bookingsystem.booking.dto.BookingDTO;
+import com.acs.bookingsystem.booking.view.dto.BookingDetail;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.booking.enums.Room;
 import com.acs.bookingsystem.booking.service.BookingService;
@@ -25,26 +25,27 @@ public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping()
-    public ResponseEntity<BookingDTO> createBooking(@CurrentUser User user, @Valid @RequestBody BookingRequest bookingRequest) {
+    public ResponseEntity<BookingDetail> createBooking(@CurrentUser User user, @Valid @RequestBody BookingRequest bookingRequest) {
         return new ResponseEntity<>(bookingService.createBooking(bookingRequest, user.getId()), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BookingDTO> getBookingByBookingId(@CurrentUser User user, @PathVariable int id) {
+    public ResponseEntity<BookingDetail> getBookingByBookingId(@CurrentUser User user, @PathVariable int id) {
         // TODO: get booking by user and id
         return ResponseEntity.ok(bookingService.getBookingById(id));
     }
 
     @GetMapping()
-    public ResponseEntity<List<BookingDTO>> getBookingsByUserId(@CurrentUser User user) {
+    public ResponseEntity<List<BookingDetail>> getBookingsByUserId(@CurrentUser User user) {
         // TODO: make pageable
-        return ResponseEntity.ok(bookingService.getAllBookingsByUser(user.getId()));
+//        return ResponseEntity.ok(bookingService.getAllBookingsByUserId(user.getId()));
+        return null;
     }
 
     @GetMapping("/schedule")
-    public ResponseEntity<List<BookingDTO>> getBookingsByRoomAndTime(@RequestParam(name="room") Room room,
-                                                                     @RequestParam(name="dateFrom") LocalDateTime dateFrom,
-                                                                     @RequestParam(name="dateTo") LocalDateTime dateTo) {
+    public ResponseEntity<List<BookingDetail>> getBookingsByRoomAndTime(@RequestParam(name="room") Room room,
+                                                                        @RequestParam(name="dateFrom") LocalDateTime dateFrom,
+                                                                        @RequestParam(name="dateTo") LocalDateTime dateTo) {
         return ResponseEntity.ok(bookingService.getAllByRoomAndBetweenTwoDates(room, dateFrom, dateTo));
     }
 

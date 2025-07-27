@@ -1,4 +1,4 @@
-package com.acs.bookingsystem.booking.model;
+package com.acs.bookingsystem.booking.view.dto;
 
 import com.acs.bookingsystem.booking.entity.DanceClass;
 import com.acs.bookingsystem.booking.enums.Room;
@@ -11,5 +11,5 @@ public record BookingSummary(int id,
                              boolean active,
                              boolean shareable,
                              LocalDateTime bookedFrom,
-                             LocalDateTime bookedTo) {
+                             LocalDateTime bookedTo) implements BookingView {
 }

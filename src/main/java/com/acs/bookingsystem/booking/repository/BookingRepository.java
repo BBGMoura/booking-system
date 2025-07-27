@@ -2,14 +2,16 @@ package com.acs.bookingsystem.booking.repository;
 
 import com.acs.bookingsystem.booking.entity.Booking;
 import com.acs.bookingsystem.booking.enums.Room;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface BookingRepository extends CrudRepository<Booking, Integer> {
+public interface BookingRepository extends JpaRepository<Booking, Integer> {
     /**
      * Retrieves a list of active bookings for a specified room that intersect with a given time range.
      * This method filters the bookings based on the following criteria:
@@ -47,5 +49,5 @@ public interface BookingRepository extends CrudRepository<Booking, Integer> {
                                                                         @Param("dateFrom") LocalDateTime dateFrom,
                                                                         @Param("dateTo") LocalDateTime dateTo);
 
-    List<Booking> findAllByUserId(int userId);
+    Page<Booking> findAllByUserId(int userId, Pageable pageable);
 }
