@@ -11,5 +11,4 @@ public record BookingSummary(int id,
                              boolean active,
                              boolean shareable,
                              LocalDateTime bookedFrom,
-                             LocalDateTime bookedTo) implements BookingView {
-}
+                             LocalDateTime bookedTo) implements BookingView { }
