@@ -13,6 +13,8 @@ public class BookingValidator {
 
     private final List<BookingValidatorRule> validationRules;
 
+    //TODO: spit the classes up the validation classes even more.
+
     public Optional<String> validate(BookingRequest request) {
         for (BookingValidatorRule rule : validationRules) {
             Optional<String> validationResult = rule.validate(request);
