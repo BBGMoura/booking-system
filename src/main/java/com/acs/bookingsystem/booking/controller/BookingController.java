@@ -1,13 +1,16 @@
 package com.acs.bookingsystem.booking.controller;
 
+import com.acs.bookingsystem.booking.entity.Booking;
 import com.acs.bookingsystem.booking.view.dto.BookingDetail;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.booking.enums.Room;
 import com.acs.bookingsystem.booking.service.BookingService;
+import com.acs.bookingsystem.booking.view.dto.BookingView;
 import com.acs.bookingsystem.security.CurrentUser;
 import com.acs.bookingsystem.user.entity.User;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -25,21 +28,21 @@ public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping()
-    public ResponseEntity<BookingDetail> createBooking(@CurrentUser User user, @Valid @RequestBody BookingRequest bookingRequest) {
+    public ResponseEntity<BookingView> createBooking(@CurrentUser User user, @Valid @RequestBody BookingRequest bookingRequest) {
         return new ResponseEntity<>(bookingService.createBooking(bookingRequest, user.getId()), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BookingDetail> getBookingByBookingId(@CurrentUser User user, @PathVariable int id) {
+    public ResponseEntity<BookingView> getBookingByBookingId(@CurrentUser User user, @PathVariable int bookingId) {
         // TODO: get booking by user and id
-        return ResponseEntity.ok(bookingService.getBookingById(id));
+        return ResponseEntity.ok(bookingService.getBookingById(bookingId));
     }
 
     @GetMapping()
-    public ResponseEntity<List<BookingDetail>> getBookingsByUserId(@CurrentUser User user) {
-        // TODO: make pageable
-//        return ResponseEntity.ok(bookingService.getAllBookingsByUserId(user.getId()));
-        return null;
+    public ResponseEntity<Page<BookingView>> getBookingsByUserId(@CurrentUser User user,
+                                                                 @RequestParam(defaultValue = "0") int page,
+                                                                 @RequestParam(defaultValue = "5") int size) {
+        return ResponseEntity.ok(bookingService.getAllBookingsByUserId(user.getId(), page, size));
     }
 
     @GetMapping("/schedule")

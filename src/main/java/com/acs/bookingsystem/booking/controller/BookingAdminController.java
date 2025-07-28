@@ -4,6 +4,8 @@ import com.acs.bookingsystem.booking.view.dto.BookingDetail;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.booking.service.BookingService;
 import com.acs.bookingsystem.booking.view.dto.BookingView;
+import com.acs.bookingsystem.security.CurrentUser;
+import com.acs.bookingsystem.user.entity.User;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,14 +27,14 @@ public class BookingAdminController {
     }
 
     @GetMapping("/bookings/{bookingId}")
-    public ResponseEntity<BookingDetail> getBookingByBookingId(@PathVariable int bookingId) {
+    public ResponseEntity<BookingView> getBookingByBookingId(@CurrentUser User user, @PathVariable int bookingId) {
         return ResponseEntity.ok(bookingService.getBookingById(bookingId));
     }
 
     @GetMapping("/bookings/user/{userId}")
-    public ResponseEntity<Page<BookingDetail>> getBookingsByUserId(@RequestParam(defaultValue = "0") int page,
-                                                                   @RequestParam(defaultValue = "5") int size,
-                                                                   @PathVariable int userId) {
+    public ResponseEntity<Page<BookingView>> getBookingsByUserId(@RequestParam(defaultValue = "0") int page,
+                                                                 @RequestParam(defaultValue = "5") int size,
+                                                                 @PathVariable int userId) {
         return ResponseEntity.ok(bookingService.getAllBookingsByUserId(userId, page, size));
     }
 

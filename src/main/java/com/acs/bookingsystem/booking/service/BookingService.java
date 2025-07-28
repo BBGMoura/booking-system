@@ -32,6 +32,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -53,8 +54,6 @@ public class BookingService {
 
         DanceClass danceClass = getDanceClass(bookingRequest.classType(), user.getRole());
 
-        // TODO: fix up booking validator
-        // USE DESIGN PATTERN to define different validators, go through every validator in a loop instead of all in one class.
         bookingValidator.validate(bookingRequest)
                         .ifPresent(errorMessage -> {
                              throw new RequestException(errorMessage, ErrorCode.INVALID_BOOKING_REQUEST);
@@ -62,6 +61,7 @@ public class BookingService {
 
 
         BigDecimal totalCost = PriceCalculator.calculateTotalPrice(bookingRequest.dateFrom(), bookingRequest.dateTo(), danceClass);
+
         Booking booking = Booking.builder()
                                  .user(user)
                                  .room(bookingRequest.room())
@@ -76,33 +76,31 @@ public class BookingService {
         return viewFactory.createView(booking, ViewType.DETAIL);
     }
 
-    // TODO: fix up dto situation - will do this using views
-    // TODO:
-
-    public BookingDetail getBookingById(int bookingId) {
-        return bookingMapper.mapDetail(findBookingById(bookingId));
+    public BookingView getBookingById(int bookingId) {
+        Booking booking = findBookingById(bookingId);
+        return viewFactory.createView(booking, ViewType.DETAIL);
     }
 
-    public Page<BookingDetail> getAllBookingsByUserId(int userId, int page, int size) {
+    public Page<BookingView> getAllBookingsByUserId(int userId, int page, int size) {
        Pageable pageable = PageRequest.of(page, size);
 
-       Page<Booking> bookingPage = bookingRepository.findAllByUserId(userId,pageable);
+        Page<Booking> bookingPage = bookingRepository.findAllByUserId(userId, pageable);
 
-        List<BookingDetail> bookings = bookingPage.getContent()
-                                                  .stream()
-                                                  .map(bookingMapper::mapDetail)
-                                                  .sorted(Comparator.comparing(BookingDetail::dateFrom).reversed())
-                                                  .toList();
+        List<BookingView> bookings = bookingPage.getContent()
+                .stream()
+                .sorted(Comparator.comparing(Booking::getBookedFrom).reversed())
+                .map(booking -> viewFactory.createView(booking, ViewType.DETAIL))
+                .toList();
 
        return new PageImpl<>(bookings, pageable, bookingPage.getTotalElements());
     }
 
-    // TODO: this doesnt need detailed view. summary will do just fine.
-    public List<BookingDetail> getAllByRoomAndBetweenTwoDates(Room room, LocalDateTime dateFrom, LocalDateTime dateTo) {
-        return bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(room, null,dateFrom, dateTo)
-                                .stream()
-                                .map(bookingMapper::mapDetail)
-                                .toList();
+    public List<BookingView> getAllByRoomAndBetweenTwoDates(Room room, LocalDateTime dateFrom, LocalDateTime dateTo) {
+        return bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(room, null, dateFrom, dateTo)
+                .stream()
+                .sorted(Comparator.comparing(Booking::getBookedFrom).reversed())
+                .map(booking -> viewFactory.createView(booking, ViewType.SUMMARY))
+                .toList();
     }
 
     public void deactivateBooking(int bookingId) {
