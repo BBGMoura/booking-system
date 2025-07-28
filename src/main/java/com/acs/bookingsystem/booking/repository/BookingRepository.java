@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
     /**
@@ -50,4 +51,6 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
                                                                         @Param("dateTo") LocalDateTime dateTo);
 
     Page<Booking> findAllByUserId(int userId, Pageable pageable);
+
+    Optional<Booking> findByIdAndUserId(int bookingId, int userId);
 }

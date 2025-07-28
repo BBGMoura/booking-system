@@ -1,8 +1,9 @@
-package com.acs.bookingsystem.booking.service.rule;
+package com.acs.bookingsystem.booking.service.validation;
 
 import com.acs.bookingsystem.booking.config.ScheduleConfig;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import lombok.AllArgsConstructor;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.time.DayOfWeek;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
 
+@Order(1)
 @Component
 @AllArgsConstructor
 public class BookingTimeValidator implements BookingValidatorRule {

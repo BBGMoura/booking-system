@@ -1,14 +1,16 @@
-package com.acs.bookingsystem.booking.service.rule;
+package com.acs.bookingsystem.booking.service.validation;
 
 import com.acs.bookingsystem.booking.entity.Booking;
 import com.acs.bookingsystem.booking.repository.BookingRepository;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import lombok.AllArgsConstructor;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 
+@Order(2)
 @Component
 @AllArgsConstructor
 public class BookingConflictValidator implements BookingValidatorRule {

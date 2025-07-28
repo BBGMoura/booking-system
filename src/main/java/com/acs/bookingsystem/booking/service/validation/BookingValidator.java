@@ -1,7 +1,6 @@
-package com.acs.bookingsystem.booking.service;
+package com.acs.bookingsystem.booking.service.validation;
 
 import com.acs.bookingsystem.booking.request.BookingRequest;
-import com.acs.bookingsystem.booking.service.rule.BookingValidatorRule;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 

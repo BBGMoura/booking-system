@@ -1,7 +1,5 @@
 package com.acs.bookingsystem.booking.controller;
 
-import com.acs.bookingsystem.booking.entity.Booking;
-import com.acs.bookingsystem.booking.view.dto.BookingDetail;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.booking.enums.Room;
 import com.acs.bookingsystem.booking.service.BookingService;
@@ -27,15 +25,16 @@ public class BookingController {
 
     private final BookingService bookingService;
 
+    // TODO: MOVE VIEW TO CONTROLLER
+
     @PostMapping()
     public ResponseEntity<BookingView> createBooking(@CurrentUser User user, @Valid @RequestBody BookingRequest bookingRequest) {
         return new ResponseEntity<>(bookingService.createBooking(bookingRequest, user.getId()), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BookingView> getBookingByBookingId(@CurrentUser User user, @PathVariable int bookingId) {
-        // TODO: get booking by user and id
-        return ResponseEntity.ok(bookingService.getBookingById(bookingId));
+    public ResponseEntity<BookingView> getOwnBookingByBookingId(@CurrentUser User user, @PathVariable int id) {
+        return ResponseEntity.ok(bookingService.getOwnBookingById(id, user.getId()));
     }
 
     @GetMapping()
@@ -46,15 +45,16 @@ public class BookingController {
     }
 
     @GetMapping("/schedule")
-    public ResponseEntity<List<BookingDetail>> getBookingsByRoomAndTime(@RequestParam(name="room") Room room,
-                                                                        @RequestParam(name="dateFrom") LocalDateTime dateFrom,
-                                                                        @RequestParam(name="dateTo") LocalDateTime dateTo) {
-        return ResponseEntity.ok(bookingService.getAllByRoomAndBetweenTwoDates(room, dateFrom, dateTo));
+    public ResponseEntity<List<BookingView>> getBookingsByRoomAndTime(@CurrentUser User user,
+                                                                      @RequestParam(name = "room") Room room,
+                                                                      @RequestParam(name = "dateFrom") LocalDateTime dateFrom,
+                                                                      @RequestParam(name = "dateTo") LocalDateTime dateTo) {
+        return ResponseEntity.ok(bookingService.getAllByRoomAndBetweenTwoDates(user.getRole(), room, dateFrom, dateTo));
     }
 
     @PatchMapping("/cancel/{id}")
     public ResponseEntity<Void> cancelBooking(@CurrentUser User user, @PathVariable int id) {
-        bookingService.deactivateBooking(id);
+        bookingService.deactivateOwnBooking(id, user.getId());
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,15 +1,17 @@
-package com.acs.bookingsystem.booking.service.rule;
+package com.acs.bookingsystem.booking.service.validation;
 
 import com.acs.bookingsystem.booking.entity.Booking;
 import com.acs.bookingsystem.booking.repository.BookingRepository;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import lombok.AllArgsConstructor;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Order(3)
 @Component
 @AllArgsConstructor
 public class BookingShareabilityValidator implements BookingValidatorRule {

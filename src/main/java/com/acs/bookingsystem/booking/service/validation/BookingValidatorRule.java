@@ -1,4 +1,4 @@
-package com.acs.bookingsystem.booking.service.rule;
+package com.acs.bookingsystem.booking.service.validation;
 
 import com.acs.bookingsystem.booking.request.BookingRequest;
 
