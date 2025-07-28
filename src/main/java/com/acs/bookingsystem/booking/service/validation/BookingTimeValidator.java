@@ -1,6 +1,5 @@
 package com.acs.bookingsystem.booking.service.validation;
 
-import com.acs.bookingsystem.booking.config.ScheduleConfig;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.core.annotation.Order;

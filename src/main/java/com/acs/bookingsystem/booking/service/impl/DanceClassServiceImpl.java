@@ -22,6 +22,8 @@ public class DanceClassServiceImpl implements DanceClassService {
     private DanceClassRepository danceClassRepository;
     private DanceClassMapper danceClassMapper;
 
+    // TODO: Move this from booking to a dance class package
+
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public DanceClassDTO createDanceClass(DanceClassRequest danceClassRequest) {
         danceClassRepository.findByActiveIsTrueAndClassType(danceClassRequest.classType())

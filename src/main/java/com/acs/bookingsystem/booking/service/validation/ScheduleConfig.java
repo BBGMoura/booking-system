@@ -1,4 +1,4 @@
-package com.acs.bookingsystem.booking.config;
+package com.acs.bookingsystem.booking.service.validation;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
