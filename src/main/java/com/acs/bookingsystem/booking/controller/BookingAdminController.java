@@ -20,6 +20,8 @@ public class BookingAdminController {
 
     private final BookingService bookingService;
 
+    // TODO: add view implementation
+
     @PostMapping("/bookings")
     public ResponseEntity<BookingView> createBooking(@RequestParam(name="userId") int userId,
                                                      @Valid @RequestBody BookingRequest bookingRequest) {

@@ -44,6 +44,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "     (b.bookedFrom >= :dateFrom AND b.bookedTo <= :dateTo) OR " +
             "     (b.bookedFrom > :dateFrom AND b.bookedFrom < :dateTo AND :dateTo < b.bookedTo) OR " +
             "     (b.bookedTo > :dateFrom AND b.bookedFrom < :dateFrom AND b.bookedTo < :dateTo)" +
+            "ORDER BY b.bookedFrom ASC" +
             ")")
     List<Booking> findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(@Param("room") Room room,
                                                                         @Param("shareable") Boolean shareable,

@@ -27,6 +27,8 @@ public class PriceCalculator {
             throw new RequestException("Cannot complete booking as time interval is 0.", ErrorCode.INVALID_BOOKING_REQUEST);
         }
 
+        // TODO: Add log info probably
+
         return pricePerHour.multiply(BigDecimal.valueOf(minutes)).divide(BigDecimal.valueOf(60), RoundingMode.HALF_UP);
     }
 }
