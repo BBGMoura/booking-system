@@ -24,11 +24,9 @@ import java.math.BigDecimal;
 
 @Service
 @AllArgsConstructor
-public class BookingService {
+public class BookingManagerService {
 
-    //TODO: add logging?
-
-    public static final Logger LOG = LoggerFactory.getLogger(BookingService.class);
+    public static final Logger LOG = LoggerFactory.getLogger(BookingManagerService.class);
 
     BookingRepository bookingRepository;
     BookingValidator bookingValidator;

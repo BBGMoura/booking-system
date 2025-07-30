@@ -1,8 +1,12 @@
 package com.acs.bookingsystem.booking.controller;
 
+import com.acs.bookingsystem.booking.entity.Booking;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.booking.enums.Room;
-import com.acs.bookingsystem.booking.service.BookingService;
+import com.acs.bookingsystem.booking.service.BookingQueryService;
+import com.acs.bookingsystem.booking.service.BookingManagerService;
+import com.acs.bookingsystem.booking.view.BookingViewFactory;
+import com.acs.bookingsystem.booking.view.ViewType;
 import com.acs.bookingsystem.booking.view.dto.BookingView;
 import com.acs.bookingsystem.security.CurrentUser;
 import com.acs.bookingsystem.user.entity.User;
@@ -23,25 +27,29 @@ import java.util.List;
 @Validated
 public class BookingController {
 
-    private final BookingService bookingService;
-
-    // TODO: MOVE VIEW TO CONTROLLER
+    private final BookingManagerService bookingManagerService;
+    private final BookingQueryService bookingQueryService;
+    private final BookingViewFactory viewFactory;
 
     @PostMapping()
     public ResponseEntity<BookingView> createBooking(@CurrentUser User user, @Valid @RequestBody BookingRequest bookingRequest) {
-        return new ResponseEntity<>(bookingService.createBooking(bookingRequest, user.getId()), HttpStatus.CREATED);
+        Booking booking = bookingManagerService.createBooking(bookingRequest, user.getId());
+        return new ResponseEntity<>(viewFactory.createView(booking, ViewType.DETAIL), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BookingView> getOwnBookingByBookingId(@CurrentUser User user, @PathVariable int id) {
-        return ResponseEntity.ok(bookingService.getOwnBookingById(id, user.getId()));
+    public ResponseEntity<BookingView> getOwnBookingById(@CurrentUser User user, @PathVariable int id) {
+        Booking booking = bookingQueryService.getOwnBookingById(id, user.getId());
+        return ResponseEntity.ok(viewFactory.createView(booking, ViewType.DETAIL));
     }
 
     @GetMapping()
     public ResponseEntity<Page<BookingView>> getBookingsByUserId(@CurrentUser User user,
                                                                  @RequestParam(defaultValue = "0") int page,
                                                                  @RequestParam(defaultValue = "5") int size) {
-        return ResponseEntity.ok(bookingService.getAllBookingsByUserId(user.getId(), page, size));
+        Page<BookingView> bookings = bookingQueryService.getAllBookingsByUserId(user.getId(), page, size)
+                                                        .map(booking -> viewFactory.createView(booking, ViewType.DETAIL));
+        return ResponseEntity.ok(bookings);
     }
 
     @GetMapping("/schedule")
@@ -49,12 +57,16 @@ public class BookingController {
                                                                       @RequestParam(name = "room") Room room,
                                                                       @RequestParam(name = "dateFrom") LocalDateTime dateFrom,
                                                                       @RequestParam(name = "dateTo") LocalDateTime dateTo) {
-        return ResponseEntity.ok(bookingService.getAllByRoomAndBetweenTwoDates(user.getRole(), room, dateFrom, dateTo));
+        List<BookingView> bookings = bookingQueryService.getAllByRoomAndBetweenTwoDates(user.getRole(), room, dateFrom, dateTo)
+                                                        .stream()
+                                                        .map(booking -> viewFactory.createView(booking, user.getRole()))
+                                                        .toList();
+        return ResponseEntity.ok(bookings);
     }
 
     @PatchMapping("/cancel/{id}")
     public ResponseEntity<Void> cancelBooking(@CurrentUser User user, @PathVariable int id) {
-        bookingService.deactivateOwnBooking(id, user.getId());
+        bookingManagerService.deactivateOwnBooking(id, user.getId());
         return ResponseEntity.noContent().build();
     }
 }

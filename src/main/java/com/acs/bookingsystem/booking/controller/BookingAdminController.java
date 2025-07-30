@@ -1,8 +1,11 @@
 package com.acs.bookingsystem.booking.controller;
 
-import com.acs.bookingsystem.booking.view.dto.BookingDetail;
+import com.acs.bookingsystem.booking.entity.Booking;
+import com.acs.bookingsystem.booking.service.BookingQueryService;
+import com.acs.bookingsystem.booking.view.BookingViewFactory;
+import com.acs.bookingsystem.booking.view.ViewType;
 import com.acs.bookingsystem.booking.request.BookingRequest;
-import com.acs.bookingsystem.booking.service.BookingService;
+import com.acs.bookingsystem.booking.service.BookingManagerService;
 import com.acs.bookingsystem.booking.view.dto.BookingView;
 import com.acs.bookingsystem.security.CurrentUser;
 import com.acs.bookingsystem.user.entity.User;
@@ -18,31 +21,36 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/admin")
 public class BookingAdminController {
 
-    private final BookingService bookingService;
-
-    // TODO: add view implementation
+    private final BookingManagerService bookingManagerService;
+    private final BookingQueryService bookingQueryService;
+    private final BookingViewFactory viewFactory;
 
     @PostMapping("/bookings")
     public ResponseEntity<BookingView> createBooking(@RequestParam(name="userId") int userId,
                                                      @Valid @RequestBody BookingRequest bookingRequest) {
-        return new ResponseEntity<>(bookingService.createBooking(bookingRequest, userId), HttpStatus.CREATED);
+        Booking booking = bookingManagerService.createBooking(bookingRequest, userId);
+        return new ResponseEntity<>(viewFactory.createView(booking, ViewType.DETAIL), HttpStatus.CREATED);
     }
 
     @GetMapping("/bookings/{bookingId}")
     public ResponseEntity<BookingView> getBookingByBookingId(@CurrentUser User user, @PathVariable int bookingId) {
-        return ResponseEntity.ok(bookingService.getBookingById(bookingId));
+        Booking booking = bookingQueryService.getBookingById(bookingId);
+        return ResponseEntity.ok(viewFactory.createView(booking, user.getRole()));
     }
 
     @GetMapping("/bookings/user/{userId}")
     public ResponseEntity<Page<BookingView>> getBookingsByUserId(@RequestParam(defaultValue = "0") int page,
                                                                  @RequestParam(defaultValue = "5") int size,
                                                                  @PathVariable int userId) {
-        return ResponseEntity.ok(bookingService.getAllBookingsByUserId(userId, page, size));
+        Page<BookingView> bookings = bookingQueryService.getAllBookingsByUserId(userId, page, size)
+                                                        .map(booking -> viewFactory.createView(booking, ViewType.DETAIL));
+
+        return ResponseEntity.ok(bookings);
     }
 
     @PatchMapping("/bookings/cancel/{bookingId}")
     public ResponseEntity<Void> cancelBooking(@PathVariable int bookingId) {
-        bookingService.deactivateBooking(bookingId);
+        bookingManagerService.deactivateBooking(bookingId);
         return ResponseEntity.noContent().build();
     }
 }
