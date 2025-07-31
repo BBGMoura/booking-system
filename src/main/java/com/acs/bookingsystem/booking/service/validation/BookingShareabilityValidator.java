@@ -68,9 +68,9 @@ public class BookingShareabilityValidator implements BookingValidatorRule {
     }
 
     private List<Booking> getBookings(BookingRequest bookingRequest) {
-        return bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(bookingRequest.room(),
-                                                                                       Boolean.TRUE,
-                                                                                       bookingRequest.dateFrom(),
-                                                                                       bookingRequest.dateTo());
+        return bookingRepository.findActiveBookingsForRoomAndTimeRange(bookingRequest.room(),
+                                                                       Boolean.TRUE,
+                                                                       bookingRequest.dateFrom(),
+                                                                       bookingRequest.dateTo());
     }
 }

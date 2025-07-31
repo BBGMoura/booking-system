@@ -1,6 +1,6 @@
-package com.acs.bookingsystem.booking.dto;
+package com.acs.bookingsystem.danceclass.dto;
 
-import com.acs.bookingsystem.booking.enums.ClassType;
+import com.acs.bookingsystem.danceclass.enums.ClassType;
 import com.acs.bookingsystem.user.enums.Role;
 
 import java.math.BigDecimal;

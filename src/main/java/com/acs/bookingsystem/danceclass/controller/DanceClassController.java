@@ -1,8 +1,10 @@
-package com.acs.bookingsystem.booking.controller;
+package com.acs.bookingsystem.danceclass.controller;
 
-import com.acs.bookingsystem.booking.dto.DanceClassDTO;
-import com.acs.bookingsystem.booking.enums.ClassType;
-import com.acs.bookingsystem.booking.service.DanceClassService;
+import com.acs.bookingsystem.danceclass.dto.DanceClassDTO;
+import com.acs.bookingsystem.danceclass.entity.DanceClass;
+import com.acs.bookingsystem.danceclass.enums.ClassType;
+import com.acs.bookingsystem.danceclass.mapper.DanceClassMapper;
+import com.acs.bookingsystem.danceclass.service.impl.DanceClassService;
 import com.acs.bookingsystem.security.CurrentUser;
 import com.acs.bookingsystem.user.entity.User;
 import lombok.AllArgsConstructor;
@@ -18,6 +20,8 @@ public class DanceClassController {
 
     private DanceClassService danceClassService;
 
+    private DanceClassMapper mapper;
+
     /**
      * Retrieves an active dance class by its class type.
      * This endpoint is accessible to both users and admin roles.
@@ -26,8 +30,10 @@ public class DanceClassController {
      * @return ResponseEntity containing the dance class information if available
      */
     @GetMapping()
-    public ResponseEntity<DanceClassDTO> getDanceClassByClassType(@CurrentUser User user, @RequestParam(name="classType") ClassType classType){
-        return ResponseEntity.ok(danceClassService.getActiveDanceClass(classType, user.getRole()));
+    public ResponseEntity<DanceClassDTO> getDanceClassByClassType(@CurrentUser User user,
+                                                                  @RequestParam(name="classType") ClassType classType){
+        DanceClass danceClass = danceClassService.getActiveDanceClass(classType, user.getRole());
+        return ResponseEntity.ok(mapper.map(danceClass));
     }
 
     /**

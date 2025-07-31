@@ -25,7 +25,7 @@ class JwtUtilTest {
     private JwtUtil jwtUtil;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         jwtUtil = new JwtUtil();
         Field field = jwtUtil.getClass().getDeclaredField("secretKey");
         field.setAccessible(true);

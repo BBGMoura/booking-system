@@ -19,15 +19,20 @@ public class BookingHistory {
     @Id
     @GeneratedValue
     private int id;
+
     @ManyToOne
     @JoinColumn(referencedColumnName="id")
     private Booking booking;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BookingStatus bookingStatus;
+
     private String description;
+
     @Column(nullable = false)
     private LocalDateTime createdOn;
+
     @ManyToOne
     @JoinColumn(referencedColumnName="id", nullable = false)
     private User user;

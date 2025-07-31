@@ -1,6 +1,6 @@
 package com.acs.bookingsystem.booking.request;
 
-import com.acs.bookingsystem.booking.enums.ClassType;
+import com.acs.bookingsystem.danceclass.enums.ClassType;
 import com.acs.bookingsystem.booking.enums.Room;
 import jakarta.validation.constraints.NotNull;
 

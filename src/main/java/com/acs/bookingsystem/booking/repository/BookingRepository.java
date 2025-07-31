@@ -13,26 +13,24 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
+
     /**
-     * Retrieves a list of active bookings for a specified room that intersect with a given time range.
+     * Retrieves active, sorted bookings for a room's timetable that overlap a given time range.
      * This method filters the bookings based on the following criteria:
-     * <ul>
-     *     <li>The booking is active.</li>
-     *     <li>The booking is associated with the specified room.</li>
-     *     <li>The booking can be or not be shareable. </li>
-     *     <li>The time range of the booking overlaps with the specified time range from {@code dateFrom} to {@code dateTo} in any of the following ways:
-     *         <ol>
-     *             <li>The requested time falls entirely within the bounds of a booking.</li>
-     *             <li>The requested time completely surrounds a booking.</li>
-     *             <li>The start time of the requested range falls within the booking, and ends after the booking starts.</li>
-     *             <li>The end time of the requested range is within the booking, and begins before the booking ends.</li>
-     *         </ol>
-     *     </li>
-     * </ul>
+     *  - The booking is active.
+     *  - The booking is associated with the specified room.
+     *  - The booking can be or not be shareable. </li>
+     *  - The time range of the booking overlaps with the specified time range from {@code dateFrom} to {@code dateTo}
+     *    in any of the following ways:
+     *           - The requested time falls entirely within the bounds of a booking.
+     *           - The requested time completely surrounds a booking.
+     *           - The start time of the requested range falls within the booking, and ends after the booking starts.
+     *           - The end time of the requested range is within the booking, and begins before the booking ends.
      *
      * @param room The room associated with the bookings to be retrieved.
-     * @param dateFrom The start of the time range to check bookings against.
-     * @param dateTo The end of the time range to check bookings against.
+     * @param shareable A boolean flag to filter by shareable status. If null, shareable status is not considered.
+     * @param dateFrom The start of the time range to check bookings against (inclusive).
+     * @param dateTo The end of the time range to check bookings against (inclusive).
      * @return A list of {@link Booking} instances that meet the criteria.
      */
     @Query("SELECT b FROM Booking b " +
@@ -44,12 +42,12 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "     (b.bookedFrom >= :dateFrom AND b.bookedTo <= :dateTo) OR " +
             "     (b.bookedFrom > :dateFrom AND b.bookedFrom < :dateTo AND :dateTo < b.bookedTo) OR " +
             "     (b.bookedTo > :dateFrom AND b.bookedFrom < :dateFrom AND b.bookedTo < :dateTo)" +
-            "ORDER BY b.bookedFrom ASC" +
-            ")")
-    List<Booking> findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(@Param("room") Room room,
-                                                                        @Param("shareable") Boolean shareable,
-                                                                        @Param("dateFrom") LocalDateTime dateFrom,
-                                                                        @Param("dateTo") LocalDateTime dateTo);
+            ")" +
+            "ORDER BY b.bookedFrom ASC")
+    List<Booking> findActiveBookingsForRoomAndTimeRange(@Param("room") Room room,
+                                                        @Param("shareable") Boolean shareable,
+                                                        @Param("dateFrom") LocalDateTime dateFrom,
+                                                        @Param("dateTo") LocalDateTime dateTo);
 
     Page<Booking> findAllByUserId(int userId, Pageable pageable);
 

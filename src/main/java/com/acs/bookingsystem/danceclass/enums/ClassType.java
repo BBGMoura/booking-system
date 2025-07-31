@@ -1,4 +1,4 @@
-package com.acs.bookingsystem.booking.enums;
+package com.acs.bookingsystem.danceclass.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

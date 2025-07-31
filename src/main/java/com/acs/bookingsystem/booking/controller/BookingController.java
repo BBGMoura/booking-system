@@ -53,11 +53,11 @@ public class BookingController {
     }
 
     @GetMapping("/schedule")
-    public ResponseEntity<List<BookingView>> getBookingsByRoomAndTime(@CurrentUser User user,
-                                                                      @RequestParam(name = "room") Room room,
-                                                                      @RequestParam(name = "dateFrom") LocalDateTime dateFrom,
-                                                                      @RequestParam(name = "dateTo") LocalDateTime dateTo) {
-        List<BookingView> bookings = bookingQueryService.getAllByRoomAndBetweenTwoDates(user.getRole(), room, dateFrom, dateTo)
+    public ResponseEntity<List<BookingView>> getBookingSchedule(@CurrentUser User user,
+                                                                @RequestParam(name = "room") Room room,
+                                                                @RequestParam(name = "dateFrom") LocalDateTime dateFrom,
+                                                                @RequestParam(name = "dateTo") LocalDateTime dateTo) {
+        List<BookingView> bookings = bookingQueryService.getBookingsByRoomAndDates(room, dateFrom, dateTo)
                                                         .stream()
                                                         .map(booking -> viewFactory.createView(booking, user.getRole()))
                                                         .toList();

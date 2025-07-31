@@ -2,6 +2,7 @@
 package com.acs.bookingsystem.booking.entity;
 
 import com.acs.bookingsystem.booking.enums.Room;
+import com.acs.bookingsystem.danceclass.entity.DanceClass;
 import com.acs.bookingsystem.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,20 +20,28 @@ public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int id;
+
     @ManyToOne
     @JoinColumn(referencedColumnName="id", nullable = false)
     private User user;
+
     @Enumerated(EnumType.STRING)
     private Room room;
+
     @ManyToOne
     @JoinColumn(referencedColumnName="id", nullable = false)
     private DanceClass danceClass;
+
     private boolean active;
+
     private boolean shareable;
+
     @Column(nullable = false)
     private LocalDateTime bookedFrom;
+
     @Column(nullable = false)
     private LocalDateTime bookedTo;
+
     //TODO: move this into a different class?
     @Column(nullable = false)
     private BigDecimal totalPrice;

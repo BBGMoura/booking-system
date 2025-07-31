@@ -34,6 +34,14 @@ public class BookingTimeValidator implements BookingValidatorRule {
             return Optional.of("Booking interval is invalid. Must be in intervals of 5 minutes.");
         }
 
+        if(isInvalidMinuteAlignment(bookingRequest.dateFrom())) {
+            return Optional.of("Booking start time must be on a 5-minute interval (e.g., :00, :05, :10), with no seconds or milliseconds.");
+        }
+
+        if(isInvalidMinuteAlignment(bookingRequest.dateTo())) {
+            return Optional.of("Booking end time must be on a 5-minute interval (e.g., :00, :05, :10), with no seconds or milliseconds.");
+        }
+
         if (isNotSameDate(bookingRequest.dateFrom(), bookingRequest.dateTo())) {
             return Optional.of("Booking must start and end on the same day.");
         }
@@ -51,12 +59,18 @@ public class BookingTimeValidator implements BookingValidatorRule {
 
     private boolean isTooShort(BookingRequest bookingRequest) {
         Duration duration = Duration.between(bookingRequest.dateFrom(), bookingRequest.dateTo());
-        return duration.compareTo(MINIMUM_BOOKING_TIME) < 0;
+        return duration.compareTo(MINIMUM_BOOKING_TIME) <= 0;
+    }
+
+    private boolean isInvalidMinuteAlignment(LocalDateTime dateTime) {
+        return (dateTime.getSecond() != 0 ||
+                dateTime.getNano() != 0 ||
+                dateTime.getMinute() % TIME_INTERVAL.toMinutes() != 0);
     }
 
     private boolean hasInvalidTimeInterval(BookingRequest bookingRequest) {
         Duration duration = Duration.between(bookingRequest.dateFrom(), bookingRequest.dateTo());
-        return duration.toMinutes() % TIME_INTERVAL.toMinutes() != 0;
+        return duration.toMillis() % TIME_INTERVAL.toMillis() != 0;
     }
 
     private boolean isNotSameDate(LocalDateTime dateFrom, LocalDateTime dateTo) {

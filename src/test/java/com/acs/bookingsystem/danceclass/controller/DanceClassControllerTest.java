@@ -1,9 +1,11 @@
-package com.acs.bookingsystem.booking.controller;
+package com.acs.bookingsystem.danceclass.controller;
 
-import com.acs.bookingsystem.booking.DanceClassTestData;
-import com.acs.bookingsystem.booking.dto.DanceClassDTO;
-import com.acs.bookingsystem.booking.enums.ClassType;
-import com.acs.bookingsystem.booking.service.DanceClassService;
+import com.acs.bookingsystem.danceclass.DanceClassTestData;
+import com.acs.bookingsystem.danceclass.dto.DanceClassDTO;
+import com.acs.bookingsystem.danceclass.entity.DanceClass;
+import com.acs.bookingsystem.danceclass.enums.ClassType;
+import com.acs.bookingsystem.danceclass.mapper.DanceClassMapper;
+import com.acs.bookingsystem.danceclass.service.impl.DanceClassService;
 import com.acs.bookingsystem.security.config.SecurityConfig;
 import com.acs.bookingsystem.security.util.JwtUtil;
 import com.acs.bookingsystem.user.UserTestData;
@@ -44,17 +46,21 @@ class DanceClassControllerTest {
     private JwtUtil jwtUtil;
 
     @MockitoBean
+    private DanceClassMapper mapper;
+
+    @MockitoBean
     private DanceClassService danceClassService;
 
     @MockitoBean
     private AuthenticationProvider authenticationProvider;
 
     private final List<ClassType> classTypes = DanceClassTestData.classTypes;
-    private final DanceClassDTO danceClass = DanceClassTestData.danceClassDTO;
+    private final DanceClass danceClass = DanceClassTestData.danceClass;
+    private final DanceClassDTO danceClassDTO = DanceClassTestData.danceClassDTO;
     private final User user = UserTestData.user;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         Authentication auth = new UsernamePasswordAuthenticationToken(user,
                                                                       null,
                                                                       user.getAuthorities());
@@ -62,7 +68,7 @@ class DanceClassControllerTest {
     }
 
     @Test
-    public void givenGetAllActiveDanceClassTypes_thenReturnOk() throws Exception {
+    void givenGetAllActiveDanceClassTypes_thenReturnOk() throws Exception {
         when(danceClassService.getAllActiveDanceClassTypes(any())).thenReturn(classTypes);
 
         mockMvc.perform(get("/dance-classes/class-types"))
@@ -72,15 +78,16 @@ class DanceClassControllerTest {
     }
 
     @Test
-    public void givenGetDanceClassByClassType_thenReturnOk() throws Exception {
+    void givenGetDanceClassByClassType_thenReturnOk() throws Exception {
         when(danceClassService.getActiveDanceClass(any(), any())).thenReturn(danceClass);
+        when(mapper.map(any())).thenReturn(danceClassDTO);
 
         mockMvc.perform(get("/dance-classes").param("classType", "PRIVATE"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(danceClass.id()))
-                .andExpect(jsonPath("$.classType").value(danceClass.classType().toString()))
-                .andExpect(jsonPath("$.active").value(danceClass.active()))
-                .andExpect(jsonPath("$.pricePerHour").value(danceClass.pricePerHour()))
+                .andExpect(jsonPath("$.id").value(danceClassDTO.id()))
+                .andExpect(jsonPath("$.classType").value(danceClassDTO.classType().toString()))
+                .andExpect(jsonPath("$.active").value(danceClassDTO.active()))
+                .andExpect(jsonPath("$.pricePerHour").value(danceClassDTO.pricePerHour()))
                 .andExpect(jsonPath("$.role", equalTo(Role.ROLE_USER.toString())));
     }
 }

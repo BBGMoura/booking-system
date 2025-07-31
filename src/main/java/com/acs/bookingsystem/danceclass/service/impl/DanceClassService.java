@@ -1,13 +1,10 @@
-package com.acs.bookingsystem.booking.service.impl;
+package com.acs.bookingsystem.danceclass.service.impl;
 
-import com.acs.bookingsystem.booking.dto.DanceClassDTO;
-import com.acs.bookingsystem.booking.entity.DanceClass;
-import com.acs.bookingsystem.booking.enums.ClassType;
-import com.acs.bookingsystem.booking.service.DanceClassService;
+import com.acs.bookingsystem.danceclass.entity.DanceClass;
+import com.acs.bookingsystem.danceclass.enums.ClassType;
 import com.acs.bookingsystem.common.exception.NotFoundException;
-import com.acs.bookingsystem.booking.mapper.DanceClassMapper;
-import com.acs.bookingsystem.booking.request.DanceClassRequest;
-import com.acs.bookingsystem.booking.repository.DanceClassRepository;
+import com.acs.bookingsystem.danceclass.request.DanceClassRequest;
+import com.acs.bookingsystem.danceclass.repository.DanceClassRepository;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.user.enums.Role;
 import lombok.AllArgsConstructor;
@@ -18,14 +15,12 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class DanceClassServiceImpl implements DanceClassService {
-    private DanceClassRepository danceClassRepository;
-    private DanceClassMapper danceClassMapper;
+public class DanceClassService {
 
-    // TODO: Move this from booking to a dance class package
+    private DanceClassRepository danceClassRepository;
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public DanceClassDTO createDanceClass(DanceClassRequest danceClassRequest) {
+    public DanceClass createDanceClass(DanceClassRequest danceClassRequest) {
         danceClassRepository.findByActiveIsTrueAndClassType(danceClassRequest.classType())
                             .ifPresent(this::deactivateDanceClass);
 
@@ -34,7 +29,7 @@ public class DanceClassServiceImpl implements DanceClassService {
                                                      danceClassRequest.pricePerHour(),
                                                      danceClassRequest.role());
 
-        return danceClassMapper.mapDanceClassToDTO(danceClassRepository.save(danceClass));
+        return danceClassRepository.save(danceClass);
     }
 
     public List<ClassType> getAllActiveDanceClassTypes(Role role) {
@@ -44,11 +39,10 @@ public class DanceClassServiceImpl implements DanceClassService {
                            .toList();
     }
 
-    public DanceClassDTO getActiveDanceClass(ClassType classType, Role role) {
-        final DanceClass danceClass = danceClassRepository.findByActiveIsTrueAndClassTypeAndRole(classType, role)
+    public DanceClass getActiveDanceClass(ClassType classType, Role role) {
+        return danceClassRepository.findByActiveIsTrueAndClassTypeAndRole(classType, role)
                                                           .orElseThrow(() -> new NotFoundException("Dance class with type " + classType + "has not been found. Please contact support.",
                                                                                                     ErrorCode.INVALID_DANCE_CLASS_REQUEST));
-        return danceClassMapper.mapDanceClassToDTO(danceClass);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")

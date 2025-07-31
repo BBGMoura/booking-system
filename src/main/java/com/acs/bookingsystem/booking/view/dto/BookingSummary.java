@@ -1,6 +1,6 @@
 package com.acs.bookingsystem.booking.view.dto;
 
-import com.acs.bookingsystem.booking.entity.DanceClass;
+import com.acs.bookingsystem.danceclass.entity.DanceClass;
 import com.acs.bookingsystem.booking.enums.Room;
 
 import java.time.LocalDateTime;

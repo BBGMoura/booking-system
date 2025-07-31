@@ -1,12 +1,13 @@
 package com.acs.bookingsystem.payment;
 
-import com.acs.bookingsystem.booking.entity.DanceClass;
-import com.acs.bookingsystem.booking.enums.ClassType;
+import com.acs.bookingsystem.danceclass.entity.DanceClass;
+import com.acs.bookingsystem.danceclass.enums.ClassType;
 import com.acs.bookingsystem.user.enums.Role;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.Month;
+
 
 class PriceCalculatorTest {
 //    @Test

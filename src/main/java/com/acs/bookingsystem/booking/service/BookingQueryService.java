@@ -5,22 +5,20 @@ import com.acs.bookingsystem.booking.enums.Room;
 import com.acs.bookingsystem.booking.repository.BookingRepository;
 import com.acs.bookingsystem.common.exception.NotFoundException;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
-import com.acs.bookingsystem.user.enums.Role;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Component
+@AllArgsConstructor
 public class BookingQueryService {
-
-    // TODO: add logging
-    public static final Logger LOG = LoggerFactory.getLogger(BookingQueryService.class);
 
     BookingRepository bookingRepository;
 
@@ -37,18 +35,15 @@ public class BookingQueryService {
     }
 
     public Page<Booking> getAllBookingsByUserId(int userId, int page, int size) {
-
-        // TODO: add default week date.
-
         Pageable pageable = PageRequest.of(page, size, Sort.by("bookedFrom").descending());
 
-        Page<Booking> bookingPage = bookingRepository.findAllByUserId(userId, pageable);
+        Page<Booking> pages = bookingRepository.findAllByUserId(userId, pageable);
 
-        return new PageImpl<>(bookingPage.getContent(), pageable, bookingPage.getTotalElements());
+        return new PageImpl<>(pages.getContent(), pageable, pages.getTotalElements());
     }
 
-    public List<Booking> getAllByRoomAndBetweenTwoDates(Role role, Room room, LocalDateTime dateFrom, LocalDateTime dateTo) {
-        return bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(room, null, dateFrom, dateTo);
+    public List<Booking> getBookingsByRoomAndDates(Room room, LocalDateTime dateFrom, LocalDateTime dateTo) {
+        return bookingRepository.findActiveBookingsForRoomAndTimeRange(room, null, dateFrom, dateTo);
     }
 
 }

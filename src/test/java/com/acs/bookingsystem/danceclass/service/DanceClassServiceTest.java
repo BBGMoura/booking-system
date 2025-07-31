@@ -1,12 +1,11 @@
-package com.acs.bookingsystem.booking.service;
+package com.acs.bookingsystem.danceclass.service;
 
-import com.acs.bookingsystem.booking.DanceClassTestData;
-import com.acs.bookingsystem.booking.dto.DanceClassDTO;
-import com.acs.bookingsystem.booking.entity.DanceClass;
-import com.acs.bookingsystem.booking.mapper.DanceClassMapper;
-import com.acs.bookingsystem.booking.repository.DanceClassRepository;
-import com.acs.bookingsystem.booking.request.DanceClassRequest;
-import com.acs.bookingsystem.booking.service.impl.DanceClassServiceImpl;
+import com.acs.bookingsystem.danceclass.DanceClassTestData;
+import com.acs.bookingsystem.danceclass.entity.DanceClass;
+import com.acs.bookingsystem.danceclass.mapper.DanceClassMapper;
+import com.acs.bookingsystem.danceclass.repository.DanceClassRepository;
+import com.acs.bookingsystem.danceclass.request.DanceClassRequest;
+import com.acs.bookingsystem.danceclass.service.impl.DanceClassService;
 import com.acs.bookingsystem.user.UserTestData;
 import com.acs.bookingsystem.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,15 +34,14 @@ class DanceClassServiceTest {
     private DanceClassMapper danceClassMapper;
 
     @InjectMocks
-    private DanceClassServiceImpl danceClassService;
+    private DanceClassService danceClassService;
 
     private final DanceClass danceClass = DanceClassTestData.danceClass;
-    private final DanceClassDTO danceClassDTO = DanceClassTestData.danceClassDTO;
     private final DanceClassRequest danceClassRequest = DanceClassTestData.danceClassRequest;
     private final User user = UserTestData.user;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         Authentication auth = new UsernamePasswordAuthenticationToken(user,
                                                                       null,
                                                                       user.getAuthorities());
@@ -54,10 +52,9 @@ class DanceClassServiceTest {
     void whenUserAdmin_createDanceClass_danceClassDTOReturned() {
         when(danceClassRepository.findByActiveIsTrueAndClassType(any())).thenReturn(Optional.ofNullable(danceClass));
         when(danceClassRepository.save(any())).thenReturn(danceClass);
-        when(danceClassMapper.mapDanceClassToDTO(any())).thenReturn(danceClassDTO);
 
-        final DanceClassDTO actual = danceClassService.createDanceClass(danceClassRequest);
+        final DanceClass actual = danceClassService.createDanceClass(danceClassRequest);
 
-        assertEquals(danceClassDTO, actual);
+        assertEquals(danceClass, actual);
     }
 }

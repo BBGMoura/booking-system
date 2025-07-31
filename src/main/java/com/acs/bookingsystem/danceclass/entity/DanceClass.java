@@ -1,6 +1,6 @@
-package com.acs.bookingsystem.booking.entity;
+package com.acs.bookingsystem.danceclass.entity;
 
-import com.acs.bookingsystem.booking.enums.ClassType;
+import com.acs.bookingsystem.danceclass.enums.ClassType;
 import com.acs.bookingsystem.user.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -19,11 +19,15 @@ public class DanceClass {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int id;
+
     @Enumerated(EnumType.STRING)
     private ClassType classType;
+
     @Column(nullable=false)
     private boolean active;
+
     private BigDecimal pricePerHour;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 

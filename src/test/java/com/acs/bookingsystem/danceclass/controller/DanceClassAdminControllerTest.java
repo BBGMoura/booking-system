@@ -1,7 +1,10 @@
-package com.acs.bookingsystem.booking.controller;
+package com.acs.bookingsystem.danceclass.controller;
 
-import com.acs.bookingsystem.booking.DanceClassTestData;
-import com.acs.bookingsystem.booking.service.DanceClassService;
+import com.acs.bookingsystem.danceclass.DanceClassTestData;
+import com.acs.bookingsystem.danceclass.dto.DanceClassDTO;
+import com.acs.bookingsystem.danceclass.entity.DanceClass;
+import com.acs.bookingsystem.danceclass.mapper.DanceClassMapper;
+import com.acs.bookingsystem.danceclass.service.impl.DanceClassService;
 import com.acs.bookingsystem.security.config.SecurityConfig;
 import com.acs.bookingsystem.security.util.JwtUtil;
 import com.acs.bookingsystem.user.enums.Role;
@@ -38,10 +41,16 @@ class DanceClassAdminControllerTest {
     private JwtUtil jwtUtil;
 
     @MockitoBean
+    private DanceClassMapper mapper;
+
+    @MockitoBean
     private DanceClassService danceClassService;
 
     @MockitoBean
     private AuthenticationProvider authenticationProvider;
+
+    private final DanceClass danceClass = DanceClassTestData.danceClass;
+    private final DanceClassDTO danceClassDTO = DanceClassTestData.danceClassDTO;
 
     @Test
     void givenUserHasUserAuthority_whenCreateDanceClass_thenReturnForbidden() throws Exception {
@@ -52,7 +61,8 @@ class DanceClassAdminControllerTest {
     @Test
     @WithMockUser(roles = {"ADMIN"})
     void givenAdminCreateDanceClass_thenReturnCreated() throws Exception {
-        when(danceClassService.createDanceClass(any())).thenReturn(DanceClassTestData.danceClassDTO);
+        when(danceClassService.createDanceClass(any())).thenReturn(danceClass);
+        when(mapper.map(any())).thenReturn(danceClassDTO);
 
         mockMvc.perform(post("/admin/dance-class").contentType(MediaType.APPLICATION_JSON)
                                                              .content(objectMapper.writeValueAsString(DanceClassTestData.danceClassRequest)))

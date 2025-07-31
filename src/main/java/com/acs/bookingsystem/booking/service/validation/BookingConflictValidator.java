@@ -30,9 +30,9 @@ public class BookingConflictValidator implements BookingValidatorRule {
     }
 
     private List<Booking> getBookings(BookingRequest bookingRequest) {
-        return bookingRepository.findActiveBookingsByRoomAndEndOrStartBetweenTimeRange(bookingRequest.room(),
-                                                                                       Boolean.FALSE,
-                                                                                       bookingRequest.dateFrom(),
-                                                                                       bookingRequest.dateTo());
+        return bookingRepository.findActiveBookingsForRoomAndTimeRange(bookingRequest.room(),
+                                                                       Boolean.FALSE,
+                                                                       bookingRequest.dateFrom(),
+                                                                       bookingRequest.dateTo());
     }
 }

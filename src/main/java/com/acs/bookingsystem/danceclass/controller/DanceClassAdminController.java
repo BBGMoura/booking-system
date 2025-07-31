@@ -1,9 +1,11 @@
-package com.acs.bookingsystem.booking.controller;
+package com.acs.bookingsystem.danceclass.controller;
 
-import com.acs.bookingsystem.booking.dto.DanceClassDTO;
-import com.acs.bookingsystem.booking.enums.ClassType;
-import com.acs.bookingsystem.booking.request.DanceClassRequest;
-import com.acs.bookingsystem.booking.service.DanceClassService;
+import com.acs.bookingsystem.danceclass.dto.DanceClassDTO;
+import com.acs.bookingsystem.danceclass.entity.DanceClass;
+import com.acs.bookingsystem.danceclass.enums.ClassType;
+import com.acs.bookingsystem.danceclass.mapper.DanceClassMapper;
+import com.acs.bookingsystem.danceclass.request.DanceClassRequest;
+import com.acs.bookingsystem.danceclass.service.impl.DanceClassService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,8 @@ import java.util.List;
 public class DanceClassAdminController {
 
     DanceClassService danceClassService;
+
+    DanceClassMapper mapper;
 
     /**
      * Returns a list of ClassTypes. These class types are used as an option
@@ -42,7 +46,8 @@ public class DanceClassAdminController {
      */
     @PostMapping("dance-class")
     public ResponseEntity<DanceClassDTO> createDanceClass(@Valid @RequestBody DanceClassRequest danceClassRequest) {
-        return new ResponseEntity<>(danceClassService.createDanceClass(danceClassRequest), HttpStatus.CREATED);
+        DanceClass danceClass = danceClassService.createDanceClass(danceClassRequest);
+        return new ResponseEntity<>(mapper.map(danceClass), HttpStatus.CREATED);
     }
 
     /**

@@ -1,9 +1,9 @@
-package com.acs.bookingsystem.booking;
+package com.acs.bookingsystem.danceclass;
 
-import com.acs.bookingsystem.booking.dto.DanceClassDTO;
-import com.acs.bookingsystem.booking.entity.DanceClass;
-import com.acs.bookingsystem.booking.enums.ClassType;
-import com.acs.bookingsystem.booking.request.DanceClassRequest;
+import com.acs.bookingsystem.danceclass.dto.DanceClassDTO;
+import com.acs.bookingsystem.danceclass.entity.DanceClass;
+import com.acs.bookingsystem.danceclass.enums.ClassType;
+import com.acs.bookingsystem.danceclass.request.DanceClassRequest;
 import com.acs.bookingsystem.user.enums.Role;
 
 import java.math.BigDecimal;
@@ -20,6 +20,7 @@ public class DanceClassTestData {
                                                                         true,
                                                                         BigDecimal.ZERO,
                                                                         Role.ROLE_USER);
+
 
     public static final DanceClassRequest danceClassRequest = new DanceClassRequest(ClassType.PRIVATE,
                                                                                     BigDecimal.ZERO,
