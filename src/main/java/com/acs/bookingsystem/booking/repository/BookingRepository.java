@@ -52,4 +52,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     Page<Booking> findAllByUserId(int userId, Pageable pageable);
 
     Optional<Booking> findByIdAndUserId(int bookingId, int userId);
+
+    @Query("UPDATE Booking b SET b.active = false WHERE b.user.id = :userId")
+    int deactivateBookingsByUserId(@Param("userId") int userId);
 }

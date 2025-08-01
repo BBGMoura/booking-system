@@ -72,4 +72,13 @@ public class BookingManagerService {
         booking.deactivate();
         bookingRepository.save(booking);
     }
+
+    @Transactional
+    public void deactivateAllBookingsByUserId(int userId) {
+        LOG.debug("Deactivating all bookings for user ID: {}", userId);
+
+        int bookings = bookingRepository.deactivateBookingsByUserId(userId);
+
+        LOG.debug("{} Bookings deactivated for user ID: {}", bookings, userId);
+    }
 }

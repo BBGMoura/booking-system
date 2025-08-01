@@ -35,6 +35,6 @@ public class UserController {
 
     @PutMapping("/disable")
     public ResponseEntity<UserStatusResponse> disableUser(@CurrentUser User user) {
-        return ResponseEntity.ok( authenticateService.updatedEnabledStatus(user.getId(), false));
+        return ResponseEntity.ok(authenticateService.updatedEnabledStatus(user.getId(), false));
     }
 }

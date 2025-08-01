@@ -1,7 +1,11 @@
 package com.acs.bookingsystem.user.service.impl;
 
+import com.acs.bookingsystem.booking.service.BookingManagerService;
 import com.acs.bookingsystem.user.entity.UserInfo;
-import com.acs.bookingsystem.user.request.*;
+import com.acs.bookingsystem.user.request.AuthenticateRequest;
+import com.acs.bookingsystem.user.request.InviteRequest;
+import com.acs.bookingsystem.user.request.RegisterRequest;
+import com.acs.bookingsystem.user.request.UpdateUserRequest;
 import com.acs.bookingsystem.user.response.InviteResponse;
 import com.acs.bookingsystem.user.response.AuthenticateResponse;
 import com.acs.bookingsystem.user.response.RegisterResponse;
@@ -27,10 +31,12 @@ import org.springframework.validation.annotation.Validated;
 @AllArgsConstructor
 @Validated
 public class AuthenticateServiceImpl implements AuthenticateService {
+
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
     private final UserInfoService userInfoService;
     private final UserService userService;
+    private final BookingManagerService bookingManagerService;
     private final JwtUtil jwtUtil;
     private final EmailUtil emailUtil;
     private final PasswordUtil passwordUtil;
@@ -104,9 +110,14 @@ public class AuthenticateServiceImpl implements AuthenticateService {
         AuthenticateResponse.builder().token(jwtToken).build();
     }
 
+    @Transactional
     @Override
     public UserStatusResponse updatedEnabledStatus(int userId, boolean enabled) {
         User user = userService.updateEnableStatus(userId, enabled);
+
+        if (!user.isEnabled()) {
+            bookingManagerService.deactivateAllBookingsByUserId(userId);
+        }
 
         return UserStatusResponse.builder()
                                  .userId(user.getId())
