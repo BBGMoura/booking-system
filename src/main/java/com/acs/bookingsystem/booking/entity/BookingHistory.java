@@ -1,6 +1,7 @@
-package com.acs.bookingsystem.payment;
+package com.acs.bookingsystem.booking.entity;
 
-import com.acs.bookingsystem.booking.entity.Booking;
+import com.acs.bookingsystem.booking.enums.BookingStatus;
+import com.acs.bookingsystem.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,19 +15,25 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Payment {
+public class BookingHistory {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue
     private int id;
-    @OneToOne
-    @JoinColumn(referencedColumnName="id", nullable = false)
+
+    @ManyToOne
+    @JoinColumn(referencedColumnName="id")
     private Booking booking;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PaymentStatus paymentStatus;
+    private BookingStatus bookingStatus;
+
+    private String description;
+
     @Column(nullable = false)
     private LocalDateTime createdOn;
+
     @ManyToOne
-    @JoinColumn(referencedColumnName ="id")
-    private Account account;
+    @JoinColumn(referencedColumnName="id", nullable = false)
+    private User user;
 }

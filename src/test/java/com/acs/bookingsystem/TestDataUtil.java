@@ -4,10 +4,10 @@
 //import com.acs.bookingsystem.booking.dto.BookingDTO;
 //import com.acs.bookingsystem.booking.dto.DanceClassDTO;
 //import com.acs.bookingsystem.booking.entities.DanceClass;
-//import com.acs.bookingsystem.booking.enums.ClassType;
+//import com.acs.bookingsystem.danceclass.enums.ClassType;
 //import com.acs.bookingsystem.booking.enums.Room;
 //import com.acs.bookingsystem.booking.request.BookingRequest;
-//import com.acs.bookingsystem.booking.request.DanceClassRequest;
+//import com.acs.bookingsystem.danceclass.request.DanceClassRequest;
 //
 //
 //import java.math.BigDecimal;
