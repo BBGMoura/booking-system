@@ -4,7 +4,7 @@ import com.acs.bookingsystem.danceclass.dto.DanceClassDTO;
 import com.acs.bookingsystem.danceclass.entity.DanceClass;
 import com.acs.bookingsystem.danceclass.enums.ClassType;
 import com.acs.bookingsystem.danceclass.mapper.DanceClassMapper;
-import com.acs.bookingsystem.danceclass.service.impl.DanceClassService;
+import com.acs.bookingsystem.danceclass.service.DanceClassService;
 import com.acs.bookingsystem.security.CurrentUser;
 import com.acs.bookingsystem.user.entity.User;
 import lombok.AllArgsConstructor;
@@ -18,9 +18,9 @@ import java.util.List;
 @RequestMapping("/dance-classes")
 public class DanceClassController {
 
-    private DanceClassService danceClassService;
+    private final DanceClassService danceClassService;
 
-    private DanceClassMapper mapper;
+    private final DanceClassMapper mapper;
 
     /**
      * Retrieves an active dance class by its class type.

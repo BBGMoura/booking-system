@@ -18,8 +18,9 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 @Validated
 public class UserController {
-    private AuthenticateService authenticateService;
-    private UserProfileService userProfileService;
+
+    private final AuthenticateService authenticateService;
+    private final UserProfileService userProfileService;
 
     @GetMapping
     public ResponseEntity<UserProfile> getUserProfile(@CurrentUser User user) {
@@ -35,6 +36,6 @@ public class UserController {
 
     @PutMapping("/disable")
     public ResponseEntity<UserStatusResponse> disableUser(@CurrentUser User user) {
-        return ResponseEntity.ok( authenticateService.updatedEnabledStatus(user.getId(), false));
+        return ResponseEntity.ok(authenticateService.updatedEnabledStatus(user.getId(), false));
     }
 }

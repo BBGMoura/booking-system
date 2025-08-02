@@ -32,5 +32,11 @@ public class DanceClassTestData {
                                                                BigDecimal.ZERO,
                                                                Role.ROLE_USER);
 
+    public static final DanceClass danceClassPrice = new DanceClass(1,
+                                                                    ClassType.PRIVATE,
+                                                                    true,
+                                                                    BigDecimal.TEN,
+                                                                    Role.ROLE_USER);
+
 
 }

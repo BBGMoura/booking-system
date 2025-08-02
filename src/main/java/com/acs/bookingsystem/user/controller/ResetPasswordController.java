@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Validated
 public class ResetPasswordController {
+
     private final AuthenticateService authenticateService;
 
     @PatchMapping("/reset")

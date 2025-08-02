@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 @Validated
 public class UserAdminController {
+
     private final AuthenticateService authenticateService;
     private final UserProfileService userProfileService;
 

@@ -7,7 +7,7 @@ import com.acs.bookingsystem.booking.repository.BookingRepository;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.common.exception.RequestException;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
-import com.acs.bookingsystem.danceclass.service.impl.DanceClassService;
+import com.acs.bookingsystem.danceclass.service.DanceClassService;
 import com.acs.bookingsystem.payment.PriceCalculator;
 import com.acs.bookingsystem.user.entity.User;
 import com.acs.bookingsystem.user.service.UserService;
@@ -71,5 +71,14 @@ public class BookingManagerService {
         Booking booking = bookingQueryService.getBookingById(bookingId);
         booking.deactivate();
         bookingRepository.save(booking);
+    }
+
+    @Transactional
+    public void deactivateAllBookingsByUserId(int userId) {
+        LOG.debug("Deactivating all bookings for user ID: {}", userId);
+
+        int bookings = bookingRepository.deactivateBookingsByUserId(userId);
+
+        LOG.debug("{} Bookings deactivated for user ID: {}", bookings, userId);
     }
 }

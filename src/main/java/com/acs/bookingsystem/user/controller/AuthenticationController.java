@@ -1,6 +1,5 @@
 package com.acs.bookingsystem.user.controller;
 
-import com.acs.bookingsystem.security.util.RoleChecker;
 import com.acs.bookingsystem.user.request.AuthenticateRequest;
 import com.acs.bookingsystem.user.request.RegisterRequest;
 import com.acs.bookingsystem.user.response.AuthenticateResponse;
@@ -18,8 +17,8 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 @Validated
 public class AuthenticationController {
-    private AuthenticateService authenticateService;
-    private RoleChecker roleChecker;
+
+    private final AuthenticateService authenticateService;
 
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest request) {
@@ -29,10 +28,5 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<AuthenticateResponse> authenticate(@Valid @RequestBody AuthenticateRequest request) {
         return ResponseEntity.ok(authenticateService.authenticate(request));
-    }
-
-    @GetMapping("/role")
-    public Boolean checkRole() {
-        return roleChecker.hasRole("ROLE_ADMIN", "ROLE_USER");
     }
 }

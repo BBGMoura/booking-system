@@ -16,7 +16,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Validated
 public class UserInfoController {
-    private UserInfoService userInfoService;
+
+    private final UserInfoService userInfoService;
 
     @PutMapping("/userId")
     public ResponseEntity<UserInfo> updateUserInfo(@CurrentUser User user,

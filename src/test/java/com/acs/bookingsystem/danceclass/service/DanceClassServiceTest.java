@@ -2,10 +2,8 @@ package com.acs.bookingsystem.danceclass.service;
 
 import com.acs.bookingsystem.danceclass.DanceClassTestData;
 import com.acs.bookingsystem.danceclass.entity.DanceClass;
-import com.acs.bookingsystem.danceclass.mapper.DanceClassMapper;
 import com.acs.bookingsystem.danceclass.repository.DanceClassRepository;
 import com.acs.bookingsystem.danceclass.request.DanceClassRequest;
-import com.acs.bookingsystem.danceclass.service.impl.DanceClassService;
 import com.acs.bookingsystem.user.UserTestData;
 import com.acs.bookingsystem.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,9 +28,6 @@ class DanceClassServiceTest {
     @Mock
     private DanceClassRepository danceClassRepository;
 
-    @Mock
-    private DanceClassMapper danceClassMapper;
-
     @InjectMocks
     private DanceClassService danceClassService;
 
@@ -49,7 +44,7 @@ class DanceClassServiceTest {
     }
 
     @Test
-    void whenUserAdmin_createDanceClass_danceClassDTOReturned() {
+    void whenUserAdmin_createDanceClass_danceClassReturned() {
         when(danceClassRepository.findByActiveIsTrueAndClassType(any())).thenReturn(Optional.ofNullable(danceClass));
         when(danceClassRepository.save(any())).thenReturn(danceClass);
 

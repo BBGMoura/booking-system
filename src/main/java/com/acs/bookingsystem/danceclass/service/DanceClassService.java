@@ -1,4 +1,4 @@
-package com.acs.bookingsystem.danceclass.service.impl;
+package com.acs.bookingsystem.danceclass.service;
 
 import com.acs.bookingsystem.danceclass.entity.DanceClass;
 import com.acs.bookingsystem.danceclass.enums.ClassType;
