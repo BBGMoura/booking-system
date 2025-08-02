@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 public record DanceClassRequest(@NotNull(message = "Class type cannot be null")
                                 ClassType classType,
                                 @DecimalMin(value = "0.0")
-                                @DecimalMax(value = "10000")
+                                @DecimalMax(value = "1000")
                                 @Digits(integer = 3, fraction = 2) @NotNull
                                 BigDecimal pricePerHour,
                                 @NotNull(message = "Role cannot be null")

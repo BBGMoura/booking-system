@@ -5,101 +5,55 @@ import com.acs.bookingsystem.user.enums.Role;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.math.BigDecimal;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class DanceClassRequestTest {
 
-    private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-    private final Validator validator = factory.getValidator();
+    private static Validator validator;
 
-    @Test
-    void whenValidDanceClassRequest_thenNoViolations() {
-        DanceClassRequest request = new DanceClassRequest (
-                ClassType.PRIVATE,
-                new BigDecimal("25.50"),
-                Role.ROLE_USER
-        );
-
-        Set<ConstraintViolation<DanceClassRequest>> violations = validator.validate(request);
-        assertTrue(violations.isEmpty());
+    @BeforeAll
+    static void setUp() {
+        validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
-    @Test
-    void whenNullClassType_thenValidationFails() {
-        DanceClassRequest request = new DanceClassRequest(
-                null,
-                new BigDecimal("25.50"),
-                Role.ROLE_USER
-        );
+    @ParameterizedTest(name = "Dance class validation: {4}")
+    @MethodSource("provideDanceClassRequestArguments")
+    void validateDanceClassRequest(ClassType classType, BigDecimal price, Role role, boolean expectedToBeValid, String description) {
+        DanceClassRequest request = new DanceClassRequest(classType, price, role);
 
         Set<ConstraintViolation<DanceClassRequest>> violations = validator.validate(request);
-        assertFalse(violations.isEmpty());
+
+        assertEquals(expectedToBeValid, violations.isEmpty(), description);
     }
 
-    @Test
-    void whenNullPricePerHour_thenValidationFails() {
-        DanceClassRequest request = new DanceClassRequest(
-                ClassType.PRIVATE,
-                null,
-                Role.ROLE_USER
+    private static Stream<Arguments> provideDanceClassRequestArguments() {
+        return Stream.of(
+                // Valid case
+                Arguments.of(ClassType.PRIVATE, new BigDecimal("25.50"), Role.ROLE_USER, true,
+                             "should pass with valid ClassType, price, and Role"),
+
+                // Invalid cases
+                Arguments.of(null, new BigDecimal("25.50"), Role.ROLE_USER, false,
+                             "should fail when ClassType is null"),
+                Arguments.of(ClassType.PRIVATE, null, Role.ROLE_USER, false,
+                             "should fail when price is null"),
+                Arguments.of(ClassType.PRIVATE, new BigDecimal("-10.00"), Role.ROLE_USER, false,
+                             "should fail when price is negative"),
+                Arguments.of(ClassType.PRIVATE, new BigDecimal("25.555"), Role.ROLE_USER, false,
+                             "should fail when price has invalid decimal scale"),
+                Arguments.of(ClassType.PRIVATE, new BigDecimal("1000.00"), Role.ROLE_USER, false,
+                             "should fail when price exceeds maximum value"),
+                Arguments.of(ClassType.PRIVATE, new BigDecimal("25.50"), null, false,
+                             "should fail when Role is null")
         );
-
-        Set<ConstraintViolation<DanceClassRequest>> violations = validator.validate(request);
-        assertFalse(violations.isEmpty());
     }
-
-    @Test
-    void whenNegativePrice_thenValidationFails() {
-        DanceClassRequest request = new DanceClassRequest(
-                ClassType.PRIVATE,
-                new BigDecimal("-10.00"),
-                Role.ROLE_USER
-        );
-
-        Set<ConstraintViolation<DanceClassRequest>> violations = validator.validate(request);
-        assertFalse(violations.isEmpty());
-    }
-
-    @Test
-    void whenTooManyDecimals_thenValidationFails() {
-        DanceClassRequest request = new DanceClassRequest(
-                ClassType.PRIVATE,
-                new BigDecimal("25.555"),
-                Role.ROLE_USER
-        );
-
-        Set<ConstraintViolation<DanceClassRequest>> violations = validator.validate(request);
-        assertFalse(violations.isEmpty());
-    }
-
-    @Test
-    void whenPriceExceedsThreeDigits_thenValidationFails() {
-        DanceClassRequest request =  new DanceClassRequest(
-                ClassType.PRIVATE,
-                new BigDecimal("1000.00"),
-                Role.ROLE_USER
-        );
-
-        Set<ConstraintViolation<DanceClassRequest>> violations = validator.validate(request);
-        assertFalse(violations.isEmpty());
-    }
-
-    @Test
-    void whenNullRole_thenValidationFails() {
-        DanceClassRequest request = new DanceClassRequest(
-                ClassType.PRIVATE,
-                new BigDecimal("25.50"),
-                null
-        );
-
-        Set<ConstraintViolation<DanceClassRequest>> violations = validator.validate(request);
-        assertFalse(violations.isEmpty());
-    }
-
 }
