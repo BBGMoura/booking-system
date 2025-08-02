@@ -9,7 +9,7 @@ import com.acs.bookingsystem.user.request.UpdateUserRequest;
 import com.acs.bookingsystem.user.response.InviteResponse;
 import com.acs.bookingsystem.user.response.AuthenticateResponse;
 import com.acs.bookingsystem.user.response.RegisterResponse;
-import com.acs.bookingsystem.common.email.EmailUtil;
+import com.acs.bookingsystem.common.email.EmailService;
 import com.acs.bookingsystem.security.util.JwtUtil;
 import com.acs.bookingsystem.security.util.PasswordUtil;
 import com.acs.bookingsystem.user.entity.User;
@@ -35,14 +35,14 @@ public class AuthenticateService {
     private final UserService userService;
     private final BookingManagerService bookingManagerService;
     private final JwtUtil jwtUtil;
-    private final EmailUtil emailUtil;
+    private final EmailService emailService;
     private final PasswordUtil passwordUtil;
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public InviteResponse invite(InviteRequest request) {
         final User user = userService.createUser(request.email(), request.role());
 
-        emailUtil.sendInvitationEmail(request.email());
+        emailService.sendInvitationEmail(request.email());
 
         return InviteResponse.builder()
                                .userId(user.getId())
@@ -124,6 +124,6 @@ public class AuthenticateService {
 
         userService.resetPassword(email, encodedPassword);
 
-        emailUtil.sendPasswordResetEmail(email, newPassword);
+        emailService.sendPasswordResetEmail(email, newPassword);
     }
 }
