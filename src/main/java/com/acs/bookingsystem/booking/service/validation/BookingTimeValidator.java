@@ -16,7 +16,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class BookingTimeValidator implements BookingValidatorRule {
 
-    private final ScheduleConfig scheduleConfig;
+    private final ScheduleProperties scheduleProperties;
 
     private static final Duration TIME_INTERVAL = Duration.ofMinutes(5);
     private static final Duration MINIMUM_BOOKING_TIME = Duration.ofMinutes(15);
@@ -84,16 +84,16 @@ public class BookingTimeValidator implements BookingValidatorRule {
 
         switch (dayOfWeek) {
             case DayOfWeek.SATURDAY -> {
-                openingTime = scheduleConfig.getSaturdayOpening();
-                closingTime = scheduleConfig.getSaturdayClosing();
+                openingTime = scheduleProperties.getSaturday().getOpening();
+                closingTime = scheduleProperties.getSaturday().getClosing();
             }
             case DayOfWeek.SUNDAY -> {
-                openingTime = scheduleConfig.getSundayOpening();
-                closingTime = scheduleConfig.getSundayClosing();
+                openingTime = scheduleProperties.getSunday().getOpening();
+                closingTime = scheduleProperties.getSunday().getClosing();
             }
             default -> {
-                openingTime = scheduleConfig.getWeekdayOpening();
-                closingTime = scheduleConfig.getWeekdayClosing();
+                openingTime = scheduleProperties.getWeekday().getOpening();
+                closingTime = scheduleProperties.getWeekday().getClosing();
             }
         }
 
