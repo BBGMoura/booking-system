@@ -20,7 +20,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
      * This method filters the bookings based on the following criteria:
      *  - The booking is active.
      *  - The booking is associated with the specified room.
-     *  - The booking can be or not be shareable. </li>
+     *  - The booking can be or not be shareable.
      *  - The time range of the booking overlaps with the specified time range from {@code dateFrom} to {@code dateTo}
      *    in any of the following ways:
      *           - The requested time falls entirely within the bounds of a booking.
