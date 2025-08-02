@@ -4,7 +4,6 @@ import com.acs.bookingsystem.danceclass.DanceClassTestData;
 import com.acs.bookingsystem.danceclass.entity.DanceClass;
 import com.acs.bookingsystem.danceclass.repository.DanceClassRepository;
 import com.acs.bookingsystem.danceclass.request.DanceClassRequest;
-import com.acs.bookingsystem.danceclass.service.impl.DanceClassService;
 import com.acs.bookingsystem.user.UserTestData;
 import com.acs.bookingsystem.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;

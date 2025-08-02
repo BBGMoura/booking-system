@@ -5,7 +5,7 @@ import com.acs.bookingsystem.danceclass.entity.DanceClass;
 import com.acs.bookingsystem.danceclass.enums.ClassType;
 import com.acs.bookingsystem.danceclass.mapper.DanceClassMapper;
 import com.acs.bookingsystem.danceclass.request.DanceClassRequest;
-import com.acs.bookingsystem.danceclass.service.impl.DanceClassService;
+import com.acs.bookingsystem.danceclass.service.DanceClassService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,9 +22,9 @@ import java.util.List;
 @Validated
 public class DanceClassAdminController {
 
-    DanceClassService danceClassService;
+    private final DanceClassService danceClassService;
 
-    DanceClassMapper mapper;
+    private final DanceClassMapper mapper;
 
     /**
      * Returns a list of ClassTypes. These class types are used as an option

@@ -5,7 +5,7 @@ import com.acs.bookingsystem.danceclass.dto.DanceClassDTO;
 import com.acs.bookingsystem.danceclass.entity.DanceClass;
 import com.acs.bookingsystem.danceclass.enums.ClassType;
 import com.acs.bookingsystem.danceclass.mapper.DanceClassMapper;
-import com.acs.bookingsystem.danceclass.service.impl.DanceClassService;
+import com.acs.bookingsystem.danceclass.service.DanceClassService;
 import com.acs.bookingsystem.security.config.SecurityConfig;
 import com.acs.bookingsystem.security.util.JwtUtil;
 import com.acs.bookingsystem.user.UserTestData;
