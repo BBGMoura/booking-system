@@ -76,5 +76,6 @@ public class UserService {
                                                 new RequestException("Cannot find user with email " + email,
                                                         ErrorCode.USER_ERROR));
         user.setPassword(password);
+        userRepository.save(user);
     }
 }
