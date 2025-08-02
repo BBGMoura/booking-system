@@ -5,6 +5,7 @@ import com.acs.bookingsystem.booking.enums.Room;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -53,6 +54,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
     Optional<Booking> findByIdAndUserId(int bookingId, int userId);
 
+    @Modifying
     @Query("UPDATE Booking b SET b.active = false WHERE b.user.id = :userId")
     int deactivateBookingsByUserId(@Param("userId") int userId);
 }
