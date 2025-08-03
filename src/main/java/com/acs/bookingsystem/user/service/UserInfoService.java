@@ -5,6 +5,7 @@ import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.user.entity.UserInfo;
 import com.acs.bookingsystem.user.repository.UserInfoRepository;
 import com.acs.bookingsystem.user.request.UpdateUserInfoRequest;
+import com.acs.bookingsystem.user.response.UserInfoResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +29,7 @@ public class UserInfoService {
         return userInfoRepository.save(userInfo);
     }
 
-    public UserInfo updateUserInfo(int userId, UpdateUserInfoRequest request) {
+    public UserInfoResponse updateUserInfo(int userId, UpdateUserInfoRequest request) {
         final UserInfo userInfo = getUserInfo(userId);
 
         if (request.firstName() != null && !request.firstName().isBlank()) {
@@ -43,7 +44,15 @@ public class UserInfoService {
             userInfo.setPhoneNumber(request.phoneNumber());
         }
 
-        return userInfoRepository.save(userInfo);
+         UserInfo updatedUserInfo = userInfoRepository.save(userInfo);
+
+        return UserInfoResponse.builder()
+                .id(updatedUserInfo.getId())
+                .firstName(updatedUserInfo.getFirstName())
+                .lastName(updatedUserInfo.getLastName())
+                .phoneNumber(updatedUserInfo.getPhoneNumber())
+                .userId(updatedUserInfo.getUser().getId())
+                .build();
     }
 
     private UserInfo getUserInfo(int userId) {
