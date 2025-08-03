@@ -23,8 +23,7 @@ class UpdateUserRequestTest {
     void validUpdateRequest() {
         UpdateUserRequest request = new UpdateUserRequest(
                 "john.doe@example.com",
-                "Password1!",
-                true
+                "Password1!"
         );
 
         Set<ConstraintViolation<UpdateUserRequest>> violations = validator.validate(request);
@@ -35,7 +34,6 @@ class UpdateUserRequestTest {
     void nullValuesValid() {
         // All fields can be null in UpdateUserRequest
         UpdateUserRequest request = new UpdateUserRequest(
-                null,
                 null,
                 null
         );
@@ -49,8 +47,7 @@ class UpdateUserRequestTest {
     void emailInvalid(String email) {
         UpdateUserRequest request = new UpdateUserRequest(
                 email,
-                "Password1!",
-                true
+                "Password1!"
         );
 
         Set<ConstraintViolation<UpdateUserRequest>> violations = validator.validate(request);
@@ -66,7 +63,7 @@ class UpdateUserRequestTest {
                 "invalid@domain.",
                 "@domain.com",
                 "invalid@.com",
-                "a".repeat(245) + "@domain.com" // exceeds max length
+                "a".repeat(245) + "@domain.com"
         );
     }
 
@@ -75,8 +72,7 @@ class UpdateUserRequestTest {
     void emailValid(String email) {
         UpdateUserRequest request = new UpdateUserRequest(
                 email,
-                "Password1!",
-                true
+                "Password1!"
         );
 
         Set<ConstraintViolation<UpdateUserRequest>> violations = validator.validate(request);
@@ -103,8 +99,7 @@ class UpdateUserRequestTest {
     void passwordInvalid(String password) {
         UpdateUserRequest request = new UpdateUserRequest(
                 "john.doe@example.com",
-                password,
-                true
+                password
         );
 
         Set<ConstraintViolation<UpdateUserRequest>> violations = validator.validate(request);
@@ -129,8 +124,7 @@ class UpdateUserRequestTest {
     void passwordValid(String password) {
         UpdateUserRequest request = new UpdateUserRequest(
                 "john.doe@example.com",
-                password,
-                true
+                password
         );
 
         Set<ConstraintViolation<UpdateUserRequest>> violations = validator.validate(request);
@@ -138,16 +132,4 @@ class UpdateUserRequestTest {
                 violations.stream().noneMatch(v -> v.getPropertyPath().toString().equals("password")));
     }
 
-    @ParameterizedTest
-    @ValueSource(booleans = {true, false})
-    void statusValid(Boolean status) {
-        UpdateUserRequest request = new UpdateUserRequest(
-                "john.doe@example.com",
-                "Password1!",
-                status
-        );
-
-        Set<ConstraintViolation<UpdateUserRequest>> violations = validator.validate(request);
-        assertTrue(violations.isEmpty());
-    }
 }
