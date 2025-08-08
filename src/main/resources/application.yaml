@@ -5,7 +5,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/booking_system
     username: booking_user
-    password: password
+    password:
 
   jpa:
     hibernate:
