@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: booking-system
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/booking_system
+    username: booking_user
+    password: ${POSTGRES_PASSWORD}
+
+logging:
+  level:
+    com.acs.bookingsystem: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
