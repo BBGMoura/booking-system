@@ -7,6 +7,9 @@ spring:
     username: booking_user
     password: ${POSTGRES_PASSWORD}
 
+  flyway:
+    enabled: true
+
 logging:
   level:
     com.acs.bookingsystem: DEBUG

@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class BookingHistory {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @ManyToOne
@@ -28,6 +28,7 @@ public class BookingHistory {
     @Column(nullable = false)
     private BookingStatus bookingStatus;
 
+    @Column(nullable = false)
     private String description;
 
     @Column(nullable = false)
