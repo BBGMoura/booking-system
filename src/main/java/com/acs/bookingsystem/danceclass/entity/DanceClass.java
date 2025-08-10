@@ -17,18 +17,21 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class DanceClass {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private ClassType classType;
 
     @Column(nullable=false)
     private boolean active;
 
+    @Column(nullable = false)
     private BigDecimal pricePerHour;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role;
 
     public DanceClass(ClassType classType, boolean active, BigDecimal pricePerHour, Role role) {

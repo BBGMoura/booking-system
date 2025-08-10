@@ -56,7 +56,11 @@ public class BookingManagerService {
                                  .totalPrice(totalCost)
                                  .build();
 
-        return bookingRepository.save(booking);
+        Booking savedBooking = bookingRepository.save(booking);
+
+        LOG.debug("Successfully created Booking. Booking Id: {}", booking.getId());
+
+        return savedBooking;
     }
 
     @Transactional

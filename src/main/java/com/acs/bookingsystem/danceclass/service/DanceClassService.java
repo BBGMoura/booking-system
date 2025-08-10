@@ -41,7 +41,7 @@ public class DanceClassService {
 
     public DanceClass getActiveDanceClass(ClassType classType, Role role) {
         return danceClassRepository.findByActiveIsTrueAndClassTypeAndRole(classType, role)
-                                                          .orElseThrow(() -> new NotFoundException("Dance class with type " + classType + "has not been found. Please contact support.",
+                                                          .orElseThrow(() -> new NotFoundException("Dance class with type " + classType + " has not been found. Please contact support.",
                                                                                                     ErrorCode.INVALID_DANCE_CLASS_REQUEST));
     }
 
