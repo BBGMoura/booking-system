@@ -9,17 +9,56 @@ spring:
     properties:
       hibernate:
         format_sql: false
+        jdbc:
+          batch_size: 20        # Insert/update 20 records at once for efficiency
+          order_inserts: true   # Group similar inserts together
+          order_updates: true   # Group similar updates together
+          connection:
+            provider_disables_autocommit: true  # Let Hibernate manage transactions
+          cache:
+            use_second_level_cache: false    # Disables shared cache across sessions
+            use_query_cache: false          # Disables caching of query results
+
+  datasource:
+    hikari: # HikariCP is your connection pool
+      maximum-pool-size: 3      # Max 3 database connections (down from default 10)
+      minimum-idle: 1           # Keep at least 1 connection open (down from default 5)
+      idle-timeout: 300000      # Close idle connections after 5 minutes
+      max-lifetime: 1200000     # Replace connections every 20 minutes
+      connection-timeout: 20000 # Wait 20 seconds for connection before failing
+      leak-detection-threshold: 60000  # Warn if connection held longer than 1 minute
+      auto-commit: false        # HikariCP disables auto-commit
 
   flyway:
     enabled: false
 
 logging:
   level:
-    com.acs.bookingsystem: INFO
+    root: WARN                      # Only show warnings/errors for everything
+    com.acs.bookingsystem: DEBUG     # Show info+ for YOUR code only
+    org.springframework: WARN       # Reduce Spring framework noise
+    org.hibernate: WARN             # Reduce database ORM noise
+    org.springframework.security: WARN  # Reduce security framework noise
 
 jwt:
   secret:
     key: OOVIh6cWzG1n8/g4u2vmpcSxkbZB+DTJ8V0Hq9d4K6g=
+
+server:
+  tomcat:
+    threads:
+      max: 50                   # Maximum 50 request threads (default is 200)
+      min-spare: 5              # Keep 5 threads ready (default is 25)
+    connection-timeout: 20000   # Close inactive connections after 20 seconds
+    max-connections: 1000       # Maximum concurrent connections
+    accept-count: 100           # Queue up to 100 requests when busy
+  compression:
+    enabled: true               # Compress responses to save bandwidth
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+    min-response-size: 1024
+  servlet:
+    session:
+      tracking-modes: []      # Don't track user sessions at all
 
 # custom config
 
