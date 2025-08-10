@@ -34,7 +34,7 @@ spring:
 
 logging:
   level:
-    com.acs.bookingsystem: DEBUG     # Show info+ for YOUR code only
+    com.acs.bookingsystem: DEBUG
 
 jwt:
   secret:
