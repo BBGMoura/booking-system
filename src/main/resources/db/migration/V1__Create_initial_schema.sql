@@ -69,7 +69,7 @@ ALTER TABLE users ADD CONSTRAINT chk_users_role
     CHECK (role IN ('ROLE_ADMIN', 'ROLE_USER'));
 
 ALTER TABLE dance_class ADD CONSTRAINT chk_dance_class_type
-    CHECK (class_type IN ('PRIV', 'PRA', 'GRP', 'UN', 'OTH'));
+    CHECK (class_type IN ('PRIVATE', 'PRACTICE', 'GROUP', 'UNAVAILABLE', 'OTHER'));
 
 ALTER TABLE dance_class ADD CONSTRAINT chk_dance_class_role
     CHECK (role IN ('ROLE_ADMIN', 'ROLE_USER'));
@@ -84,13 +84,13 @@ ALTER TABLE booking ADD CONSTRAINT chk_booking_price
     CHECK (total_price >= 0);
 
 ALTER TABLE booking ADD CONSTRAINT chk_booking_room
-    CHECK (room IN ('ASTA', 'BUSS', 'ALEX', 'FOS'));
+    CHECK (room IN ('ASTAIRE', 'BUSSELL', 'ALEX MOORE', 'FOSSE'));
 
 ALTER TABLE booking_history ADD CONSTRAINT chk_booking_status
-    CHECK (booking_status IN ('B', 'C'));
+    CHECK (booking_status IN ('BOOKED', 'CANCELLED'));
 
 ALTER TABLE payment ADD CONSTRAINT chk_payment_status
-    CHECK (payment_status IN ('O', 'P', 'V'));
+    CHECK (payment_status IN ('OUTSTANDING', 'PAID', 'VOIDED'));
 
 
 

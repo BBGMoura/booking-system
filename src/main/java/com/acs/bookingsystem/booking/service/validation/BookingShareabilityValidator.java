@@ -29,7 +29,7 @@ public class BookingShareabilityValidator implements BookingValidatorRule {
         }
 
         if (overlapsMaximumShareableBookings(shareableBookings, bookingRequest)) {
-            return Optional.of("Booking as timeslot is unavailable. Can only book " + MAXIMUM_SLOTS + " at a time.");
+            return Optional.of("Timeslot timeslot is unavailable. Can only book " + MAXIMUM_SLOTS + " shareable bookings at a time.");
         }
 
         return Optional.empty();
