@@ -34,11 +34,7 @@ spring:
 
 logging:
   level:
-    root: WARN                      # Only show warnings/errors for everything
     com.acs.bookingsystem: DEBUG     # Show info+ for YOUR code only
-    org.springframework: WARN       # Reduce Spring framework noise
-    org.hibernate: WARN             # Reduce database ORM noise
-    org.springframework.security: WARN  # Reduce security framework noise
 
 jwt:
   secret:
