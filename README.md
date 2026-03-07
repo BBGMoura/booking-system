@@ -1,3 +1,8 @@
+## Prerequisites
+- java 21
+- maven
+- docker
+
 ## Running Steps
 
 1. Configure Database Password:

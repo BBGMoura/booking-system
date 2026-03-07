@@ -78,4 +78,10 @@ public class UserService {
         user.setPassword(password);
         userRepository.save(user);
     }
+
+    public boolean isEmailInvited(String email) {
+        return userRepository.findByEmail(email)
+                .map(user -> user.getPassword() == null)
+                .orElse(false);
+    }
 }
