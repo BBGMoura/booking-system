@@ -6,6 +6,7 @@ import com.acs.bookingsystem.common.exception.RequestException;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.common.exception.model.ErrorModel;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -47,6 +48,20 @@ public class UniversalExceptionHandler {
                                                                         fieldError.getDefaultMessage(),
                                                                         fieldError.getField()))
                                       .toList();
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<List<ErrorModel>> handleConstraintViolation(ConstraintViolationException ex) {
+        List<ErrorModel> errors = ex.getConstraintViolations()
+                .stream()
+                .map(v -> {
+                    String field = v.getPropertyPath().toString();
+                    String fieldName = field.contains(".") ? field.substring(field.lastIndexOf('.') + 1) : field;
+                    return new ErrorModel(new Date(), HttpStatus.BAD_REQUEST.value(), v.getMessage(), fieldName);
+                })
+                .toList();
+
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
