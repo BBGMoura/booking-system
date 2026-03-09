@@ -34,7 +34,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         final String jwt = authHeader.substring(7);
-        final String userEmail = jwtUtil.extractUsername(jwt);
+
+        String userEmail;
+        try {
+            userEmail = jwtUtil.extractUsername(jwt);
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // Return 401 directly instead of letting Spring Security turn it into a 403
+            return;
+        }
 
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             final UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);

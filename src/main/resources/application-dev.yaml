@@ -10,3 +10,6 @@ spring:
 logging:
   level:
     org.flywaydb: INFO
+
+allowed:
+  origins: http://localhost:3000
