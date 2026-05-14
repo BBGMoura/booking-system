@@ -1,32 +1,34 @@
 package com.acs.bookingsystem.booking.service.validation;
 
+import com.acs.bookingsystem.booking.repository.BookingRepository;
 import com.acs.bookingsystem.booking.request.BookingRequest;
-import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Component
-@AllArgsConstructor
 public class BookingValidator {
 
-    public static final Logger LOG = LoggerFactory.getLogger(BookingValidator.class);
+    private final List<BookingValidatorRule> rules;
 
-    private final List<BookingValidatorRule> validationRules;
-
-    public Optional<String> validate(BookingRequest request) {
-        for (BookingValidatorRule rule : validationRules) {
-            Optional<String> validationResult = rule.validate(request);
-
-            if (validationResult.isPresent()) {
-                LOG.error("Invalid Booking: {} For {}", validationResult.get(), request);
-                return validationResult;
-            }
-        }
-        return Optional.empty();
+    public BookingValidator(ScheduleProperties scheduleProperties, BookingRepository bookingRepository) {
+        this.rules = List.of(
+                new BookingTimeValidator(scheduleProperties),   // cheap — no DB
+                new BookingConflictValidator(bookingRepository), // DB
+                new BookingShareabilityValidator(bookingRepository) // DB
+        );
     }
 
+    public Optional<ValidationFailure> validate(BookingRequest request) {
+        Optional<ValidationFailure> result = rules.stream()
+                                                  .map(rule -> rule.validate(request))
+                                                  .filter(Optional::isPresent)
+                                                  .map(Optional::get)
+                                                  .findFirst();
+        result.ifPresent(f -> log.warn("Invalid booking request: {} for {}", f.message(), request));
+        return result;
+    }
 }

@@ -21,7 +21,10 @@ public enum ErrorCode {
     AUTHENTICATION_ERROR("Authentication Error. Please contact support."),
     INVALID_UPDATE_REQUEST("Update request is invalid."),
     INVALID_FORMAT("Request format is invalid."),
-    VALIDATION_ERROR("Validation failed.");
+    VALIDATION_ERROR("Validation failed."),
+    BOOKING_TIME_INVALID("Booking time is invalid."),
+    BOOKING_CONFLICT("Booking timeslot is unavailable."),
+    BOOKING_SHAREABLE_LIMIT("Booking shareable limit reached.");
 
     private final String description;
 }

@@ -6,7 +6,6 @@ import com.acs.bookingsystem.danceclass.entity.DanceClass;
 import com.acs.bookingsystem.booking.repository.BookingRepository;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.common.exception.RequestException;
-import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.danceclass.service.DanceClassService;
 import com.acs.bookingsystem.payment.PriceCalculator;
 import com.acs.bookingsystem.user.entity.User;
@@ -39,9 +38,7 @@ public class BookingManagerService {
         DanceClass danceClass = danceClassService.getActiveDanceClass(bookingRequest.classType(), user.getRole());
 
         bookingValidator.validate(bookingRequest)
-                        .ifPresent(errorMessage -> {
-                             throw new RequestException(errorMessage, ErrorCode.INVALID_BOOKING_REQUEST);
-                         });
+                        .ifPresent(f -> { throw new RequestException(f.message(), f.code()); });
 
         BigDecimal totalCost = PriceCalculator.calculateTotalPrice(bookingRequest.dateFrom(), bookingRequest.dateTo(), danceClass);
 

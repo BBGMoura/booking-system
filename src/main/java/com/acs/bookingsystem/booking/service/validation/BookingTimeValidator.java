@@ -1,9 +1,8 @@
 package com.acs.bookingsystem.booking.service.validation;
 
 import com.acs.bookingsystem.booking.request.BookingRequest;
-import lombok.AllArgsConstructor;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
+import com.acs.bookingsystem.common.exception.model.ErrorCode;
+import lombok.RequiredArgsConstructor;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -11,9 +10,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
 
-@Order(1)
-@Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class BookingTimeValidator implements BookingValidatorRule {
 
     private final ScheduleProperties scheduleProperties;
@@ -21,45 +18,49 @@ public class BookingTimeValidator implements BookingValidatorRule {
     private static final Duration TIME_INTERVAL = Duration.ofMinutes(5);
     private static final Duration MINIMUM_BOOKING_TIME = Duration.ofMinutes(15);
 
-    public Optional<String> validate(BookingRequest bookingRequest) {
+    public Optional<ValidationFailure> validate(BookingRequest bookingRequest) {
         if (endsBeforeStarts(bookingRequest.dateFrom(), bookingRequest.dateTo())) {
-            return Optional.of("Booking start time is after end time.");
+            return failure("Booking start time must be before end time.");
         }
 
         if (isTooShort(bookingRequest)) {
-            return Optional.of("Booking must be a minimum of 15 minutes.");
+            return failure("Booking must be a minimum of 15 minutes.");
+        }
+
+        if (isInvalidMinuteAlignment(bookingRequest.dateFrom())) {
+            return failure("Booking start time must be on a 5-minute interval (e.g., :00, :05, :10), with no seconds or milliseconds.");
+        }
+
+        if (isInvalidMinuteAlignment(bookingRequest.dateTo())) {
+            return failure("Booking end time must be on a 5-minute interval (e.g., :00, :05, :10), with no seconds or milliseconds.");
         }
 
         if (hasInvalidTimeInterval(bookingRequest)) {
-            return Optional.of("Booking interval is invalid. Must be in intervals of 5 minutes.");
-        }
-
-        if(isInvalidMinuteAlignment(bookingRequest.dateFrom())) {
-            return Optional.of("Booking start time must be on a 5-minute interval (e.g., :00, :05, :10), with no seconds or milliseconds.");
-        }
-
-        if(isInvalidMinuteAlignment(bookingRequest.dateTo())) {
-            return Optional.of("Booking end time must be on a 5-minute interval (e.g., :00, :05, :10), with no seconds or milliseconds.");
+            return failure("Booking duration must be in intervals of 5 minutes.");
         }
 
         if (isNotSameDate(bookingRequest.dateFrom(), bookingRequest.dateTo())) {
-            return Optional.of("Booking must start and end on the same day.");
+            return failure("Booking must start and end on the same day.");
         }
 
         if (isNotWithinOpeningHours(bookingRequest.dateFrom(), bookingRequest.dateTo())) {
-            return Optional.of("Cannot make a booking as booking time is not within opening times.");
+            return failure("Booking time is not within opening hours.");
         }
 
         return Optional.empty();
     }
 
+    private static Optional<ValidationFailure> failure(String message) {
+        return Optional.of(new ValidationFailure(message, ErrorCode.BOOKING_TIME_INVALID));
+    }
+
     private boolean endsBeforeStarts(LocalDateTime dateFrom, LocalDateTime dateTo) {
-        return dateFrom.isAfter(dateTo);
+        return !dateFrom.isBefore(dateTo);
     }
 
     private boolean isTooShort(BookingRequest bookingRequest) {
         Duration duration = Duration.between(bookingRequest.dateFrom(), bookingRequest.dateTo());
-        return duration.compareTo(MINIMUM_BOOKING_TIME) <= 0;
+        return duration.compareTo(MINIMUM_BOOKING_TIME) < 0;
     }
 
     private boolean isInvalidMinuteAlignment(LocalDateTime dateTime) {
@@ -97,10 +98,10 @@ public class BookingTimeValidator implements BookingValidatorRule {
             }
         }
 
-        return validateTimeRange(dateFrom,openingTime,closingTime) || validateTimeRange(dateTo,openingTime,closingTime);
+        return validateTimeRange(dateFrom, openingTime, closingTime) || validateTimeRange(dateTo, openingTime, closingTime);
     }
 
-    private boolean validateTimeRange(LocalDateTime dateTime, LocalTime openingTime, LocalTime closingTime) {
-        return dateTime.toLocalTime().isBefore(openingTime) || dateTime.toLocalTime().isAfter(closingTime);
+    private boolean validateTimeRange(LocalDateTime date, LocalTime openingTime, LocalTime closingTime) {
+        return date.toLocalTime().isBefore(openingTime) || date.toLocalTime().isAfter(closingTime);
     }
 }
