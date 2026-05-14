@@ -59,7 +59,9 @@ class UniversalExceptionHandlerTest {
         }
 
         @PostMapping("/test/validation")
-        void throwFieldValidation(@RequestBody @Valid ValidationRequest body) {}
+        void throwFieldValidation(@RequestBody @Valid ValidationRequest body) {
+            // intentionally empty — exists only to trigger @Valid on the request body
+        }
 
         @GetMapping("/test/constraint")
         void throwConstraintViolation() {
