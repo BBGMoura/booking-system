@@ -4,6 +4,7 @@ import com.acs.bookingsystem.common.exception.AuthorizationException;
 import com.acs.bookingsystem.common.exception.NotFoundException;
 import com.acs.bookingsystem.common.exception.RequestException;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
+import com.acs.bookingsystem.common.exception.model.ErrorDetail;
 import com.acs.bookingsystem.common.exception.model.ErrorModel;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.validation.ConstraintViolationException;
@@ -26,112 +27,109 @@ import java.util.List;
 
 @ControllerAdvice
 public class UniversalExceptionHandler {
-        private static final Logger LOG = LoggerFactory.getLogger(UniversalExceptionHandler.class);
-
+    private static final Logger LOG = LoggerFactory.getLogger(UniversalExceptionHandler.class);
 
     @ExceptionHandler(RequestException.class)
-    public ResponseEntity<ErrorModel> handleUserRequestException(RequestException uEx){
+    public ResponseEntity<ErrorModel> handleRequestException(RequestException ex) {
         ErrorModel error = new ErrorModel(new Date(),
                                           HttpStatus.BAD_REQUEST.value(),
-                                          uEx.getMessage(),
-                                          uEx.getError().toString());
+                                          ex.getError().toString(),
+                                          ex.getMessage(),
+                                          List.of());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorModel> handleNotFoundException(NotFoundException ex) {
+        ErrorModel error = new ErrorModel(new Date(),
+                                          HttpStatus.NOT_FOUND.value(),
+                                          ex.getError().toString(),
+                                          ex.getMessage(),
+                                          List.of());
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<List<ErrorModel>> handleFieldValidation(MethodArgumentNotValidException maEx){
-        List<ErrorModel> errors = maEx.getBindingResult()
+    public ResponseEntity<ErrorModel> handleFieldValidation(MethodArgumentNotValidException ex) {
+        List<ErrorDetail> details = ex.getBindingResult()
                                       .getFieldErrors()
                                       .stream()
-                                      .map(fieldError -> new ErrorModel(new Date(),
-                                                                        HttpStatus.BAD_REQUEST.value(),
-                                                                        fieldError.getDefaultMessage(),
-                                                                        fieldError.getField()))
+                                      .map(fe -> new ErrorDetail(fe.getField(), fe.getDefaultMessage()))
                                       .toList();
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        ErrorModel error = new ErrorModel(new Date(),
+                                          HttpStatus.BAD_REQUEST.value(),
+                                          ErrorCode.VALIDATION_ERROR.toString(),
+                                          ErrorCode.VALIDATION_ERROR.getDescription(),
+                                          details);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<List<ErrorModel>> handleConstraintViolation(ConstraintViolationException ex) {
-        List<ErrorModel> errors = ex.getConstraintViolations()
-                .stream()
-                .map(v -> {
-                    String field = v.getPropertyPath().toString();
-                    String fieldName = field.contains(".") ? field.substring(field.lastIndexOf('.') + 1) : field;
-                    return new ErrorModel(new Date(), HttpStatus.BAD_REQUEST.value(), v.getMessage(), fieldName);
-                })
-                .toList();
-
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ErrorModel> handleNotFound(NotFoundException nfEx){
+    public ResponseEntity<ErrorModel> handleConstraintViolation(ConstraintViolationException ex) {
+        List<ErrorDetail> details = ex.getConstraintViolations()
+                                      .stream()
+                                      .map(v -> {
+                                          String path = v.getPropertyPath().toString();
+                                          String field = path.contains(".") ? path.substring(path.lastIndexOf('.') + 1) : path;
+                                          return new ErrorDetail(field, v.getMessage());
+                                      })
+                                      .toList();
         ErrorModel error = new ErrorModel(new Date(),
-                                            HttpStatus.NOT_FOUND.value(),
-                                            nfEx.getMessage(),
-                                            nfEx.getError().toString());
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+                                          HttpStatus.BAD_REQUEST.value(),
+                                          ErrorCode.VALIDATION_ERROR.toString(),
+                                          ErrorCode.VALIDATION_ERROR.getDescription(),
+                                          details);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorModel> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
-        final Throwable mostSpecificCause = ex.getMostSpecificCause();
-        final ErrorModel errorModel = new ErrorModel(new Date(),
-                                               HttpStatus.BAD_REQUEST.value(),
-                                               getErrorMessage(ex.getCause()),
-                                               mostSpecificCause.getClass().getName());
-
-        LOG.debug("JSON parse error: {}", mostSpecificCause.getMessage());
-
-        return new ResponseEntity<>(errorModel, HttpStatus.BAD_REQUEST);
+        LOG.debug("JSON parse error: {}", ex.getMostSpecificCause().getMessage());
+        ErrorModel error = new ErrorModel(new Date(),
+                                          HttpStatus.BAD_REQUEST.value(),
+                                          ErrorCode.INVALID_FORMAT.toString(),
+                                          getFormatErrorMessage(ex.getCause()),
+                                          List.of());
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(AuthorizationException.class)
-    public ResponseEntity<ErrorModel> handleInvalidAuthorization(AuthorizationException authEx) {
+    public ResponseEntity<ErrorModel> handleAuthorizationException(AuthorizationException ex) {
+        LOG.error("Authorization exception: {}", ex.getMessage(), ex);
         ErrorModel error = new ErrorModel(new Date(),
                                           HttpStatus.FORBIDDEN.value(),
-                                          authEx.getError()
-                                                .getDescription(),
-                                          authEx.getError().toString());
-
-        if (LOG.isErrorEnabled()) {
-            LOG.error("Authorization Exception caused by: {}. Stack trace: {}",
-                      authEx.getCause(),
-                      Arrays.toString(authEx.getStackTrace()));
-        }
-
-
+                                          ex.getError().toString(),
+                                          ex.getMessage(),
+                                          List.of());
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ErrorModel> handleAuthenticationException(AuthenticationException exception) {
+    public ResponseEntity<ErrorModel> handleAuthenticationException(AuthenticationException ex) {
         ErrorModel error = new ErrorModel(new Date(),
                                           HttpStatus.FORBIDDEN.value(),
-                                          determineAuthenticationErrorMessage(exception),
-                                          exception.getMessage());
-
+                                          ErrorCode.AUTHENTICATION_ERROR.toString(),
+                                          determineAuthenticationMessage(ex),
+                                          List.of());
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
-    private static String getErrorMessage(Throwable ex) {
-        if (ex instanceof InvalidFormatException ifEx && ifEx.getTargetType().isEnum()) {
-            return String.format("%s is not a valid class type. Must be one of : %s",
+    private static String getFormatErrorMessage(Throwable cause) {
+        if (cause instanceof InvalidFormatException ifEx && ifEx.getTargetType().isEnum()) {
+            return String.format("'%s' is not a valid value. Must be one of: %s",
                                  ifEx.getValue(),
                                  Arrays.toString(ifEx.getTargetType().getEnumConstants()));
         }
-        return ErrorCode.INTERNAL_ERROR.getDescription();
+        return ErrorCode.INVALID_FORMAT.getDescription();
     }
 
-    private String determineAuthenticationErrorMessage(AuthenticationException exception) {
-        return switch (exception) {
-            case BadCredentialsException badCredentialsException -> "Invalid email or password.";
-            case LockedException lockedException -> "Account is locked. Please contact support.";
-            case DisabledException disabledException -> "Account is disabled. Please contact support.";
-            case null -> "Authentication failed: Unknown error.";
-            default -> "Authentication failed: " + exception.getMessage();
+    private static String determineAuthenticationMessage(AuthenticationException ex) {
+        return switch (ex) {
+            case BadCredentialsException e -> "Invalid email or password.";
+            case LockedException e -> "Account is locked. Please contact support.";
+            case DisabledException e -> "Account is disabled. Please contact support.";
+            case null -> "Authentication failed.";
+            default -> "Authentication failed: " + ex.getMessage();
         };
     }
-
 }

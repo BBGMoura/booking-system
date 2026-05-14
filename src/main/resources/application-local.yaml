@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/booking_system
     username: booking_user
-    password: ${POSTGRES_PASSWORD}
+    password: postgres
 
   flyway:
     enabled: true

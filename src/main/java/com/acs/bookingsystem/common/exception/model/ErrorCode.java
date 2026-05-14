@@ -19,7 +19,9 @@ public enum ErrorCode {
     INVALID_TOKEN("Invalid token."),
     USER_ERROR("Invalid user request."),
     AUTHENTICATION_ERROR("Authentication Error. Please contact support."),
-    INVALID_UPDATE_REQUEST("Update request is invalid.");
+    INVALID_UPDATE_REQUEST("Update request is invalid."),
+    INVALID_FORMAT("Request format is invalid."),
+    VALIDATION_ERROR("Validation failed.");
 
     private final String description;
 }
