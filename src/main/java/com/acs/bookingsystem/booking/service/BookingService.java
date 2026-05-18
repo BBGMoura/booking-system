@@ -15,6 +15,7 @@ import com.acs.bookingsystem.user.entity.User;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -86,13 +87,14 @@ public class BookingService {
     }
 
     @Transactional
-    public void deactivateOwnBooking(UUID bookingUid, int userId) {
+    public void deactivateBookingByUserId(UUID bookingUid, int userId) {
         Booking booking = getBookingByUidAndUser(bookingUid, userId);
         booking.deactivate();
         bookingRepository.save(booking);
     }
 
     @Transactional
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void deactivateBooking(UUID bookingUid) {
         Booking booking = getBookingByUid(bookingUid);
         booking.deactivate();

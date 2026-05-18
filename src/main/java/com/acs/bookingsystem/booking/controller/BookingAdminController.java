@@ -20,14 +20,14 @@ import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/v1/admin")
+@RequestMapping("/api/v1/admin/bookings")
 public class BookingAdminController {
 
     private final BookingService bookingService;
     private final BookingViewFactory viewFactory;
     private final UserService userService;
 
-    @PostMapping("/bookings")
+    @PostMapping
     public ResponseEntity<BookingView> createBooking(@RequestParam UUID userUid,
                                                      @Valid @RequestBody BookingRequest bookingRequest) {
         User user = userService.getUserByUid(userUid);
@@ -35,14 +35,14 @@ public class BookingAdminController {
         return new ResponseEntity<>(viewFactory.createView(booking, ViewType.DETAIL), HttpStatus.CREATED);
     }
 
-    @GetMapping("/bookings/{bookingUid}")
+    @GetMapping("/{bookingUid}")
     public ResponseEntity<BookingView> getBookingByUid(@CurrentUser User user,
                                                        @PathVariable UUID bookingUid) {
         Booking booking = bookingService.getBookingByUid(bookingUid);
         return ResponseEntity.ok(viewFactory.createView(booking, user.getRole()));
     }
 
-    @GetMapping("/bookings/user/{userUid}")
+    @GetMapping("/user/{userUid}")
     public ResponseEntity<Page<BookingView>> getBookingsByUserUid(@PathVariable UUID userUid,
                                                                   @RequestParam(defaultValue = "0") int page,
                                                                   @RequestParam(defaultValue = "5") int size) {
@@ -52,7 +52,7 @@ public class BookingAdminController {
         return ResponseEntity.ok(bookings);
     }
 
-    @DeleteMapping("/bookings/{bookingUid}")
+    @DeleteMapping("/{bookingUid}")
     public ResponseEntity<Void> cancelBooking(@PathVariable UUID bookingUid) {
         bookingService.deactivateBooking(bookingUid);
         return ResponseEntity.noContent().build();

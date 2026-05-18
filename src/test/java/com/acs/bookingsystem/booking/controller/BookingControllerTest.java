@@ -119,7 +119,7 @@ class BookingControllerTest {
         mockMvc.perform(delete("/api/v1/bookings/{bookingUid}", BOOKING_UID))
                .andExpect(status().isNoContent());
 
-        verify(bookingService).deactivateOwnBooking(eq(BOOKING_UID), any(int.class));
+        verify(bookingService).deactivateBookingByUserId(eq(BOOKING_UID), any(int.class));
     }
 
     @Test

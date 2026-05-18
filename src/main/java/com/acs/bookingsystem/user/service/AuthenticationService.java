@@ -52,12 +52,12 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public AuthenticateResponse updateUserCredentials(int userId, UpdateUserRequest request) {
+    public AuthenticateResponse updateUserCredentials(User user, UpdateUserRequest request) {
         String encodedPassword = request.password() != null
                 ? passwordUtil.encodePassword(request.password())
                 : null;
-        User user = userService.updateUserCredentials(userId, request.email(), encodedPassword);
-        return AuthenticateResponse.builder().token(jwtUtil.generateToken(user)).build();
+        User updatedUser = userService.updateUserCredentials(user, request.email(), encodedPassword);
+        return AuthenticateResponse.builder().token(jwtUtil.generateToken(updatedUser)).build();
     }
 
     @Transactional

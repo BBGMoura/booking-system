@@ -54,7 +54,6 @@ public class DanceClassService {
         deactivateDanceClass(danceClass);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     private void deactivateDanceClass(DanceClass danceClass) {
             danceClass.setActive(false);
             danceClassRepository.save(danceClass);

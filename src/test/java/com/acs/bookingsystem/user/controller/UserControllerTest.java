@@ -56,9 +56,9 @@ class UserControllerTest {
 
     @Test
     void givenAuthenticatedUser_whenGetProfile_thenReturns200() throws Exception {
-        when(userService.getUserProfile(any(int.class))).thenReturn(profile);
+        when(userService.getUserProfile(any(User.class))).thenReturn(profile);
 
-        mockMvc.perform(get("/api/v1/user"))
+        mockMvc.perform(get("/api/v1/users/me"))
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.uid").value(profile.uid().toString()))
                .andExpect(jsonPath("$.email").value(profile.email()))
@@ -68,23 +68,23 @@ class UserControllerTest {
     @Test
     void givenValidRequest_whenUpdateUserInfo_thenReturns200() throws Exception {
         UpdateUserInfoRequest request = new UpdateUserInfoRequest("New", "Name", null);
-        when(userService.updateUserInfo(any(int.class), any())).thenReturn(profile);
+        when(userService.updateUserInfo(any(User.class), any())).thenReturn(profile);
 
-        mockMvc.perform(patch("/api/v1/user")
+        mockMvc.perform(patch("/api/v1/users/me")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request)))
                .andExpect(status().isOk());
 
-        verify(userService).updateUserInfo(any(int.class), eq(request));
+        verify(userService).updateUserInfo(any(User.class), eq(request));
     }
 
     @Test
     void givenValidCredentials_whenUpdateCredentials_thenReturns200WithToken() throws Exception {
         UpdateUserRequest request = new UpdateUserRequest("new@example.com", "NewPass1!");
         AuthenticateResponse response = AuthenticateResponse.builder().token("new-jwt-token").build();
-        when(authenticationService.updateUserCredentials(any(int.class), any())).thenReturn(response);
+        when(authenticationService.updateUserCredentials(any(User.class), any())).thenReturn(response);
 
-        mockMvc.perform(put("/api/v1/user/credentials")
+        mockMvc.perform(put("/api/v1/users/me/credentials")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request)))
                .andExpect(status().isOk())
@@ -97,9 +97,9 @@ class UserControllerTest {
                 .uid(profile.uid())
                 .enabled(false)
                 .build();
-        when(userService.updateEnableStatus(any(int.class), eq(false))).thenReturn(response);
+        when(userService.disableUser(any(User.class))).thenReturn(response);
 
-        mockMvc.perform(patch("/api/v1/user/status"))
+        mockMvc.perform(patch("/api/v1/users/me/status"))
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.enabled").value(false));
     }
@@ -108,7 +108,7 @@ class UserControllerTest {
     void givenUnauthenticated_whenGetProfile_thenReturns403() throws Exception {
         SecurityContextHolder.clearContext();
 
-        mockMvc.perform(get("/api/v1/user"))
+        mockMvc.perform(get("/api/v1/users/me"))
                .andExpect(status().isForbidden());
     }
 }

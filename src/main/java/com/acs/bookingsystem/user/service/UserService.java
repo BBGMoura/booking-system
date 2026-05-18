@@ -16,6 +16,7 @@ import com.acs.bookingsystem.user.response.UserStatusResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,19 +44,22 @@ public class UserService {
                                      ErrorCode.INVALID_USER_ID));
     }
 
-    public UserProfile getUserProfile(int userId) {
-        return toProfile(getUserById(userId));
+    public UserProfile getUserProfile(User user) {
+        return toProfile(user);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public UserProfile getUserProfileByUid(UUID uid) {
         return toProfile(getUserByUid(uid));
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Page<UserProfile> getUserProfiles(int page, int size) {
         return userRepository.findAll(PageRequest.of(page, size))
                              .map(this::toProfile);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public InviteResponse invite(InviteRequest request) {
         userRepository.findByEmail(request.email())
                       .ifPresent(u -> { throw new RequestException(
@@ -92,9 +96,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserProfile updateUserInfo(int userId, UpdateUserInfoRequest request) {
-        User user = getUserById(userId);
-
+    public UserProfile updateUserInfo(User user, UpdateUserInfoRequest request) {
         if (request.firstName() != null && !request.firstName().isBlank()) {
             user.setFirstName(request.firstName());
         }
@@ -108,9 +110,7 @@ public class UserService {
         return toProfile(userRepository.save(user));
     }
 
-    public User updateUserCredentials(int userId, String email, String encodedPassword) {
-        User user = getUserById(userId);
-
+    public User updateUserCredentials(User user, String email, String encodedPassword) {
         if (email != null && !email.isBlank()) {
             user.setEmail(email);
         }
@@ -121,28 +121,35 @@ public class UserService {
     }
 
     @Transactional
-    public UserStatusResponse updateEnableStatus(int userId, boolean enabled) {
-        User user = getUserById(userId);
-        return applyEnableStatus(user, enabled);
+    public UserStatusResponse disableUser(User user) {
+        return applyDisable(user);
     }
 
     @Transactional
-    public UserStatusResponse updateEnableStatusByUid(UUID uid, boolean enabled) {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public UserStatusResponse enableUser(UUID uid) {
         User user = getUserByUid(uid);
-        return applyEnableStatus(user, enabled);
-    }
-
-    private UserStatusResponse applyEnableStatus(User user, boolean enabled) {
-        user.setEnabled(enabled);
+        user.setEnabled(true);
         userRepository.save(user);
-
-        if (!enabled) {
-            bookingService.deactivateAllBookingsByUserId(user.getId());
-        }
-
         return UserStatusResponse.builder()
                                  .uid(user.getUid())
-                                 .enabled(user.getEnabled())
+                                 .enabled(true)
+                                 .build();
+    }
+
+    @Transactional
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public UserStatusResponse disableUser(UUID uid) {
+        return applyDisable(getUserByUid(uid));
+    }
+
+    private UserStatusResponse applyDisable(User user) {
+        user.setEnabled(false);
+        userRepository.save(user);
+        bookingService.deactivateAllBookingsByUserId(user.getId());
+        return UserStatusResponse.builder()
+                                 .uid(user.getUid())
+                                 .enabled(false)
                                  .build();
     }
 

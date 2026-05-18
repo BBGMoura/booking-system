@@ -94,11 +94,11 @@ class BookingServiceTest {
     // --- deactivateOwnBooking ---
 
     @Test
-    void givenValidUidAndUser_whenDeactivateOwnBooking_thenDeactivatesAndSaves() {
+    void givenValidUidAndUser_whenDeactivateBooking_ByUserId_thenDeactivatesAndSaves() {
         Booking activeBooking = Booking.builder().uid(BOOKING_UID).active(true).build();
         when(bookingRepository.findByUidAndUserId(BOOKING_UID, USER_ID)).thenReturn(Optional.of(activeBooking));
 
-        bookingService.deactivateOwnBooking(BOOKING_UID, USER_ID);
+        bookingService.deactivateBookingByUserId(BOOKING_UID, USER_ID);
 
         ArgumentCaptor<Booking> captor = ArgumentCaptor.forClass(Booking.class);
         verify(bookingRepository).save(captor.capture());
@@ -106,10 +106,10 @@ class BookingServiceTest {
     }
 
     @Test
-    void givenBookingNotOwnedByUser_whenDeactivateOwnBooking_thenThrowsNotFoundException() {
+    void givenBookingNotOwnedByUser_whenDeactivateBooking_ByUserId_thenThrowsNotFoundException() {
         when(bookingRepository.findByUidAndUserId(BOOKING_UID, USER_ID)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> bookingService.deactivateOwnBooking(BOOKING_UID, USER_ID))
+        assertThatThrownBy(() -> bookingService.deactivateBookingByUserId(BOOKING_UID, USER_ID))
                 .isInstanceOf(NotFoundException.class);
 
         verify(bookingRepository, never()).save(any());

@@ -15,32 +15,35 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/admin")
+@RequestMapping("/api/v1/admin/users")
 @RequiredArgsConstructor
 @Validated
 public class UserAdminController {
 
     private final UserService userService;
 
-    @GetMapping("/users/{userUid}")
+    @GetMapping("/{userUid}")
     public ResponseEntity<UserProfile> getUser(@PathVariable UUID userUid) {
         return ResponseEntity.ok(userService.getUserProfileByUid(userUid));
     }
 
-    @GetMapping("/users")
+    @GetMapping
     public ResponseEntity<Page<UserProfile>> getUsers(@RequestParam(defaultValue = "0") int page,
                                                       @RequestParam(defaultValue = "5") int size) {
         return ResponseEntity.ok(userService.getUserProfiles(page, size));
     }
 
-    @PostMapping("/users/invite")
+    @PostMapping("/invite")
     public ResponseEntity<InviteResponse> inviteUser(@Valid @RequestBody InviteRequest request) {
         return ResponseEntity.ok(userService.invite(request));
     }
 
-    @PatchMapping("/users/{userUid}/status")
+    @PatchMapping("/{userUid}/status")
     public ResponseEntity<UserStatusResponse> updateUserStatus(@PathVariable UUID userUid,
                                                                @RequestParam boolean enable) {
-        return ResponseEntity.ok(userService.updateEnableStatusByUid(userUid, enable));
+        UserStatusResponse response = enable
+                ? userService.enableUser(userUid)
+                : userService.disableUser(userUid);
+        return ResponseEntity.ok(response);
     }
 }

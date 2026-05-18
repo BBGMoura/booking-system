@@ -16,7 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/api/v1/users/me")
 @RequiredArgsConstructor
 @Validated
 public class UserController {
@@ -26,23 +26,23 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<UserProfile> getUserProfile(@CurrentUser User user) {
-        return ResponseEntity.ok(userService.getUserProfile(user.getId()));
+        return ResponseEntity.ok(userService.getUserProfile(user));
     }
 
     @PatchMapping
     public ResponseEntity<UserProfile> updateUserInfo(@CurrentUser User user,
                                                       @Valid @RequestBody UpdateUserInfoRequest request) {
-        return ResponseEntity.ok(userService.updateUserInfo(user.getId(), request));
+        return ResponseEntity.ok(userService.updateUserInfo(user, request));
     }
 
     @PutMapping("/credentials")
     public ResponseEntity<AuthenticateResponse> updateUserCredentials(@CurrentUser User user,
                                                                       @Valid @RequestBody UpdateUserRequest request) {
-        return ResponseEntity.ok(authenticationService.updateUserCredentials(user.getId(), request));
+        return ResponseEntity.ok(authenticationService.updateUserCredentials(user, request));
     }
 
     @PatchMapping("/status")
     public ResponseEntity<UserStatusResponse> disableUser(@CurrentUser User user) {
-        return ResponseEntity.ok(userService.updateEnableStatus(user.getId(), false));
+        return ResponseEntity.ok(userService.disableUser(user));
     }
 }

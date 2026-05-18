@@ -144,10 +144,9 @@ class UserServiceTest {
     @Test
     void givenAllFields_whenUpdateUserInfo_thenUpdatesAll() {
         UpdateUserInfoRequest request = new UpdateUserInfoRequest("NewFirst", "NewLast", "07999999999");
-        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
         when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        UserProfile profile = userService.updateUserInfo(USER_ID, request);
+        UserProfile profile = userService.updateUserInfo(user, request);
 
         assertThat(profile.firstName()).isEqualTo("NewFirst");
         assertThat(profile.lastName()).isEqualTo("NewLast");
@@ -157,49 +156,51 @@ class UserServiceTest {
     @Test
     void givenNullFields_whenUpdateUserInfo_thenSkipsNullFields() {
         UpdateUserInfoRequest request = new UpdateUserInfoRequest(null, null, null);
-        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
         when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        UserProfile profile = userService.updateUserInfo(USER_ID, request);
+        UserProfile profile = userService.updateUserInfo(user, request);
 
         assertThat(profile.firstName()).isEqualTo("Test");
         assertThat(profile.lastName()).isEqualTo("User");
         assertThat(profile.phoneNumber()).isEqualTo("07123456789");
     }
 
-    // --- updateEnableStatus ---
+    // --- disableUser (self) ---
 
     @Test
-    void givenEnablingUser_whenUpdateEnableStatus_thenDoesNotDeactivateBookings() {
-        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
+    void givenAuthenticatedUser_whenDisableUser_thenDeactivatesBookings() {
         when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        userService.updateEnableStatus(USER_ID, true);
-
-        verify(bookingService, never()).deactivateAllBookingsByUserId(any(int.class));
-    }
-
-    @Test
-    void givenDisablingUser_whenUpdateEnableStatus_thenDeactivatesBookings() {
-        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
-        when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-
-        UserStatusResponse response = userService.updateEnableStatus(USER_ID, false);
+        UserStatusResponse response = userService.disableUser(user);
 
         assertThat(response.enabled()).isFalse();
         verify(bookingService).deactivateAllBookingsByUserId(USER_ID);
     }
 
-    // --- updateEnableStatusByUid ---
+    // --- enableUser (admin) ---
 
     @Test
-    void givenValidUid_whenUpdateEnableStatusByUid_thenResolvesAndUpdates() {
+    void givenValidUid_whenEnableUser_thenEnablesWithoutDeactivatingBookings() {
         when(userRepository.findByUid(USER_UID)).thenReturn(Optional.of(user));
         when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        UserStatusResponse response = userService.updateEnableStatusByUid(USER_UID, false);
+        UserStatusResponse response = userService.enableUser(USER_UID);
+
+        assertThat(response.enabled()).isTrue();
+        verify(bookingService, never()).deactivateAllBookingsByUserId(any(int.class));
+    }
+
+    // --- disableUser by uid (admin) ---
+
+    @Test
+    void givenValidUid_whenDisableUserByUid_thenDeactivatesBookings() {
+        when(userRepository.findByUid(USER_UID)).thenReturn(Optional.of(user));
+        when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        UserStatusResponse response = userService.disableUser(USER_UID);
 
         assertThat(response.uid()).isEqualTo(USER_UID);
+        assertThat(response.enabled()).isFalse();
         verify(bookingService).deactivateAllBookingsByUserId(USER_ID);
     }
 
@@ -232,12 +233,11 @@ class UserServiceTest {
 
     @Test
     void givenNewEmail_whenUpdateCredentials_thenUpdatesEmail() {
-        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
         when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
 
-        userService.updateUserCredentials(USER_ID, "new@example.com", null);
+        userService.updateUserCredentials(user, "new@example.com", null);
 
         verify(userRepository).save(captor.capture());
         assertThat(captor.getValue().getEmail()).isEqualTo("new@example.com");
@@ -246,12 +246,11 @@ class UserServiceTest {
 
     @Test
     void givenNewPassword_whenUpdateCredentials_thenUpdatesPassword() {
-        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
         when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
 
-        userService.updateUserCredentials(USER_ID, null, "newEncoded");
+        userService.updateUserCredentials(user, null, "newEncoded");
 
         verify(userRepository).save(captor.capture());
         assertThat(captor.getValue().getPassword()).isEqualTo("newEncoded");

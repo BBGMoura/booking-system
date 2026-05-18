@@ -88,10 +88,10 @@ class AuthenticationServiceTest {
     void givenPasswordProvided_whenUpdateCredentials_thenEncodesAndUpdates() {
         UpdateUserRequest request = new UpdateUserRequest("new@example.com", "NewPass1!");
         when(passwordUtil.encodePassword("NewPass1!")).thenReturn("encodedNew");
-        when(userService.updateUserCredentials(1, "new@example.com", "encodedNew")).thenReturn(user);
+        when(userService.updateUserCredentials(user, "new@example.com", "encodedNew")).thenReturn(user);
         when(jwtUtil.generateToken(user)).thenReturn("new-token");
 
-        AuthenticateResponse response = authenticationService.updateUserCredentials(1, request);
+        AuthenticateResponse response = authenticationService.updateUserCredentials(user, request);
 
         assertThat(response.token()).isEqualTo("new-token");
         verify(passwordUtil).encodePassword("NewPass1!");
@@ -100,10 +100,10 @@ class AuthenticationServiceTest {
     @Test
     void givenNoPassword_whenUpdateCredentials_thenSkipsEncoding() {
         UpdateUserRequest request = new UpdateUserRequest("new@example.com", null);
-        when(userService.updateUserCredentials(1, "new@example.com", null)).thenReturn(user);
+        when(userService.updateUserCredentials(user, "new@example.com", null)).thenReturn(user);
         when(jwtUtil.generateToken(user)).thenReturn("token");
 
-        authenticationService.updateUserCredentials(1, request);
+        authenticationService.updateUserCredentials(user, request);
 
         verify(passwordUtil, never()).encodePassword(any());
     }

@@ -67,7 +67,7 @@ public class BookingController {
 
     @DeleteMapping("/{bookingUid}")
     public ResponseEntity<Void> cancelBooking(@CurrentUser User user, @PathVariable UUID bookingUid) {
-        bookingService.deactivateOwnBooking(bookingUid, user.getId());
+        bookingService.deactivateBookingByUserId(bookingUid, user.getId());
         return ResponseEntity.noContent().build();
     }
 }

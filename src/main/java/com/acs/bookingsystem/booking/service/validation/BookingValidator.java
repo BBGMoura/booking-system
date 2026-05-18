@@ -16,9 +16,9 @@ public class BookingValidator {
 
     public BookingValidator(ScheduleProperties scheduleProperties, BookingRepository bookingRepository) {
         this.rules = List.of(
-                new BookingTimeValidator(scheduleProperties),   // cheap — no DB
-                new BookingConflictValidator(bookingRepository), // DB
-                new BookingShareabilityValidator(bookingRepository) // DB
+                new BookingTimeValidator(scheduleProperties),
+                new BookingConflictValidator(bookingRepository),
+                new BookingShareabilityValidator(bookingRepository)
         );
     }
 

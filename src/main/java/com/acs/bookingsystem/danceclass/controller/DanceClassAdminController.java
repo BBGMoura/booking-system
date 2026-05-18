@@ -18,25 +18,25 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/v1/admin")
+@RequestMapping("/api/v1/admin/dance-classes")
 @Validated
 public class DanceClassAdminController {
 
     private final DanceClassService danceClassService;
     private final DanceClassMapper mapper;
 
-    @GetMapping("/dance-classes/class-types")
+    @GetMapping("/class-types")
     public ResponseEntity<List<ClassType>> getClassTypes() {
         return ResponseEntity.ok(Arrays.asList(ClassType.values()));
     }
 
-    @PostMapping("/dance-classes")
+    @PostMapping
     public ResponseEntity<DanceClassDTO> createDanceClass(@Valid @RequestBody DanceClassRequest danceClassRequest) {
         DanceClass danceClass = danceClassService.createDanceClass(danceClassRequest);
         return new ResponseEntity<>(mapper.map(danceClass), HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/dance-classes/{classType}")
+    @DeleteMapping("/{classType}")
     public ResponseEntity<Void> deactivateDanceClass(@PathVariable ClassType classType) {
         danceClassService.deactivateDanceClassByClassType(classType);
         return ResponseEntity.noContent().build();
