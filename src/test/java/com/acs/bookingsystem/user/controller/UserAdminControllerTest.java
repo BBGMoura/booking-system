@@ -7,8 +7,8 @@ import com.acs.bookingsystem.user.UserTestData;
 import com.acs.bookingsystem.user.model.UserProfile;
 import com.acs.bookingsystem.user.request.InviteRequest;
 import com.acs.bookingsystem.user.response.InviteResponse;
-import com.acs.bookingsystem.user.service.AuthenticateService;
-import com.acs.bookingsystem.user.service.UserProfileService;
+import com.acs.bookingsystem.user.service.AuthenticationService;
+import com.acs.bookingsystem.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,6 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -42,10 +41,10 @@ class UserAdminControllerTest {
     private JwtUtil jwtUtil;
 
     @MockitoBean
-    private AuthenticateService authenticateService;
+    private UserService userService;
 
     @MockitoBean
-    private UserProfileService userProfileService;
+    private AuthenticationService authenticationService;
 
     @MockitoBean
     private AuthenticationProvider authenticationProvider;
@@ -57,65 +56,64 @@ class UserAdminControllerTest {
     private final InviteResponse inviteResponse = UserTestData.inviteResponse;
 
     @Test
-    void givenUserAuthority_whenGetUser_thenReturnForbidden() throws Exception {
-        mockMvc.perform(post("/admin/user", 1))
-                .andExpect(status().isForbidden());
+    void givenUserAuthority_whenPostToAdmin_thenReturnForbidden() throws Exception {
+        mockMvc.perform(post("/api/v1/admin/users/invite"))
+               .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(roles = {"ADMIN"})
-    @DisplayName("Admin can successfully create a dance class")
+    @DisplayName("Admin can successfully get a user profile")
     void givenAdminAuthority_whenGetUser_thenReturnOk() throws Exception {
-        when(userProfileService.getUserProfile(1)).thenReturn(adminUserProfile);
+        when(userService.getUserProfileByUid(adminUserProfile.uid())).thenReturn(adminUserProfile);
 
-        mockMvc.perform(get("/admin/user/{userId}", adminUserProfile.userId()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.userId").value(adminUserProfile.userId()))
-                .andExpect(jsonPath("$.firstName").value(adminUserProfile.firstName()))
-                .andExpect(jsonPath("$.lastName").value(adminUserProfile.lastName()))
-                .andExpect(jsonPath("$.email").value(adminUserProfile.email()))
-                .andExpect(jsonPath("$.phoneNumber").value(adminUserProfile.phoneNumber()))
-                .andExpect(jsonPath("$.enabled").value(adminUserProfile.enabled()))
-                .andExpect(jsonPath("$.role").value(adminUserProfile.role().toString()));
+        mockMvc.perform(get("/api/v1/admin/users/{userUid}", adminUserProfile.uid()))
+               .andExpect(status().isOk())
+               .andExpect(jsonPath("$.uid").value(adminUserProfile.uid().toString()))
+               .andExpect(jsonPath("$.firstName").value(adminUserProfile.firstName()))
+               .andExpect(jsonPath("$.lastName").value(adminUserProfile.lastName()))
+               .andExpect(jsonPath("$.email").value(adminUserProfile.email()))
+               .andExpect(jsonPath("$.phoneNumber").value(adminUserProfile.phoneNumber()))
+               .andExpect(jsonPath("$.enabled").value(adminUserProfile.enabled()))
+               .andExpect(jsonPath("$.role").value(adminUserProfile.role().toString()));
     }
 
     @Test
     @WithMockUser(roles = {"ADMIN"})
     void givenAdminAuthority_whenGetUsers_thenReturnOk() throws Exception {
-        when(userProfileService.getUserProfiles(0, 5)).thenReturn(page);
+        when(userService.getUserProfiles(0, 5)).thenReturn(page);
 
-        mockMvc.perform(get("/admin/users?page=0&size=5")
+        mockMvc.perform(get("/api/v1/admin/users?page=0&size=5")
                                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").isArray())
-                .andExpect(jsonPath("$.content[0].email").value(adminUserProfile.email()))
-                .andExpect(jsonPath("$.content[1].email").value(userProfile.email()))
-                .andExpect(jsonPath("$.page.totalElements").value(page.getTotalElements()))
-                .andExpect(jsonPath("$.page.size").value(page.getSize()));
+               .andExpect(status().isOk())
+               .andExpect(jsonPath("$.content").isArray())
+               .andExpect(jsonPath("$.content[0].email").value(adminUserProfile.email()))
+               .andExpect(jsonPath("$.content[1].email").value(userProfile.email()))
+               .andExpect(jsonPath("$.page.totalElements").value(page.getTotalElements()))
+               .andExpect(jsonPath("$.page.size").value(page.getSize()));
 
-        verify(userProfileService).getUserProfiles(0, 5);
+        verify(userService).getUserProfiles(0, 5);
     }
 
     @Test
     @WithMockUser(roles = {"ADMIN"})
     void givenAdminAuthority_inviteUser_shouldReturnOk() throws Exception {
-        when(authenticateService.invite(inviteRequest)).thenReturn(inviteResponse);
+        when(userService.invite(inviteRequest)).thenReturn(inviteResponse);
 
-        mockMvc.perform(post("/admin/user/invite").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post("/api/v1/admin/users/invite")
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(inviteRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.userId").exists())
-                .andExpect(jsonPath("$.email").value(inviteResponse.email()))
-                .andExpect(jsonPath(("$.role")).value(inviteResponse.role().toString()));
+               .andExpect(status().isOk())
+               .andExpect(jsonPath("$.uid").exists())
+               .andExpect(jsonPath("$.email").value(inviteResponse.email()))
+               .andExpect(jsonPath("$.role").value(inviteResponse.role().toString()));
     }
 
     @Test
     @WithMockUser(roles = {"ADMIN"})
-    void givenAdminAuthority_whenUpdateUserStatus_shouldReturnNoContent() throws Exception {
-
-        mockMvc.perform(patch("/admin/user/{userId}/status", 1)
+    void givenAdminAuthority_whenUpdateUserStatus_shouldReturnOk() throws Exception {
+        mockMvc.perform(patch("/api/v1/admin/users/{userUid}/status", UserTestData.ADMIN_UUID)
                                 .param("enable", Boolean.TRUE.toString()))
-                .andExpect(status().isNoContent());
+               .andExpect(status().isOk());
     }
-
 }

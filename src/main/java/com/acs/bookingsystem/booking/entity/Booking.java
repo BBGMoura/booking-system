@@ -1,4 +1,3 @@
-
 package com.acs.bookingsystem.booking.entity;
 
 import com.acs.bookingsystem.booking.enums.Room;
@@ -9,6 +8,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @ToString
 @Entity
@@ -17,12 +17,16 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Booking {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(name = "uid", unique = true, nullable = false, updatable = false)
+    private UUID uid;
+
     @ManyToOne
-    @JoinColumn(referencedColumnName="id", nullable = false)
+    @JoinColumn(referencedColumnName = "id", nullable = false)
     private User user;
 
     @Enumerated(EnumType.STRING)
@@ -30,11 +34,10 @@ public class Booking {
     private Room room;
 
     @ManyToOne
-    @JoinColumn(referencedColumnName="id", nullable = false)
+    @JoinColumn(referencedColumnName = "id", nullable = false)
     private DanceClass danceClass;
 
     private boolean active;
-
     private boolean shareable;
 
     @Column(nullable = false)
@@ -43,9 +46,15 @@ public class Booking {
     @Column(nullable = false)
     private LocalDateTime bookedTo;
 
-    //TODO: move this into a different class?
     @Column(nullable = false)
     private BigDecimal totalPrice;
+
+    @PrePersist
+    void prePersist() {
+        if (uid == null) {
+            uid = UUID.randomUUID();
+        }
+    }
 
     public void deactivate() {
         this.active = false;

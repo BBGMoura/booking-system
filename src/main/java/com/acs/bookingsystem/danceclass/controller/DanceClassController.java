@@ -15,36 +15,21 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/dance-classes")
+@RequestMapping("/api/v1/dance-classes")
 public class DanceClassController {
 
     private final DanceClassService danceClassService;
-
     private final DanceClassMapper mapper;
 
-    /**
-     * Retrieves an active dance class by its class type.
-     * This endpoint is accessible to both users and admin roles.
-     *
-     * @param classType the class type to filter by
-     * @return ResponseEntity containing the dance class information if available
-     */
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<DanceClassDTO> getDanceClassByClassType(@CurrentUser User user,
-                                                                  @RequestParam(name="classType") ClassType classType){
+                                                                  @RequestParam ClassType classType) {
         DanceClass danceClass = danceClassService.getActiveDanceClass(classType, user.getRole());
         return ResponseEntity.ok(mapper.map(danceClass));
     }
 
-    /**
-     * Retrieves all active dance class types based on user's role.
-     * These types are used when creating a booking.
-     * This endpoint is accessible to both users and admin roles.
-     *
-     * @return ResponseEntity containing a list of active class types depending on user role.
-     */
     @GetMapping("/class-types")
-    public ResponseEntity<List<ClassType>> getAllActiveDanceClassTypes(@CurrentUser User user){
+    public ResponseEntity<List<ClassType>> getAllActiveDanceClassTypes(@CurrentUser User user) {
         return ResponseEntity.ok(danceClassService.getAllActiveDanceClassTypes(user.getRole()));
     }
 }

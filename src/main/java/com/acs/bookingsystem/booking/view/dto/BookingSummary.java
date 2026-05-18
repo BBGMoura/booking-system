@@ -1,14 +1,15 @@
 package com.acs.bookingsystem.booking.view.dto;
 
-import com.acs.bookingsystem.danceclass.entity.DanceClass;
 import com.acs.bookingsystem.booking.enums.Room;
+import com.acs.bookingsystem.danceclass.enums.ClassType;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
-public record BookingSummary(int id,
+public record BookingSummary(UUID uid,
                              Room room,
-                             DanceClass danceClass,
+                             ClassType classType,
                              boolean active,
                              boolean shareable,
                              LocalDateTime bookedFrom,
-                             LocalDateTime bookedTo) implements BookingView { }
+                             LocalDateTime bookedTo) implements BookingView {}

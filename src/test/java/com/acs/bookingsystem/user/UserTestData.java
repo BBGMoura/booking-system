@@ -9,8 +9,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 
 import java.util.List;
+import java.util.UUID;
 
 public class UserTestData {
+
+    public static final UUID ADMIN_UUID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    public static final UUID USER_UUID  = UUID.fromString("00000000-0000-0000-0000-000000000002");
 
     public static final User user = User.builder()
             .email("test@example.com")
@@ -20,7 +24,7 @@ public class UserTestData {
             .build();
 
     public static final UserProfile adminUserProfile = UserProfile.builder()
-            .userId(1)
+            .uid(ADMIN_UUID)
             .email("example@admin.com")
             .firstName("Example")
             .lastName("Admin")
@@ -30,7 +34,7 @@ public class UserTestData {
             .build();
 
     public static final UserProfile userProfile = UserProfile.builder()
-            .userId(1)
+            .uid(USER_UUID)
             .email("example@user.com")
             .firstName("Example")
             .lastName("User")
@@ -43,5 +47,9 @@ public class UserTestData {
 
     public static final InviteRequest inviteRequest = new InviteRequest("example@user.com", Role.ROLE_USER);
 
-    public static final InviteResponse inviteResponse = new InviteResponse(1, "example@user.com", Role.ROLE_USER);
+    public static final InviteResponse inviteResponse = InviteResponse.builder()
+            .uid(USER_UUID)
+            .email("example@user.com")
+            .role(Role.ROLE_USER)
+            .build();
 }

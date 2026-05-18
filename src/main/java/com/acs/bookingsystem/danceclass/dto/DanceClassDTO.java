@@ -5,11 +5,7 @@ import com.acs.bookingsystem.user.enums.Role;
 
 import java.math.BigDecimal;
 
-public record DanceClassDTO(
-        int id,
-        ClassType classType,
-        boolean active,
-        BigDecimal pricePerHour,
-        Role role
-) {
-}
+public record DanceClassDTO(ClassType classType,
+                            boolean active,
+                            BigDecimal pricePerHour,
+                            Role role) {}

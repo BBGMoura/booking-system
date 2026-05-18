@@ -61,9 +61,7 @@ class DanceClassControllerTest {
 
     @BeforeEach
     void setup() {
-        Authentication auth = new UsernamePasswordAuthenticationToken(user,
-                                                                      null,
-                                                                      user.getAuthorities());
+        Authentication auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
@@ -71,10 +69,10 @@ class DanceClassControllerTest {
     void givenGetAllActiveDanceClassTypes_thenReturnOk() throws Exception {
         when(danceClassService.getAllActiveDanceClassTypes(any())).thenReturn(classTypes);
 
-        mockMvc.perform(get("/dance-classes/class-types"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$").value(containsInAnyOrder("PRACTICE", "PRIVATE", "GROUP")));
+        mockMvc.perform(get("/api/v1/dance-classes/class-types"))
+               .andExpect(status().isOk())
+               .andExpect(jsonPath("$").isArray())
+               .andExpect(jsonPath("$").value(containsInAnyOrder("PRACTICE", "PRIVATE", "GROUP")));
     }
 
     @Test
@@ -82,12 +80,11 @@ class DanceClassControllerTest {
         when(danceClassService.getActiveDanceClass(any(), any())).thenReturn(danceClass);
         when(mapper.map(any())).thenReturn(danceClassDTO);
 
-        mockMvc.perform(get("/dance-classes").param("classType", "PRIVATE"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(danceClassDTO.id()))
-                .andExpect(jsonPath("$.classType").value(danceClassDTO.classType().toString()))
-                .andExpect(jsonPath("$.active").value(danceClassDTO.active()))
-                .andExpect(jsonPath("$.pricePerHour").value(danceClassDTO.pricePerHour()))
-                .andExpect(jsonPath("$.role", equalTo(Role.ROLE_USER.toString())));
+        mockMvc.perform(get("/api/v1/dance-classes").param("classType", "PRIVATE"))
+               .andExpect(status().isOk())
+               .andExpect(jsonPath("$.classType").value(danceClassDTO.classType().toString()))
+               .andExpect(jsonPath("$.active").value(danceClassDTO.active()))
+               .andExpect(jsonPath("$.pricePerHour").value(danceClassDTO.pricePerHour()))
+               .andExpect(jsonPath("$.role", equalTo(Role.ROLE_USER.toString())));
     }
 }

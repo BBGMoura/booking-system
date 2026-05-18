@@ -15,12 +15,10 @@ public class DanceClassTestData {
                                                              ClassType.PRIVATE,
                                                              ClassType.GROUP);
 
-    public static final DanceClassDTO danceClassDTO = new DanceClassDTO(1,
-                                                                        ClassType.PRIVATE,
+    public static final DanceClassDTO danceClassDTO = new DanceClassDTO(ClassType.PRIVATE,
                                                                         true,
                                                                         BigDecimal.ZERO,
                                                                         Role.ROLE_USER);
-
 
     public static final DanceClassRequest danceClassRequest = new DanceClassRequest(ClassType.PRIVATE,
                                                                                     BigDecimal.ZERO,
@@ -37,6 +35,4 @@ public class DanceClassTestData {
                                                                     true,
                                                                     BigDecimal.TEN,
                                                                     Role.ROLE_USER);
-
-
 }

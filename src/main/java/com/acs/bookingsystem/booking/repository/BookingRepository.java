@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
@@ -52,7 +53,9 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
     Page<Booking> findAllByUserId(int userId, Pageable pageable);
 
-    Optional<Booking> findByIdAndUserId(int bookingId, int userId);
+    Optional<Booking> findByUid(UUID uid);
+
+    Optional<Booking> findByUidAndUserId(UUID uid, int userId);
 
     @Modifying
     @Query("UPDATE Booking b SET b.active = false WHERE b.user.id = :userId")

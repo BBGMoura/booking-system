@@ -53,9 +53,9 @@ class DanceClassAdminControllerTest {
     private final DanceClassDTO danceClassDTO = DanceClassTestData.danceClassDTO;
 
     @Test
-    void givenUserHasUserAuthority_whenCreateDanceClass_thenReturnForbidden() throws Exception {
-        mockMvc.perform(post("/admin/dance-class"))
-                .andExpect(status().isForbidden());
+    void givenUserAuthority_whenCreateDanceClass_thenReturnForbidden() throws Exception {
+        mockMvc.perform(post("/api/v1/admin/dance-classes"))
+               .andExpect(status().isForbidden());
     }
 
     @Test
@@ -64,29 +64,29 @@ class DanceClassAdminControllerTest {
         when(danceClassService.createDanceClass(any())).thenReturn(danceClass);
         when(mapper.map(any())).thenReturn(danceClassDTO);
 
-        mockMvc.perform(post("/admin/dance-class").contentType(MediaType.APPLICATION_JSON)
-                                                             .content(objectMapper.writeValueAsString(DanceClassTestData.danceClassRequest)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id", equalTo(1)))
-                .andExpect(jsonPath("$.classType", equalTo("PRIVATE")))
-                .andExpect(jsonPath("$.active", equalTo(Boolean.TRUE)))
-                .andExpect(jsonPath("$.pricePerHour", equalTo(0)))
-                .andExpect(jsonPath("$.role", equalTo(Role.ROLE_USER.toString())));
+        mockMvc.perform(post("/api/v1/admin/dance-classes")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(DanceClassTestData.danceClassRequest)))
+               .andExpect(status().isCreated())
+               .andExpect(jsonPath("$.classType", equalTo("PRIVATE")))
+               .andExpect(jsonPath("$.active", equalTo(Boolean.TRUE)))
+               .andExpect(jsonPath("$.pricePerHour", equalTo(0)))
+               .andExpect(jsonPath("$.role", equalTo(Role.ROLE_USER.toString())));
     }
 
     @Test
     @WithMockUser(roles = {"ADMIN"})
-    void givenAdminGetAllClassTypes_thenReturnOkay() throws Exception {
-        mockMvc.perform(get("/admin/class-types"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$").value(containsInAnyOrder("PRACTICE", "PRIVATE", "GROUP", "UNAVAILABLE", "OTHER")));
+    void givenAdminGetAllClassTypes_thenReturnOk() throws Exception {
+        mockMvc.perform(get("/api/v1/admin/dance-classes/class-types"))
+               .andExpect(status().isOk())
+               .andExpect(jsonPath("$").isArray())
+               .andExpect(jsonPath("$").value(containsInAnyOrder("PRACTICE", "PRIVATE", "GROUP", "UNAVAILABLE", "OTHER")));
     }
 
     @Test
     @WithMockUser(roles = {"ADMIN"})
-    void givenAdminDeactivateDanceClassType_thenReturnNoContent() throws Exception {
-        mockMvc.perform(patch("/admin/dance-classes/{classType}/deactivate", "PRIVATE"))
-                .andExpect(status().isNoContent());
+    void givenAdminDeactivateDanceClass_thenReturnNoContent() throws Exception {
+        mockMvc.perform(delete("/api/v1/admin/dance-classes/{classType}", "PRIVATE"))
+               .andExpect(status().isNoContent());
     }
 }

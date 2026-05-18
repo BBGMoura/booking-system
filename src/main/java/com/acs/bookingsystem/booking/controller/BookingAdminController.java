@@ -1,14 +1,14 @@
 package com.acs.bookingsystem.booking.controller;
 
 import com.acs.bookingsystem.booking.entity.Booking;
-import com.acs.bookingsystem.booking.service.BookingQueryService;
+import com.acs.bookingsystem.booking.request.BookingRequest;
+import com.acs.bookingsystem.booking.service.BookingService;
 import com.acs.bookingsystem.booking.view.BookingViewFactory;
 import com.acs.bookingsystem.booking.view.ViewType;
-import com.acs.bookingsystem.booking.request.BookingRequest;
-import com.acs.bookingsystem.booking.service.BookingManagerService;
 import com.acs.bookingsystem.booking.view.dto.BookingView;
 import com.acs.bookingsystem.security.CurrentUser;
 import com.acs.bookingsystem.user.entity.User;
+import com.acs.bookingsystem.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,41 +16,45 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @AllArgsConstructor
-@RequestMapping("/admin")
+@RequestMapping("/api/v1/admin")
 public class BookingAdminController {
 
-    private final BookingManagerService bookingManagerService;
-    private final BookingQueryService bookingQueryService;
+    private final BookingService bookingService;
     private final BookingViewFactory viewFactory;
+    private final UserService userService;
 
     @PostMapping("/bookings")
-    public ResponseEntity<BookingView> createBooking(@RequestParam(name="userId") int userId,
+    public ResponseEntity<BookingView> createBooking(@RequestParam UUID userUid,
                                                      @Valid @RequestBody BookingRequest bookingRequest) {
-        Booking booking = bookingManagerService.createBooking(bookingRequest, userId);
+        User user = userService.getUserByUid(userUid);
+        Booking booking = bookingService.createBooking(bookingRequest, user);
         return new ResponseEntity<>(viewFactory.createView(booking, ViewType.DETAIL), HttpStatus.CREATED);
     }
 
-    @GetMapping("/bookings/{bookingId}")
-    public ResponseEntity<BookingView> getBookingByBookingId(@CurrentUser User user, @PathVariable int bookingId) {
-        Booking booking = bookingQueryService.getBookingById(bookingId);
+    @GetMapping("/bookings/{bookingUid}")
+    public ResponseEntity<BookingView> getBookingByUid(@CurrentUser User user,
+                                                       @PathVariable UUID bookingUid) {
+        Booking booking = bookingService.getBookingByUid(bookingUid);
         return ResponseEntity.ok(viewFactory.createView(booking, user.getRole()));
     }
 
-    @GetMapping("/bookings/user/{userId}")
-    public ResponseEntity<Page<BookingView>> getBookingsByUserId(@RequestParam(defaultValue = "0") int page,
-                                                                 @RequestParam(defaultValue = "5") int size,
-                                                                 @PathVariable int userId) {
-        Page<BookingView> bookings = bookingQueryService.getAllBookingsByUserId(userId, page, size)
-                                                        .map(booking -> viewFactory.createView(booking, ViewType.DETAIL));
-
+    @GetMapping("/bookings/user/{userUid}")
+    public ResponseEntity<Page<BookingView>> getBookingsByUserUid(@PathVariable UUID userUid,
+                                                                  @RequestParam(defaultValue = "0") int page,
+                                                                  @RequestParam(defaultValue = "5") int size) {
+        User user = userService.getUserByUid(userUid);
+        Page<BookingView> bookings = bookingService.getAllBookingsByUserId(user.getId(), page, size)
+                                                        .map(b -> viewFactory.createView(b, ViewType.DETAIL));
         return ResponseEntity.ok(bookings);
     }
 
-    @PatchMapping("/bookings/cancel/{bookingId}")
-    public ResponseEntity<Void> cancelBooking(@PathVariable int bookingId) {
-        bookingManagerService.deactivateBooking(bookingId);
+    @DeleteMapping("/bookings/{bookingUid}")
+    public ResponseEntity<Void> cancelBooking(@PathVariable UUID bookingUid) {
+        bookingService.deactivateBooking(bookingUid);
         return ResponseEntity.noContent().build();
     }
 }

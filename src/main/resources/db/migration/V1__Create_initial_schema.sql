@@ -1,19 +1,14 @@
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
+    uid UUID DEFAULT gen_random_uuid() NOT NULL UNIQUE,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255),
     role VARCHAR(50) NOT NULL,
     locked BOOLEAN DEFAULT FALSE,
-    enabled BOOLEAN DEFAULT FALSE
-);
-
-CREATE TABLE user_info (
-    id SERIAL PRIMARY KEY,
-    first_name VARCHAR(50) NOT NULL,
-    last_name VARCHAR(50) NOT NULL,
-    phone_number VARCHAR(11) NOT NULL,
-    user_id INTEGER NOT NULL UNIQUE,
-    CONSTRAINT fk_user_info_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    enabled BOOLEAN DEFAULT FALSE,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    phone_number VARCHAR(11)
 );
 
 CREATE TABLE dance_class (
@@ -31,6 +26,7 @@ CREATE TABLE account (
 
 CREATE TABLE booking (
     id SERIAL PRIMARY KEY,
+    uid UUID DEFAULT gen_random_uuid() NOT NULL UNIQUE,
     user_id INTEGER NOT NULL,
     room VARCHAR(50) NOT NULL,
     dance_class_id INTEGER NOT NULL,
@@ -64,7 +60,6 @@ CREATE TABLE payment (
     CONSTRAINT fk_payment_account FOREIGN KEY (account_id) REFERENCES account(id)
 );
 
-
 ALTER TABLE users ADD CONSTRAINT chk_users_role
     CHECK (role IN ('ROLE_ADMIN', 'ROLE_USER'));
 
@@ -91,6 +86,3 @@ ALTER TABLE booking_history ADD CONSTRAINT chk_booking_status
 
 ALTER TABLE payment ADD CONSTRAINT chk_payment_status
     CHECK (payment_status IN ('OUTSTANDING', 'PAID', 'VOIDED'));
-
-
-

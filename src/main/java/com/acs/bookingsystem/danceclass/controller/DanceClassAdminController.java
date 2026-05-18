@@ -18,48 +18,26 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/admin")
+@RequestMapping("/api/v1/admin")
 @Validated
 public class DanceClassAdminController {
 
     private final DanceClassService danceClassService;
-
     private final DanceClassMapper mapper;
 
-    /**
-     * Returns a list of ClassTypes. These class types are used as an option
-     * to create a DanceClass
-     *
-     * @return ResponseEntity with a list of ClassTypes
-     */
-    @GetMapping("class-types")
-    public ResponseEntity<List<ClassType>> getClassTypes(){
-        return new ResponseEntity<>(Arrays.asList(ClassType.values()), HttpStatus.OK);
+    @GetMapping("/dance-classes/class-types")
+    public ResponseEntity<List<ClassType>> getClassTypes() {
+        return ResponseEntity.ok(Arrays.asList(ClassType.values()));
     }
 
-    /**
-     * Creates a new dance class.
-     * This operation is restricted to admin users.
-     *
-     * @param danceClassRequest the request body containing dance class details
-     * @return ResponseEntity with the created dance class details
-     */
-    @PostMapping("dance-class")
+    @PostMapping("/dance-classes")
     public ResponseEntity<DanceClassDTO> createDanceClass(@Valid @RequestBody DanceClassRequest danceClassRequest) {
         DanceClass danceClass = danceClassService.createDanceClass(danceClassRequest);
         return new ResponseEntity<>(mapper.map(danceClass), HttpStatus.CREATED);
     }
 
-    /**
-     * Deactivates a dance class by its class type.
-     * This does not delete the dance class but marks it as inactive.
-     * This operation is restricted to admin users.
-     *
-     * @param classType the class type to deactivate
-     * @return ResponseEntity with a success message or error if the class type is not found
-     */
-    @PatchMapping("/dance-classes/{classType}/deactivate")
-    public ResponseEntity<Void> deactivateDanceClassType(@PathVariable ClassType classType){
+    @DeleteMapping("/dance-classes/{classType}")
+    public ResponseEntity<Void> deactivateDanceClass(@PathVariable ClassType classType) {
         danceClassService.deactivateDanceClassByClassType(classType);
         return ResponseEntity.noContent().build();
     }

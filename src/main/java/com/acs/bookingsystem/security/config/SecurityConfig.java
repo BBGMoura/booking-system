@@ -38,17 +38,16 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable) // Disable CSRF protection for stateless APIs -> not needed if using JWT token
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**",
-                                                                    "/password/**",
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/*/auth/**",
                                                                     "/swagger-ui/**",
                                                                     "/v3/api-docs/**",
                                                                     "/swagger-ui.html",
-                                                                    "/h2-console/**") // Public endpoints
+                                                                    "/h2-console/**")
                                                .permitAll()
-                                               .requestMatchers("/admin/**") // Admin-specific endpoints
+                                               .requestMatchers("/api/*/admin/**")
                                                .hasRole("ADMIN")
-                                               .anyRequest() // All other requests
-                                               .authenticated() // Must be authenticated
+                                               .anyRequest()
+                                               .authenticated()
                 )
                 .headers(
                         // Allow iframe embedding for H2 console (disables X-Frame-Options header allowing iframe embedding)
