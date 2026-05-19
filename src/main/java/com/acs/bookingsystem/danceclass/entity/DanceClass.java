@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 public class DanceClass {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

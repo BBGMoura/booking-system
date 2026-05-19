@@ -22,58 +22,61 @@ import java.util.UUID;
 @Table(name = "users")
 public class User implements UserDetails {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(name = "uid", unique = true, nullable = false, updatable = false)
-    private UUID uid;
+  @Column(unique = true, nullable = false, updatable = false)
+  private UUID uid;
 
-    private String email;
+  @Version
+  private Long version;
 
-    @JsonIgnore
-    @ToString.Exclude
-    private String password;
+  @Column(unique = true, nullable = false)
+  private String email;
 
-    @Enumerated(EnumType.STRING)
-    private Role role;
+  @JsonIgnore @ToString.Exclude private String password;
 
-    private Boolean locked;
-    private Boolean enabled;
+  @Enumerated(EnumType.STRING)
+  private Role role;
 
-    @Column(length = 50)
-    private String firstName;
+  private Boolean locked;
 
-    @Column(length = 50)
-    private String lastName;
+  private Boolean enabled;
 
-    @Column(length = 11)
-    private String phoneNumber;
+  @Column(length = 50)
+  private String firstName;
 
-    @PrePersist
-    void prePersist() {
-        if (uid == null) {
-            uid = UUID.randomUUID();
-        }
+  @Column(length = 50)
+  private String lastName;
+
+  @Column(length = 11)
+  private String phoneNumber;
+
+  @PrePersist
+  void prePersist() {
+    if (uid == null) {
+      uid = UUID.randomUUID();
     }
+  }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority(role.name()));
-    }
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return Collections.singletonList(new SimpleGrantedAuthority(role.name()));
+  }
 
-    @Override
-    public String getUsername() {
-        return this.email;
-    }
+  @Override
+  public String getUsername() {
+    return this.email;
+  }
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return !this.locked;
-    }
+  @Override
+  public boolean isAccountNonLocked() {
+    return !this.locked;
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return this.enabled;
-    }
+  @Override
+  public boolean isEnabled() {
+    return this.enabled;
+  }
 }

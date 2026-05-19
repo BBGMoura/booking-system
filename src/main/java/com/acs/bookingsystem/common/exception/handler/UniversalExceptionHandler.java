@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
@@ -93,9 +94,20 @@ public class UniversalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<ErrorModel> handleOptimisticLockingFailure(ObjectOptimisticLockingFailureException ex) {
+        LOG.warn("Optimistic locking conflict on {}: {}", ex.getPersistentClassName(), ex.getMessage());
+        ErrorModel error = new ErrorModel(new Date(),
+                                          HttpStatus.CONFLICT.value(),
+                                          ErrorCode.CONFLICT.toString(),
+                                          "This request conflicted with another. Please try again.",
+                                          List.of());
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(AuthorizationException.class)
     public ResponseEntity<ErrorModel> handleAuthorizationException(AuthorizationException ex) {
-        LOG.error("Authorization exception: {}", ex.getMessage(), ex);
+        LOG.warn("Authorization exception: {}", ex.getMessage());
         ErrorModel error = new ErrorModel(new Date(),
                                           HttpStatus.FORBIDDEN.value(),
                                           ex.getError().toString(),

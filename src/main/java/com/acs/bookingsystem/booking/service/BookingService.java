@@ -45,16 +45,21 @@ public class BookingService {
                         ErrorCode.INVALID_BOOKING_ID));
     }
 
-    public Booking getBookingByUidAndUser(UUID uid, int userId) {
+    public Booking getBookingByUidAndUser(UUID uid, Long userId) {
         return bookingRepository.findByUidAndUserId(uid, userId)
                 .orElseThrow(() -> new NotFoundException(
                         "Could not find booking " + uid,
                         ErrorCode.INVALID_BOOKING_ID));
     }
 
-    public Page<Booking> getAllBookingsByUserId(int userId, int page, int size) {
+    public Page<Booking> getAllBookingsByUserId(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("bookedFrom").descending());
         return bookingRepository.findAllByUserId(userId, pageable);
+    }
+
+    public Page<Booking> getAllBookingsByUserUid(UUID userUid, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("bookedFrom").descending());
+        return bookingRepository.findAllByUserUid(userUid, pageable);
     }
 
     public List<Booking> getBookingsByRoomAndDates(Room room, LocalDateTime dateFrom, LocalDateTime dateTo) {
@@ -63,7 +68,7 @@ public class BookingService {
 
     @Transactional
     public Booking createBooking(BookingRequest bookingRequest, User user) {
-        LOG.debug("Creating booking for user {}", user.getId());
+        LOG.debug("Creating booking for user with uid {}", user.getUid());
 
         DanceClass danceClass = danceClassService.getActiveDanceClass(bookingRequest.classType(), user.getRole());
 
@@ -87,7 +92,7 @@ public class BookingService {
     }
 
     @Transactional
-    public void deactivateBookingByUserId(UUID bookingUid, int userId) {
+    public void deactivateBookingByUserId(UUID bookingUid, Long userId) {
         Booking booking = getBookingByUidAndUser(bookingUid, userId);
         booking.deactivate();
         bookingRepository.save(booking);
@@ -102,7 +107,8 @@ public class BookingService {
     }
 
     @Transactional
-    public void deactivateAllBookingsByUserId(int userId) {
+    public void deactivateAllBookingsByUserId(Long userId) {
+        //todo deactivating all bookings instead of after a certain point?
         LOG.debug("Deactivating all bookings for user {}", userId);
         int count = bookingRepository.deactivateBookingsByUserId(userId);
         LOG.debug("Deactivated {} bookings for user {}", count, userId);

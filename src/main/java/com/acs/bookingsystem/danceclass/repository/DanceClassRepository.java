@@ -8,7 +8,7 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface DanceClassRepository extends CrudRepository<DanceClass, Integer> {
+public interface DanceClassRepository extends CrudRepository<DanceClass, Long> {
     Optional<DanceClass> findByActiveIsTrueAndClassType(ClassType classType);
     Optional<DanceClass> findByActiveIsTrueAndClassTypeAndRole(ClassType classType, Role role);
     List<DanceClass> findAllByActiveIsTrueAndRole(Role role);

@@ -46,7 +46,7 @@ class BookingServiceTest {
     @InjectMocks private BookingService bookingService;
 
     private static final UUID BOOKING_UID = UUID.randomUUID();
-    private static final int USER_ID = 1;
+    private static final Long USER_ID = 1L;
 
     private final User user = User.builder()
             .id(USER_ID)
@@ -55,7 +55,7 @@ class BookingServiceTest {
             .role(Role.ROLE_USER)
             .build();
 
-    private final DanceClass danceClass = new DanceClass(1, ClassType.PRIVATE, true, BigDecimal.TEN, Role.ROLE_USER);
+    private final DanceClass danceClass = new DanceClass(1L, ClassType.PRIVATE, true, BigDecimal.TEN, Role.ROLE_USER);
 
     private final BookingRequest request = new BookingRequest(
             Room.ASTAIRE, ClassType.PRIVATE, false,
@@ -194,6 +194,19 @@ class BookingServiceTest {
         when(bookingRepository.findAllByUserId(eq(USER_ID), any(Pageable.class))).thenReturn(page);
 
         Page<Booking> result = bookingService.getAllBookingsByUserId(USER_ID, 0, 5);
+
+        assertThat(result.getContent()).hasSize(1);
+    }
+
+    // --- getAllBookingsByUserUid ---
+
+    @Test
+    void givenUserUid_whenGetAllBookingsByUserUid_thenReturnsPaginatedResults() {
+        UUID userUid = UUID.randomUUID();
+        Page<Booking> page = new PageImpl<>(List.of(booking));
+        when(bookingRepository.findAllByUserUid(eq(userUid), any(Pageable.class))).thenReturn(page);
+
+        Page<Booking> result = bookingService.getAllBookingsByUserUid(userUid, 0, 5);
 
         assertThat(result.getContent()).hasSize(1);
     }

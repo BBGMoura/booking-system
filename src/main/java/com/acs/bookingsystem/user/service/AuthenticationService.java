@@ -60,7 +60,6 @@ public class AuthenticationService {
         return AuthenticateResponse.builder().token(jwtUtil.generateToken(updatedUser)).build();
     }
 
-    @Transactional
     public void resetPassword(String email) {
         String newPassword = passwordUtil.generateNewPassword();
         userService.resetPassword(email, passwordUtil.encodePassword(newPassword));

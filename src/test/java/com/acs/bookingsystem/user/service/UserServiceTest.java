@@ -38,7 +38,7 @@ class UserServiceTest {
     @InjectMocks private UserService userService;
 
     private static final UUID USER_UID = UUID.randomUUID();
-    private static final int USER_ID = 1;
+    private static final Long USER_ID = 1L;
 
     private final User user = User.builder()
             .id(USER_ID)
@@ -131,6 +131,18 @@ class UserServiceTest {
     }
 
     @Test
+    void givenAlreadyRegisteredUser_whenRegister_thenThrowsRequestException() {
+        RegisterRequest request = new RegisterRequest("Test", "User", "test@example.com", "07123456789", "Password1!");
+        User registeredUser = User.builder().email("test@example.com").role(Role.ROLE_USER).password("encoded").build();
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(registeredUser));
+
+        assertThatThrownBy(() -> userService.registerUser(request, "newEncoded"))
+                .isInstanceOf(RequestException.class);
+
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
     void givenEmailNotInvited_whenRegister_thenThrowsRequestException() {
         RegisterRequest request = new RegisterRequest("A", "B", "unknown@example.com", "07000000000", "Password1!");
         when(userRepository.findByEmail("unknown@example.com")).thenReturn(Optional.empty());
@@ -187,7 +199,7 @@ class UserServiceTest {
         UserStatusResponse response = userService.enableUser(USER_UID);
 
         assertThat(response.enabled()).isTrue();
-        verify(bookingService, never()).deactivateAllBookingsByUserId(any(int.class));
+        verify(bookingService, never()).deactivateAllBookingsByUserId(any(Long.class));
     }
 
     // --- disableUser by uid (admin) ---
@@ -227,6 +239,30 @@ class UserServiceTest {
         when(userRepository.findByEmail("unknown@example.com")).thenReturn(Optional.empty());
 
         assertThat(userService.isEmailInvited("unknown@example.com")).isFalse();
+    }
+
+    // --- resetPassword ---
+
+    @Test
+    void givenValidEmail_whenResetPassword_thenUpdatesPassword() {
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+        when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        userService.resetPassword("test@example.com", "newEncoded");
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertThat(captor.getValue().getPassword()).isEqualTo("newEncoded");
+    }
+
+    @Test
+    void givenUnknownEmail_whenResetPassword_thenThrowsRequestException() {
+        when(userRepository.findByEmail("unknown@example.com")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.resetPassword("unknown@example.com", "encoded"))
+                .isInstanceOf(RequestException.class);
+
+        verify(userRepository, never()).save(any());
     }
 
     // --- updateUserCredentials ---

@@ -46,9 +46,8 @@ public class BookingAdminController {
     public ResponseEntity<Page<BookingView>> getBookingsByUserUid(@PathVariable UUID userUid,
                                                                   @RequestParam(defaultValue = "0") int page,
                                                                   @RequestParam(defaultValue = "5") int size) {
-        User user = userService.getUserByUid(userUid);
-        Page<BookingView> bookings = bookingService.getAllBookingsByUserId(user.getId(), page, size)
-                                                        .map(b -> viewFactory.createView(b, ViewType.DETAIL));
+        Page<BookingView> bookings = bookingService.getAllBookingsByUserUid(userUid, page, size)
+                                                   .map(b -> viewFactory.createView(b, ViewType.DETAIL));
         return ResponseEntity.ok(bookings);
     }
 

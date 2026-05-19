@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ErrorCode {
-    INVALID_USER_ID( "Cannot find user."),
+    INVALID_USER_UID( "Cannot find user."),
     INVALID_BOOKING_ID("Booking ID is invalid."),
     EMAIL_ALREADY_EXISTS( "User with email already exists."),
     INVALID_BOOKING_REQUEST("Booking request is invalid."),
@@ -24,7 +24,8 @@ public enum ErrorCode {
     VALIDATION_ERROR("Validation failed."),
     BOOKING_TIME_INVALID("Booking time is invalid."),
     BOOKING_CONFLICT("Booking timeslot is unavailable."),
-    BOOKING_SHAREABLE_LIMIT("Booking shareable limit reached.");
+    BOOKING_SHAREABLE_LIMIT("Booking shareable limit reached."),
+    CONFLICT("Request conflict. Please try again.");
 
     private final String description;
 }

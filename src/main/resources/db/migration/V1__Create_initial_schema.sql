@@ -1,6 +1,7 @@
 CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     uid UUID DEFAULT gen_random_uuid() NOT NULL UNIQUE,
+    version BIGINT DEFAULT 0 NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255),
     role VARCHAR(50) NOT NULL,
@@ -12,7 +13,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE dance_class (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     class_type VARCHAR(50) NOT NULL,
     active BOOLEAN NOT NULL DEFAULT TRUE,
     price_per_hour DECIMAL(10,2) NOT NULL DEFAULT 0.0,
@@ -20,12 +21,12 @@ CREATE TABLE dance_class (
 );
 
 CREATE TABLE account (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     outstanding_balance DECIMAL(10,2) NOT NULL DEFAULT 0.00
 );
 
 CREATE TABLE booking (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     uid UUID DEFAULT gen_random_uuid() NOT NULL UNIQUE,
     user_id INTEGER NOT NULL,
     room VARCHAR(50) NOT NULL,
@@ -40,7 +41,7 @@ CREATE TABLE booking (
 );
 
 CREATE TABLE booking_history (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     booking_id INTEGER,
     booking_status VARCHAR(50) NOT NULL,
     description TEXT NOT NULL,
@@ -51,7 +52,7 @@ CREATE TABLE booking_history (
 );
 
 CREATE TABLE payment (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     booking_id INTEGER NOT NULL UNIQUE,
     payment_status VARCHAR(50) NOT NULL,
     created_on TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

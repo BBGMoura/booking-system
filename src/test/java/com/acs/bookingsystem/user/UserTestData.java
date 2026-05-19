@@ -17,6 +17,7 @@ public class UserTestData {
     public static final UUID USER_UUID  = UUID.fromString("00000000-0000-0000-0000-000000000002");
 
     public static final User user = User.builder()
+            .id(1L)
             .email("test@example.com")
             .role(Role.ROLE_USER)
             .locked(false)

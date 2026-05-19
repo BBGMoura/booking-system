@@ -95,7 +95,7 @@ class BookingControllerTest {
 
     @Test
     void givenValidBookingUid_whenGetOwnBooking_thenReturns200() throws Exception {
-        when(bookingService.getBookingByUidAndUser(eq(BOOKING_UID), any(int.class))).thenReturn(new Booking());
+        when(bookingService.getBookingByUidAndUser(eq(BOOKING_UID), any(Long.class))).thenReturn(new Booking());
         when(viewFactory.createView(any(), eq(ViewType.DETAIL))).thenReturn(bookingDetail);
 
         mockMvc.perform(get("/api/v1/bookings/{bookingUid}", BOOKING_UID))
@@ -105,7 +105,7 @@ class BookingControllerTest {
 
     @Test
     void givenValidRequest_whenGetBookings_thenReturns200() throws Exception {
-        when(bookingService.getAllBookingsByUserId(any(int.class), any(int.class), any(int.class)))
+        when(bookingService.getAllBookingsByUserId(any(Long.class), any(int.class), any(int.class)))
                 .thenReturn(new PageImpl<>(List.of(new Booking())));
         when(viewFactory.createView(any(), eq(ViewType.DETAIL))).thenReturn(bookingSummary);
 
@@ -119,7 +119,7 @@ class BookingControllerTest {
         mockMvc.perform(delete("/api/v1/bookings/{bookingUid}", BOOKING_UID))
                .andExpect(status().isNoContent());
 
-        verify(bookingService).deactivateBookingByUserId(eq(BOOKING_UID), any(int.class));
+        verify(bookingService).deactivateBookingByUserId(eq(BOOKING_UID), any(Long.class));
     }
 
     @Test

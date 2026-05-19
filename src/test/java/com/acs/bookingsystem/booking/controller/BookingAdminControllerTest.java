@@ -62,7 +62,7 @@ class BookingAdminControllerTest {
     private static final UUID USER_UID = UserTestData.ADMIN_UUID;
 
     private final User adminUser = User.builder()
-            .id(1)
+            .id(1L)
             .uid(USER_UID)
             .email("admin@example.com")
             .role(Role.ROLE_ADMIN)
@@ -109,9 +109,7 @@ class BookingAdminControllerTest {
 
     @Test
     void givenAdmin_whenGetBookingsByUserUid_thenReturns200() throws Exception {
-        User resolvedUser = User.builder().id(1).uid(USER_UID).email("a@b.com").build();
-        when(userService.getUserByUid(USER_UID)).thenReturn(resolvedUser);
-        when(bookingService.getAllBookingsByUserId(eq(1), any(int.class), any(int.class)))
+        when(bookingService.getAllBookingsByUserUid(eq(USER_UID), any(int.class), any(int.class)))
                 .thenReturn(new PageImpl<>(List.of(new Booking())));
         when(viewFactory.createView(any(Booking.class), eq(ViewType.DETAIL))).thenReturn(bookingDetail);
 

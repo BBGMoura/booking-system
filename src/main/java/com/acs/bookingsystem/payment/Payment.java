@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     @OneToOne
     @JoinColumn(referencedColumnName="id", nullable = false)
     private Booking booking;

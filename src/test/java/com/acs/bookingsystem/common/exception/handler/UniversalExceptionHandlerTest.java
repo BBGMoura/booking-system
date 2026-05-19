@@ -4,6 +4,7 @@ import com.acs.bookingsystem.common.exception.AuthorizationException;
 import com.acs.bookingsystem.common.exception.NotFoundException;
 import com.acs.bookingsystem.common.exception.RequestException;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -50,7 +51,7 @@ class UniversalExceptionHandlerTest {
 
         @GetMapping("/test/request-exception")
         void throwRequestException() {
-            throw new RequestException("User not found", ErrorCode.INVALID_USER_ID);
+            throw new RequestException("User not found", ErrorCode.INVALID_USER_UID);
         }
 
         @GetMapping("/test/not-found")
@@ -77,6 +78,11 @@ class UniversalExceptionHandlerTest {
             throw new AuthorizationException("Access denied for this resource", ErrorCode.AUTHENTICATION_ERROR);
         }
 
+        @GetMapping("/test/optimistic-lock")
+        void throwOptimisticLockingFailure() {
+            throw new ObjectOptimisticLockingFailureException(Object.class, 1L);
+        }
+
         @GetMapping("/test/bad-credentials")
         void throwBadCredentials() {
             throw new BadCredentialsException("Bad credentials");
@@ -100,7 +106,7 @@ class UniversalExceptionHandlerTest {
         mockMvc.perform(get("/test/request-exception"))
                .andExpect(status().isBadRequest())
                .andExpect(jsonPath("$.status").value(400))
-               .andExpect(jsonPath("$.error").value("INVALID_USER_ID"))
+               .andExpect(jsonPath("$.error").value("INVALID_USER_UID"))
                .andExpect(jsonPath("$.message").value("User not found"))
                .andExpect(jsonPath("$.details").isArray())
                .andExpect(jsonPath("$.details").isEmpty());
@@ -145,6 +151,15 @@ class UniversalExceptionHandlerTest {
                                 .content("not valid json {"))
                .andExpect(status().isBadRequest())
                .andExpect(jsonPath("$.error").value("INVALID_FORMAT"))
+               .andExpect(jsonPath("$.details").isEmpty());
+    }
+
+    @Test
+    void givenOptimisticLockingFailure_shouldReturn409WithConflictError() throws Exception {
+        mockMvc.perform(get("/test/optimistic-lock"))
+               .andExpect(status().isConflict())
+               .andExpect(jsonPath("$.status").value(409))
+               .andExpect(jsonPath("$.error").value("CONFLICT"))
                .andExpect(jsonPath("$.details").isEmpty());
     }
 

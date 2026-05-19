@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface BookingRepository extends JpaRepository<Booking, Integer> {
+public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     /**
      * Retrieves active, sorted bookings for a room's timetable that overlap a given time range.
@@ -51,13 +51,16 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
                                                         @Param("dateFrom") LocalDateTime dateFrom,
                                                         @Param("dateTo") LocalDateTime dateTo);
 
-    Page<Booking> findAllByUserId(int userId, Pageable pageable);
+    Page<Booking> findAllByUserId(Long userId, Pageable pageable);
+
+    @Query("SELECT b FROM Booking b JOIN b.user u WHERE u.uid = :userUid ORDER BY b.bookedFrom DESC")
+    Page<Booking> findAllByUserUid(@Param("userUid") UUID userUid, Pageable pageable);
 
     Optional<Booking> findByUid(UUID uid);
 
-    Optional<Booking> findByUidAndUserId(UUID uid, int userId);
+    Optional<Booking> findByUidAndUserId(UUID uid, Long userId);
 
     @Modifying
     @Query("UPDATE Booking b SET b.active = false WHERE b.user.id = :userId")
-    int deactivateBookingsByUserId(@Param("userId") int userId);
+    int deactivateBookingsByUserId(@Param("userId") Long userId);
 }

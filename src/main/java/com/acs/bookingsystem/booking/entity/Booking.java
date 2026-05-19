@@ -18,45 +18,46 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Booking {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(name = "uid", unique = true, nullable = false, updatable = false)
-    private UUID uid;
+  @Column(name = "uid", unique = true, nullable = false, updatable = false)
+  private UUID uid;
 
-    @ManyToOne
-    @JoinColumn(referencedColumnName = "id", nullable = false)
-    private User user;
+  @ManyToOne
+  @JoinColumn(referencedColumnName = "id", nullable = false)
+  private User user;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Room room;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private Room room;
 
-    @ManyToOne
-    @JoinColumn(referencedColumnName = "id", nullable = false)
-    private DanceClass danceClass;
+  @ManyToOne
+  @JoinColumn(referencedColumnName = "id", nullable = false)
+  private DanceClass danceClass;
 
-    private boolean active;
-    private boolean shareable;
+  private boolean active;
 
-    @Column(nullable = false)
-    private LocalDateTime bookedFrom;
+  private boolean shareable;
 
-    @Column(nullable = false)
-    private LocalDateTime bookedTo;
+  @Column(nullable = false)
+  private LocalDateTime bookedFrom;
 
-    @Column(nullable = false)
-    private BigDecimal totalPrice;
+  @Column(nullable = false)
+  private LocalDateTime bookedTo;
 
-    @PrePersist
-    void prePersist() {
-        if (uid == null) {
-            uid = UUID.randomUUID();
-        }
+  @Column(nullable = false)
+  private BigDecimal totalPrice;
+
+  @PrePersist
+  void prePersist() {
+    if (uid == null) {
+      uid = UUID.randomUUID();
     }
+  }
 
-    public void deactivate() {
-        this.active = false;
-    }
+  public void deactivate() {
+    this.active = false;
+  }
 }

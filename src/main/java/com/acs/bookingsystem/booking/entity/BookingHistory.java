@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 public class BookingHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(referencedColumnName="id")
