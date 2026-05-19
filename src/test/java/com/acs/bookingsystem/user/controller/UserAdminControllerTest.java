@@ -7,6 +7,7 @@ import com.acs.bookingsystem.user.UserTestData;
 import com.acs.bookingsystem.user.model.UserProfile;
 import com.acs.bookingsystem.user.request.InviteRequest;
 import com.acs.bookingsystem.user.response.InviteResponse;
+import com.acs.bookingsystem.user.response.UserStatusResponse;
 import com.acs.bookingsystem.user.service.AuthenticationService;
 import com.acs.bookingsystem.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -111,9 +112,37 @@ class UserAdminControllerTest {
 
     @Test
     @WithMockUser(roles = {"ADMIN"})
-    void givenAdminAuthority_whenUpdateUserStatus_shouldReturnOk() throws Exception {
+    void givenAdminAuthority_whenEnableUser_thenCallsEnableUser() throws Exception {
+        UserStatusResponse response = UserStatusResponse.builder()
+                .uid(UserTestData.ADMIN_UUID)
+                .enabled(true)
+                .build();
+        when(userService.enableUser(UserTestData.ADMIN_UUID)).thenReturn(response);
+
         mockMvc.perform(patch("/api/v1/admin/users/{userUid}/status", UserTestData.ADMIN_UUID)
-                                .param("enable", Boolean.TRUE.toString()))
-               .andExpect(status().isOk());
+                                .param("enable", "true"))
+               .andExpect(status().isOk())
+               .andExpect(jsonPath("$.enabled").value(true));
+
+        verify(userService).enableUser(UserTestData.ADMIN_UUID);
+        verify(userService, never()).disableUser(UserTestData.ADMIN_UUID);
+    }
+
+    @Test
+    @WithMockUser(roles = {"ADMIN"})
+    void givenAdminAuthority_whenDisableUser_thenCallsDisableUser() throws Exception {
+        UserStatusResponse response = UserStatusResponse.builder()
+                .uid(UserTestData.ADMIN_UUID)
+                .enabled(false)
+                .build();
+        when(userService.disableUser(UserTestData.ADMIN_UUID)).thenReturn(response);
+
+        mockMvc.perform(patch("/api/v1/admin/users/{userUid}/status", UserTestData.ADMIN_UUID)
+                                .param("enable", "false"))
+               .andExpect(status().isOk())
+               .andExpect(jsonPath("$.enabled").value(false));
+
+        verify(userService).disableUser(UserTestData.ADMIN_UUID);
+        verify(userService, never()).enableUser(UserTestData.ADMIN_UUID);
     }
 }
