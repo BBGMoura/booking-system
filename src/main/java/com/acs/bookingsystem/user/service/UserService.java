@@ -16,6 +16,7 @@ import com.acs.bookingsystem.user.response.UserStatusResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +50,8 @@ public class UserService {
 
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   public Page<UserProfile> getUserProfiles(int page, int size) {
-    return userRepository.findAll(PageRequest.of(page, size)).map(this::toProfile);
+    return userRepository.findAll(PageRequest.of(page, size, Sort.by("lastName", "firstName")))
+                         .map(this::toProfile);
   }
 
   @PreAuthorize("hasRole('ROLE_ADMIN')")

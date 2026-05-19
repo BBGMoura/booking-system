@@ -23,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -201,14 +202,18 @@ class BookingServiceTest {
     // --- getAllBookingsByUserUid ---
 
     @Test
-    void givenUserUid_whenGetAllBookingsByUserUid_thenReturnsPaginatedResults() {
+    void givenUserUid_whenGetAllBookingsByUserUid_thenReturnsPaginatedResultsSortedByBookedFrom() {
         UUID userUid = UUID.randomUUID();
         Page<Booking> page = new PageImpl<>(List.of(booking));
-        when(bookingRepository.findAllByUserUid(eq(userUid), any(Pageable.class))).thenReturn(page);
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        when(bookingRepository.findAllByUserUid(eq(userUid), pageableCaptor.capture())).thenReturn(page);
 
         Page<Booking> result = bookingService.getAllBookingsByUserUid(userUid, 0, 5);
 
         assertThat(result.getContent()).hasSize(1);
+        Sort.Order order = pageableCaptor.getValue().getSort().getOrderFor("bookedFrom");
+        assertThat(order).isNotNull();
+        assertThat(order.getDirection()).isEqualTo(Sort.Direction.DESC);
     }
 
     // --- getBookingsByRoomAndDates ---

@@ -20,6 +20,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -69,6 +75,24 @@ class UserServiceTest {
 
         assertThatThrownBy(() -> userService.getUserByUid(USER_UID))
                 .isInstanceOf(NotFoundException.class);
+    }
+
+    // --- getUserProfiles ---
+
+    @Test
+    void givenUsersExist_whenGetUserProfiles_thenReturnsMappedPageSortedByName() {
+        Page<User> userPage = new PageImpl<>(List.of(user));
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        when(userRepository.findAll(pageableCaptor.capture())).thenReturn(userPage);
+
+        Page<UserProfile> result = userService.getUserProfiles(0, 5);
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().getFirst().email()).isEqualTo("test@example.com");
+
+        Sort sort = pageableCaptor.getValue().getSort();
+        assertThat(sort.getOrderFor("lastName")).isNotNull();
+        assertThat(sort.getOrderFor("firstName")).isNotNull();
     }
 
     // --- getUserProfileByUid ---

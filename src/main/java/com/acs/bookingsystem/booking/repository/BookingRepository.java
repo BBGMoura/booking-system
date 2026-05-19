@@ -53,7 +53,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     Page<Booking> findAllByUserId(Long userId, Pageable pageable);
 
-    @Query("SELECT b FROM Booking b JOIN b.user u WHERE u.uid = :userUid ORDER BY b.bookedFrom DESC")
+    @Query("SELECT b FROM Booking b JOIN b.user u WHERE u.uid = :userUid")
     Page<Booking> findAllByUserUid(@Param("userUid") UUID userUid, Pageable pageable);
 
     Optional<Booking> findByUid(UUID uid);
