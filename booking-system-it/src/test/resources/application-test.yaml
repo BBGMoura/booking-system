@@ -1,0 +1,19 @@
+spring:
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+
+allowed:
+  origins: http://localhost:3000
+
+email:
+  sender:
+    address: test@test.com
+    password: test
+
+jwt:
+  secret:
+    key: dGVzdC1zZWNyZXQta2V5LWZvci1pbnRlZ3JhdGlvbi10ZXN0cw==

@@ -1,0 +1,102 @@
+package com.acs.bookingsystem.booking.service.validation;
+
+import com.acs.bookingsystem.booking.entity.Booking;
+import com.acs.bookingsystem.booking.enums.Room;
+import com.acs.bookingsystem.booking.repository.BookingRepository;
+import com.acs.bookingsystem.booking.request.BookingRequest;
+import com.acs.bookingsystem.common.exception.model.ErrorCode;
+import com.acs.bookingsystem.danceclass.enums.ClassType;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class ShareabilityLimitValidatorTest {
+
+    @Mock
+    private BookingRepository bookingRepository;
+
+    private ShareabilityLimitValidator validator;
+
+    private static final LocalDateTime START = LocalDateTime.of(2025, 6, 2, 10, 0);
+    private static final LocalDateTime END   = LocalDateTime.of(2025, 6, 2, 11, 0);
+
+    @BeforeEach
+    void setup() {
+        validator = new ShareabilityLimitValidator(bookingRepository);
+    }
+
+    @Test
+    void givenShareableRequestWithNoExistingBookings_shouldPass() {
+        when(bookingRepository.findActiveBookingsForRoomAndTimeRange(eq(Room.ASTAIRE), eq(true), any(), any()))
+                .thenReturn(List.of());
+
+        Optional<ValidationFailure> result = validator.validate(shareableRequest());
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void givenNonShareableRequestWithExistingShareableBookings_shouldFail() {
+        when(bookingRepository.findActiveBookingsForRoomAndTimeRange(eq(Room.ASTAIRE), eq(true), any(), any()))
+                .thenReturn(List.of(shareableBooking(START, END)));
+
+        Optional<ValidationFailure> result = validator.validate(nonShareableRequest());
+        assertThat(result).isPresent();
+        assertThat(result.get().code()).isEqualTo(ErrorCode.BOOKING_CONFLICT);
+        assertThat(result.get().message()).contains("non-shareable");
+    }
+
+    @Test
+    void givenShareableRequestUnderLimit_shouldPass() {
+        List<Booking> twoBookings = List.of(shareableBooking(START, END), shareableBooking(START, END));
+        when(bookingRepository.findActiveBookingsForRoomAndTimeRange(eq(Room.ASTAIRE), eq(true), any(), any()))
+                .thenReturn(twoBookings);
+
+        Optional<ValidationFailure> result = validator.validate(shareableRequest());
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void givenShareableRequestAtMaximumSlots_shouldFail() {
+        List<Booking> threeBookings = List.of(
+                shareableBooking(START, END),
+                shareableBooking(START, END),
+                shareableBooking(START, END));
+        when(bookingRepository.findActiveBookingsForRoomAndTimeRange(eq(Room.ASTAIRE), eq(true), any(), any()))
+                .thenReturn(threeBookings);
+
+        Optional<ValidationFailure> result = validator.validate(shareableRequest());
+        assertThat(result).isPresent();
+        assertThat(result.get().code()).isEqualTo(ErrorCode.BOOKING_SHAREABLE_LIMIT);
+        assertThat(result.get().message()).contains("3");
+    }
+
+    private BookingRequest shareableRequest() {
+        return new BookingRequest(Room.ASTAIRE, ClassType.PRACTICE, true, START, END);
+    }
+
+    private BookingRequest nonShareableRequest() {
+        return new BookingRequest(Room.ASTAIRE, ClassType.PRIVATE, false, START, END);
+    }
+
+    private Booking shareableBooking(LocalDateTime from, LocalDateTime to) {
+        return Booking.builder()
+                      .room(Room.ASTAIRE)
+                      .shareable(true)
+                      .bookedFrom(from)
+                      .bookedTo(to)
+                      .active(true)
+                      .build();
+    }
+}
