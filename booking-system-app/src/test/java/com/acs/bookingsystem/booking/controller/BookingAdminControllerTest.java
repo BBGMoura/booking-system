@@ -155,6 +155,6 @@ class BookingAdminControllerTest {
         .perform(delete("/api/v1/admin/bookings/{bookingUid}", BOOKING_UID))
         .andExpect(status().isNoContent());
 
-    verify(bookingService).cancelBooking(eq(BOOKING_UID), any(User.class));
+    verify(bookingService).cancelBooking(eq(BOOKING_UID), eq(adminUser));
   }
 }
