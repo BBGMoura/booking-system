@@ -156,4 +156,17 @@ class UserAdminControllerTest {
     verify(userService).disableUser(eq(UserTestData.ADMIN_UUID), eq(adminUser));
     verify(userService, never()).enableUser(UserTestData.ADMIN_UUID);
   }
+
+  @Test
+  void givenMissingEnableParam_whenUpdateUserStatus_thenReturn400() throws Exception {
+    SecurityContextHolder.getContext()
+        .setAuthentication(
+            new UsernamePasswordAuthenticationToken(adminUser, null, adminUser.getAuthorities()));
+
+    mockMvc
+        .perform(patch("/api/v1/admin/users/{userUid}/status", UserTestData.ADMIN_UUID))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"))
+        .andExpect(jsonPath("$.details[0].field").value("enable"));
+  }
 }
