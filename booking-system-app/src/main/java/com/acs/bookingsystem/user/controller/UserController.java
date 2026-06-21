@@ -21,28 +21,28 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 public class UserController {
 
-    private final UserService userService;
-    private final AuthenticationService authenticationService;
+  private final UserService userService;
+  private final AuthenticationService authenticationService;
 
-    @GetMapping
-    public ResponseEntity<UserProfile> getUserProfile(@CurrentUser User user) {
-        return ResponseEntity.ok(userService.getUserProfile(user));
-    }
+  @GetMapping
+  public ResponseEntity<UserProfile> getUserProfile(@CurrentUser User user) {
+    return ResponseEntity.ok(userService.getUserProfile(user));
+  }
 
-    @PatchMapping
-    public ResponseEntity<UserProfile> updateUserInfo(@CurrentUser User user,
-                                                      @Valid @RequestBody UpdateUserInfoRequest request) {
-        return ResponseEntity.ok(userService.updateUserInfo(user, request));
-    }
+  @PatchMapping
+  public ResponseEntity<UserProfile> updateUserInfo(
+      @CurrentUser User user, @Valid @RequestBody UpdateUserInfoRequest request) {
+    return ResponseEntity.ok(userService.updateUserInfo(user, request));
+  }
 
-    @PutMapping("/credentials")
-    public ResponseEntity<AuthenticateResponse> updateUserCredentials(@CurrentUser User user,
-                                                                      @Valid @RequestBody UpdateUserRequest request) {
-        return ResponseEntity.ok(authenticationService.updateUserCredentials(user, request));
-    }
+  @PutMapping("/credentials")
+  public ResponseEntity<AuthenticateResponse> updateUserCredentials(
+      @CurrentUser User user, @Valid @RequestBody UpdateUserRequest request) {
+    return ResponseEntity.ok(authenticationService.updateUserCredentials(user, request));
+  }
 
-    @PatchMapping("/status")
-    public ResponseEntity<UserStatusResponse> disableUser(@CurrentUser User user) {
-        return ResponseEntity.ok(userService.disableUser(user));
-    }
+  @PatchMapping("/status")
+  public ResponseEntity<UserStatusResponse> disableUser(@CurrentUser User user) {
+    return ResponseEntity.ok(userService.disableUser(user));
+  }
 }

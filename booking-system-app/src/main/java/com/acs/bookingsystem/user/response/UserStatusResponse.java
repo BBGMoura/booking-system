@@ -1,9 +1,7 @@
 package com.acs.bookingsystem.user.response;
 
+import java.util.UUID;
 import lombok.Builder;
 
-import java.util.UUID;
-
 @Builder
-public record UserStatusResponse(UUID uid,
-                                 boolean enabled) {}
+public record UserStatusResponse(UUID uid, boolean enabled) {}

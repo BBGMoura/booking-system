@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public enum PaymentStatus {
-    OUTSTANDING,
-    PAID,
-    VOIDED
+  OUTSTANDING,
+  PAID,
+  VOIDED
 }

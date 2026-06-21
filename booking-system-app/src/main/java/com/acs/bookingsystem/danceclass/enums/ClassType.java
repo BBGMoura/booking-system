@@ -6,11 +6,11 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ClassType {
-    PRIVATE("PRIV"),
-    PRACTICE("PRA"),
-    GROUP("GRP"),
-    UNAVAILABLE("UN"),
-    OTHER("OTH");
+  PRIVATE("PRIV"),
+  PRACTICE("PRA"),
+  GROUP("GRP"),
+  UNAVAILABLE("UN"),
+  OTHER("OTH");
 
-    private final String code;
+  private final String code;
 }

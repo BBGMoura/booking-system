@@ -6,10 +6,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DanceClassMapper {
-    public DanceClassDTO map(DanceClass danceClass) {
-        return new DanceClassDTO(danceClass.getClassType(),
-                                 danceClass.isActive(),
-                                 danceClass.getPricePerHour(),
-                                 danceClass.getRole());
-    }
+  public DanceClassDTO map(DanceClass danceClass) {
+    return new DanceClassDTO(
+        danceClass.getClassType(),
+        danceClass.isActive(),
+        danceClass.getPricePerHour(),
+        danceClass.getRole());
+  }
 }

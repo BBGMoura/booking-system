@@ -1,5 +1,13 @@
 package com.acs.bookingsystem.user.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.acs.bookingsystem.security.config.SecurityConfig;
 import com.acs.bookingsystem.security.util.JwtUtil;
 import com.acs.bookingsystem.user.UserTestData;
@@ -25,90 +33,86 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @WebMvcTest(UserController.class)
 @Import(SecurityConfig.class)
 class UserControllerTest {
 
-    @Autowired private MockMvc mockMvc;
-    @Autowired private ObjectMapper objectMapper;
+  @Autowired private MockMvc mockMvc;
+  @Autowired private ObjectMapper objectMapper;
 
-    @MockitoBean private UserService userService;
-    @MockitoBean private AuthenticationService authenticationService;
-    @MockitoBean private JwtUtil jwtUtil;
-    @MockitoBean private AuthenticationProvider authenticationProvider;
+  @MockitoBean private UserService userService;
+  @MockitoBean private AuthenticationService authenticationService;
+  @MockitoBean private JwtUtil jwtUtil;
+  @MockitoBean private AuthenticationProvider authenticationProvider;
 
-    private final User user = UserTestData.user;
-    private final UserProfile profile = UserTestData.adminUserProfile;
+  private final User user = UserTestData.user;
+  private final UserProfile profile = UserTestData.adminUserProfile;
 
-    @BeforeEach
-    void setup() {
-        Authentication auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(auth);
-    }
+  @BeforeEach
+  void setup() {
+    Authentication auth =
+        new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+    SecurityContextHolder.getContext().setAuthentication(auth);
+  }
 
-    @Test
-    void givenAuthenticatedUser_whenGetProfile_thenReturns200() throws Exception {
-        when(userService.getUserProfile(any(User.class))).thenReturn(profile);
+  @Test
+  void givenAuthenticatedUser_whenGetProfile_thenReturns200() throws Exception {
+    when(userService.getUserProfile(any(User.class))).thenReturn(profile);
 
-        mockMvc.perform(get("/api/v1/users/me"))
-               .andExpect(status().isOk())
-               .andExpect(jsonPath("$.uid").value(profile.uid().toString()))
-               .andExpect(jsonPath("$.email").value(profile.email()))
-               .andExpect(jsonPath("$.firstName").value(profile.firstName()));
-    }
+    mockMvc
+        .perform(get("/api/v1/users/me"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.uid").value(profile.uid().toString()))
+        .andExpect(jsonPath("$.email").value(profile.email()))
+        .andExpect(jsonPath("$.firstName").value(profile.firstName()));
+  }
 
-    @Test
-    void givenValidRequest_whenUpdateUserInfo_thenReturns200() throws Exception {
-        UpdateUserInfoRequest request = new UpdateUserInfoRequest("New", "Name", null);
-        when(userService.updateUserInfo(any(User.class), any())).thenReturn(profile);
+  @Test
+  void givenValidRequest_whenUpdateUserInfo_thenReturns200() throws Exception {
+    UpdateUserInfoRequest request = new UpdateUserInfoRequest("New", "Name", null);
+    when(userService.updateUserInfo(any(User.class), any())).thenReturn(profile);
 
-        mockMvc.perform(patch("/api/v1/users/me")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(request)))
-               .andExpect(status().isOk());
+    mockMvc
+        .perform(
+            patch("/api/v1/users/me")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isOk());
 
-        verify(userService).updateUserInfo(any(User.class), eq(request));
-    }
+    verify(userService).updateUserInfo(any(User.class), eq(request));
+  }
 
-    @Test
-    void givenValidCredentials_whenUpdateCredentials_thenReturns200WithToken() throws Exception {
-        UpdateUserRequest request = new UpdateUserRequest("new@example.com", "NewPass1!");
-        AuthenticateResponse response = AuthenticateResponse.builder().token("new-jwt-token").build();
-        when(authenticationService.updateUserCredentials(any(User.class), any())).thenReturn(response);
+  @Test
+  void givenValidCredentials_whenUpdateCredentials_thenReturns200WithToken() throws Exception {
+    UpdateUserRequest request = new UpdateUserRequest("new@example.com", "NewPass1!");
+    AuthenticateResponse response = AuthenticateResponse.builder().token("new-jwt-token").build();
+    when(authenticationService.updateUserCredentials(any(User.class), any())).thenReturn(response);
 
-        mockMvc.perform(put("/api/v1/users/me/credentials")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(request)))
-               .andExpect(status().isOk())
-               .andExpect(jsonPath("$.token").value("new-jwt-token"));
-    }
+    mockMvc
+        .perform(
+            put("/api/v1/users/me/credentials")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.token").value("new-jwt-token"));
+  }
 
-    @Test
-    void givenAuthenticatedUser_whenDisableUser_thenReturns200() throws Exception {
-        UserStatusResponse response = UserStatusResponse.builder()
-                .uid(profile.uid())
-                .enabled(false)
-                .build();
-        when(userService.disableUser(any(User.class))).thenReturn(response);
+  @Test
+  void givenAuthenticatedUser_whenDisableUser_thenReturns200() throws Exception {
+    UserStatusResponse response =
+        UserStatusResponse.builder().uid(profile.uid()).enabled(false).build();
+    when(userService.disableUser(any(User.class))).thenReturn(response);
 
-        mockMvc.perform(patch("/api/v1/users/me/status"))
-               .andExpect(status().isOk())
-               .andExpect(jsonPath("$.enabled").value(false));
-    }
+    mockMvc
+        .perform(patch("/api/v1/users/me/status"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.enabled").value(false));
+  }
 
-    @Test
-    void givenUnauthenticated_whenGetProfile_thenReturns403() throws Exception {
-        SecurityContextHolder.clearContext();
+  @Test
+  void givenUnauthenticated_whenGetProfile_thenReturns403() throws Exception {
+    SecurityContextHolder.clearContext();
 
-        mockMvc.perform(get("/api/v1/users/me"))
-               .andExpect(status().isForbidden());
-    }
+    mockMvc.perform(get("/api/v1/users/me")).andExpect(status().isForbidden());
+  }
 }

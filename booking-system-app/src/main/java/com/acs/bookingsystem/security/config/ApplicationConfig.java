@@ -15,21 +15,25 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class ApplicationConfig {
 
-    private final UserRepository userRepository;
+  private final UserRepository userRepository;
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByEmail(username)
-                                         .orElseThrow(() -> new UsernameNotFoundException("User with email " + username + " not found"));
-    }
+  @Bean
+  public UserDetailsService userDetailsService() {
+    return username ->
+        userRepository
+            .findByEmail(username)
+            .orElseThrow(
+                () -> new UsernameNotFoundException("User with email " + username + " not found"));
+  }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
+  @Bean
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+      throws Exception {
+    return config.getAuthenticationManager();
+  }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 }

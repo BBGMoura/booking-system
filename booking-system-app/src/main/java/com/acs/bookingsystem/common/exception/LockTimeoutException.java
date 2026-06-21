@@ -5,10 +5,10 @@ import lombok.Getter;
 
 @Getter
 public class LockTimeoutException extends RuntimeException {
-    private final ErrorCode error;
+  private final ErrorCode error;
 
-    public LockTimeoutException(String message, Throwable cause, ErrorCode error) {
-        super(message, cause);
-        this.error = error;
-    }
+  public LockTimeoutException(String message, Throwable cause, ErrorCode error) {
+    super(message, cause);
+    this.error = error;
+  }
 }
