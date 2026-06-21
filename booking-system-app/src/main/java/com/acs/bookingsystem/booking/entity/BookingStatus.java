@@ -4,6 +4,7 @@ import com.acs.bookingsystem.booking.enums.BookingStatusType;
 import com.acs.bookingsystem.user.entity.User;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,7 +40,7 @@ public class BookingStatus {
   @PrePersist
   void prePersist() {
     if (createdOn == null) {
-      createdOn = LocalDateTime.now();
+      createdOn = LocalDateTime.now(ZoneId.systemDefault());
     }
   }
 }

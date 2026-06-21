@@ -15,6 +15,7 @@ import com.acs.bookingsystem.user.enums.Role;
 import com.acs.bookingsystem.user.repository.UserRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,8 +31,8 @@ class BookingRepositoryIT extends BaseIntegrationTest {
   @Autowired private UserRepository userRepository;
   @Autowired private DanceClassRepository danceClassRepository;
 
-  private static final LocalDateTime FROM = LocalDateTime.of(2025, 6, 2, 10, 0);
-  private static final LocalDateTime TO = LocalDateTime.of(2025, 6, 2, 11, 0);
+  private static final LocalDateTime FROM = LocalDateTime.of(2025, Month.JUNE, 2, 10, 0);
+  private static final LocalDateTime TO = LocalDateTime.of(2025, Month.JUNE, 2, 11, 0);
 
   private User user;
   private DanceClass danceClass;
@@ -86,8 +87,8 @@ class BookingRepositoryIT extends BaseIntegrationTest {
 
   @Test
   void findActiveBookingsForRoomAndTimeRange_excludesNonOverlappingBookings() {
-    LocalDateTime before = LocalDateTime.of(2025, 6, 2, 8, 0);
-    LocalDateTime beforeEnd = LocalDateTime.of(2025, 6, 2, 9, 0);
+    LocalDateTime before = LocalDateTime.of(2025, Month.JUNE, 2, 8, 0);
+    LocalDateTime beforeEnd = LocalDateTime.of(2025, Month.JUNE, 2, 9, 0);
     saveBookingWithStatus(Room.ASTAIRE, false, before, beforeEnd, BookingStatusType.BOOKED);
 
     List<Booking> result =
@@ -111,8 +112,9 @@ class BookingRepositoryIT extends BaseIntegrationTest {
   @Test
   void findActiveBookingsForRoomAndTimeRange_returnsLatestStatusPerBooking() {
     Booking booking = saveBooking(Room.ASTAIRE, false, FROM, TO);
-    saveStatus(booking, BookingStatusType.BOOKED, LocalDateTime.of(2025, 1, 1, 10, 0));
-    saveStatus(booking, BookingStatusType.CANCELLED, LocalDateTime.of(2025, 1, 1, 11, 0));
+    saveStatus(booking, BookingStatusType.BOOKED, LocalDateTime.of(2025, Month.JANUARY, 1, 10, 0));
+    saveStatus(
+        booking, BookingStatusType.CANCELLED, LocalDateTime.of(2025, Month.JANUARY, 1, 11, 0));
 
     List<Booking> result =
         bookingRepository.findActiveBookingsForRoomAndTimeRange(Room.ASTAIRE, null, FROM, TO);

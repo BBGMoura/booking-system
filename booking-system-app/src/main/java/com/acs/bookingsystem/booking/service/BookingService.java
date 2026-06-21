@@ -125,7 +125,6 @@ public class BookingService {
 
   @Transactional
   public void cancelAllBookingsByUserId(Long userId, User cancelledBy) {
-    // todo - BUG - cancelling all bookings instead of after a certain point?
     log.debug("Cancelling all bookings for user {}", userId);
     List<Booking> activeBookings = bookingRepository.findActiveBookingsByUserId(userId);
     activeBookings.forEach(
