@@ -109,7 +109,9 @@ class UniversalExceptionHandlerTest {
     }
 
     @GetMapping("/test/missing-param")
-    void requireParam(@RequestParam boolean enable) {}
+    void requireParam(@RequestParam boolean enable) {
+      // intentionally empty — exists only to trigger MissingServletRequestParameterException
+    }
   }
 
   record ValidationRequest(@NotBlank String email, @NotBlank String name) {}
