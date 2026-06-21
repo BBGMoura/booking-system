@@ -23,6 +23,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -67,6 +68,19 @@ public class UniversalExceptionHandler {
             ErrorCode.VALIDATION_ERROR.toString(),
             ErrorCode.VALIDATION_ERROR.getDescription(),
             details);
+    return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(MissingServletRequestParameterException.class)
+  public ResponseEntity<ErrorModel> handleMissingRequestParam(
+      MissingServletRequestParameterException ex) {
+    ErrorModel error =
+        new ErrorModel(
+            new Date(),
+            HttpStatus.BAD_REQUEST.value(),
+            ErrorCode.VALIDATION_ERROR.toString(),
+            ErrorCode.VALIDATION_ERROR.getDescription(),
+            List.of(new ErrorDetail(ex.getParameterName(), "Required parameter is missing")));
     return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
   }
 

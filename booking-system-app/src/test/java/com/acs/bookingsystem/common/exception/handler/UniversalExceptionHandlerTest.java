@@ -31,6 +31,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 class UniversalExceptionHandlerTest {
@@ -106,6 +107,9 @@ class UniversalExceptionHandlerTest {
     void throwDisabled() {
       throw new DisabledException("Account disabled");
     }
+
+    @GetMapping("/test/missing-param")
+    void requireParam(@RequestParam boolean enable) {}
   }
 
   record ValidationRequest(@NotBlank String email, @NotBlank String name) {}
@@ -223,5 +227,16 @@ class UniversalExceptionHandlerTest {
         .perform(get("/test/disabled"))
         .andExpect(status().isForbidden())
         .andExpect(jsonPath("$.message").value("Account is disabled. Please contact support."));
+  }
+
+  @Test
+  void givenMissingRequiredRequestParam_shouldReturn400WithParamName() throws Exception {
+    mockMvc
+        .perform(get("/test/missing-param"))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"))
+        .andExpect(jsonPath("$.details[0].field").value("enable"))
+        .andExpect(jsonPath("$.details[0].message").value("Required parameter is missing"));
   }
 }
