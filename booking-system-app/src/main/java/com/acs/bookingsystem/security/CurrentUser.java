@@ -1,8 +1,7 @@
 package com.acs.bookingsystem.security;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-
 import java.lang.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 @Target({ElementType.PARAMETER, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)

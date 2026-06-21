@@ -7,11 +7,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RequestException extends RuntimeException {
-    private final ErrorCode error;
+  private final ErrorCode error;
 
-    public RequestException(String message, ErrorCode error) {
-        super(message);
-        this.error = error;
-    }
-
+  public RequestException(String message, ErrorCode error) {
+    super(message);
+    this.error = error;
+  }
 }

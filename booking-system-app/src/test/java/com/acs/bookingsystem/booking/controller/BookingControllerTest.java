@@ -1,6 +1,16 @@
 package com.acs.bookingsystem.booking.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.acs.bookingsystem.booking.BookingWithStatus;
 import com.acs.bookingsystem.booking.entity.Booking;
+import com.acs.bookingsystem.booking.enums.BookingStatusType;
 import com.acs.bookingsystem.booking.enums.Room;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.booking.service.BookingService;
@@ -15,6 +25,10 @@ import com.acs.bookingsystem.user.UserTestData;
 import com.acs.bookingsystem.user.entity.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,104 +43,116 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @WebMvcTest(BookingController.class)
 @Import(SecurityConfig.class)
 class BookingControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-    @MockitoBean private BookingService bookingService;
-    @MockitoBean private BookingViewFactory viewFactory;
-    @MockitoBean private JwtUtil jwtUtil;
-    @MockitoBean private AuthenticationProvider authenticationProvider;
+  @MockitoBean private BookingService bookingService;
+  @MockitoBean private BookingViewFactory viewFactory;
+  @MockitoBean private JwtUtil jwtUtil;
+  @MockitoBean private AuthenticationProvider authenticationProvider;
 
-    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-    private final User user = UserTestData.user;
-    private static final UUID BOOKING_UID = UUID.randomUUID();
+  private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+  private final User user = UserTestData.user;
+  private static final UUID BOOKING_UID = UUID.randomUUID();
 
-    private final BookingDetail bookingDetail = new BookingDetail(
-            BOOKING_UID, UUID.randomUUID(), Room.ASTAIRE,
-            true, false, ClassType.PRIVATE,
-            LocalDateTime.of(2025, 6, 2, 10, 0),
-            LocalDateTime.of(2025, 6, 2, 11, 0),
-            BigDecimal.TEN);
+  private final BookingWithStatus bookingWithStatus =
+      new BookingWithStatus(new Booking(), BookingStatusType.BOOKED);
 
-    private final BookingSummary bookingSummary = new BookingSummary(
-            BOOKING_UID, Room.ASTAIRE, ClassType.PRIVATE,
-            true, false,
+  private final BookingDetail bookingDetail =
+      new BookingDetail(
+          BOOKING_UID,
+          UUID.randomUUID(),
+          Room.ASTAIRE,
+          BookingStatusType.BOOKED,
+          false,
+          ClassType.PRIVATE,
+          LocalDateTime.of(2025, 6, 2, 10, 0),
+          LocalDateTime.of(2025, 6, 2, 11, 0),
+          BigDecimal.TEN);
+
+  private final BookingSummary bookingSummary =
+      new BookingSummary(
+          BOOKING_UID,
+          Room.ASTAIRE,
+          ClassType.PRIVATE,
+          BookingStatusType.BOOKED,
+          false,
+          LocalDateTime.of(2025, 6, 2, 10, 0),
+          LocalDateTime.of(2025, 6, 2, 11, 0));
+
+  @BeforeEach
+  void setup() {
+    Authentication auth =
+        new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+    SecurityContextHolder.getContext().setAuthentication(auth);
+  }
+
+  @Test
+  void givenValidRequest_whenCreateBooking_thenReturns201() throws Exception {
+    BookingRequest request =
+        new BookingRequest(
+            Room.ASTAIRE,
+            ClassType.PRIVATE,
+            false,
             LocalDateTime.of(2025, 6, 2, 10, 0),
             LocalDateTime.of(2025, 6, 2, 11, 0));
 
-    @BeforeEach
-    void setup() {
-        Authentication auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(auth);
-    }
+    when(bookingService.createBooking(any(BookingRequest.class), any(User.class)))
+        .thenReturn(bookingWithStatus);
+    when(viewFactory.createView(any(BookingWithStatus.class), eq(ViewType.DETAIL)))
+        .thenReturn(bookingDetail);
 
-    @Test
-    void givenValidRequest_whenCreateBooking_thenReturns201() throws Exception {
-        BookingRequest request = new BookingRequest(Room.ASTAIRE, ClassType.PRIVATE, false,
-                LocalDateTime.of(2025, 6, 2, 10, 0),
-                LocalDateTime.of(2025, 6, 2, 11, 0));
+    mockMvc
+        .perform(
+            post("/api/v1/bookings")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.uid").value(BOOKING_UID.toString()));
+  }
 
-        when(bookingService.createBooking(any(BookingRequest.class), any(User.class))).thenReturn(new Booking());
-        when(viewFactory.createView(any(), eq(ViewType.DETAIL))).thenReturn(bookingDetail);
+  @Test
+  void givenValidBookingUid_whenGetOwnBooking_thenReturns200() throws Exception {
+    when(bookingService.getBookingByUidAndUser(eq(BOOKING_UID), any(Long.class)))
+        .thenReturn(bookingWithStatus);
+    when(viewFactory.createView(any(BookingWithStatus.class), eq(ViewType.DETAIL)))
+        .thenReturn(bookingDetail);
 
-        mockMvc.perform(post("/api/v1/bookings")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(request)))
-               .andExpect(status().isCreated())
-               .andExpect(jsonPath("$.uid").value(BOOKING_UID.toString()));
-    }
+    mockMvc
+        .perform(get("/api/v1/bookings/{bookingUid}", BOOKING_UID))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.uid").value(BOOKING_UID.toString()));
+  }
 
-    @Test
-    void givenValidBookingUid_whenGetOwnBooking_thenReturns200() throws Exception {
-        when(bookingService.getBookingByUidAndUser(eq(BOOKING_UID), any(Long.class))).thenReturn(new Booking());
-        when(viewFactory.createView(any(), eq(ViewType.DETAIL))).thenReturn(bookingDetail);
+  @Test
+  void givenValidRequest_whenGetBookings_thenReturns200() throws Exception {
+    when(bookingService.getAllBookingsByUserId(any(Long.class), any(int.class), any(int.class)))
+        .thenReturn(new PageImpl<>(List.of(bookingWithStatus)));
+    when(viewFactory.createView(any(BookingWithStatus.class), eq(ViewType.DETAIL)))
+        .thenReturn(bookingSummary);
 
-        mockMvc.perform(get("/api/v1/bookings/{bookingUid}", BOOKING_UID))
-               .andExpect(status().isOk())
-               .andExpect(jsonPath("$.uid").value(BOOKING_UID.toString()));
-    }
+    mockMvc
+        .perform(get("/api/v1/bookings"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content").isArray());
+  }
 
-    @Test
-    void givenValidRequest_whenGetBookings_thenReturns200() throws Exception {
-        when(bookingService.getAllBookingsByUserId(any(Long.class), any(int.class), any(int.class)))
-                .thenReturn(new PageImpl<>(List.of(new Booking())));
-        when(viewFactory.createView(any(), eq(ViewType.DETAIL))).thenReturn(bookingSummary);
+  @Test
+  void givenValidBookingUid_whenCancelBooking_thenReturns204() throws Exception {
+    mockMvc
+        .perform(delete("/api/v1/bookings/{bookingUid}", BOOKING_UID))
+        .andExpect(status().isNoContent());
 
-        mockMvc.perform(get("/api/v1/bookings"))
-               .andExpect(status().isOk())
-               .andExpect(jsonPath("$.content").isArray());
-    }
+    verify(bookingService).cancelBookingByUserId(eq(BOOKING_UID), any(Long.class));
+  }
 
-    @Test
-    void givenValidBookingUid_whenCancelBooking_thenReturns204() throws Exception {
-        mockMvc.perform(delete("/api/v1/bookings/{bookingUid}", BOOKING_UID))
-               .andExpect(status().isNoContent());
+  @Test
+  void givenUnauthenticated_whenGetBookings_thenReturns403() throws Exception {
+    SecurityContextHolder.clearContext();
 
-        verify(bookingService).deactivateBookingByUserId(eq(BOOKING_UID), any(Long.class));
-    }
-
-    @Test
-    void givenUnauthenticated_whenGetBookings_thenReturns403() throws Exception {
-        SecurityContextHolder.clearContext();
-
-        mockMvc.perform(get("/api/v1/bookings"))
-               .andExpect(status().isForbidden());
-    }
+    mockMvc.perform(get("/api/v1/bookings")).andExpect(status().isForbidden());
+  }
 }

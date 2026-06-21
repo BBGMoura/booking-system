@@ -31,7 +31,6 @@ CREATE TABLE booking (
     user_id BIGINT NOT NULL,
     room VARCHAR(50) NOT NULL,
     dance_class_id BIGINT NOT NULL,
-    active BOOLEAN DEFAULT TRUE,
     shareable BOOLEAN DEFAULT FALSE,
     booked_from TIMESTAMP NOT NULL,
     booked_to TIMESTAMP NOT NULL,
@@ -40,15 +39,14 @@ CREATE TABLE booking (
     CONSTRAINT fk_booking_dance_class FOREIGN KEY (dance_class_id) REFERENCES dance_class(id)
 );
 
-CREATE TABLE booking_history (
+CREATE TABLE booking_status (
     id BIGSERIAL PRIMARY KEY,
-    booking_id BIGINT,
-    booking_status VARCHAR(50) NOT NULL,
-    description TEXT NOT NULL,
+    booking_id BIGINT NOT NULL,
+    status VARCHAR(50) NOT NULL,
     created_on TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    user_id BIGINT NOT NULL,
-    CONSTRAINT fk_booking_history_booking FOREIGN KEY (booking_id) REFERENCES booking(id),
-    CONSTRAINT fk_booking_history_user FOREIGN KEY (user_id) REFERENCES users(id)
+    created_by_id BIGINT NOT NULL,
+    CONSTRAINT fk_booking_status_booking FOREIGN KEY (booking_id) REFERENCES booking(id),
+    CONSTRAINT fk_booking_status_user FOREIGN KEY (created_by_id) REFERENCES users(id)
 );
 
 CREATE TABLE payment (
@@ -82,8 +80,14 @@ ALTER TABLE booking ADD CONSTRAINT chk_booking_price
 ALTER TABLE booking ADD CONSTRAINT chk_booking_room
     CHECK (room IN ('ASTAIRE', 'BUSSELL', 'ALEX MOORE', 'FOSSE'));
 
-ALTER TABLE booking_history ADD CONSTRAINT chk_booking_status
-    CHECK (booking_status IN ('BOOKED', 'CANCELLED'));
+ALTER TABLE booking_status ADD CONSTRAINT chk_booking_status_type
+    CHECK (status IN ('BOOKED', 'CANCELLED'));
+
+CREATE INDEX idx_booking_status_booking_id_created_on
+    ON booking_status (booking_id, created_on DESC);
+
+CREATE INDEX idx_booking_room_dates
+    ON booking (room, booked_from, booked_to);
 
 ALTER TABLE payment ADD CONSTRAINT chk_payment_status
     CHECK (payment_status IN ('OUTSTANDING', 'PAID', 'VOIDED'));

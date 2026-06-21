@@ -4,11 +4,10 @@ import com.acs.bookingsystem.booking.enums.Room;
 import com.acs.bookingsystem.danceclass.entity.DanceClass;
 import com.acs.bookingsystem.user.entity.User;
 import jakarta.persistence.*;
-import lombok.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.*;
 
 @ToString
 @Entity
@@ -37,8 +36,6 @@ public class Booking {
   @JoinColumn(referencedColumnName = "id", nullable = false)
   private DanceClass danceClass;
 
-  private boolean active;
-
   private boolean shareable;
 
   @Column(nullable = false)
@@ -55,9 +52,5 @@ public class Booking {
     if (uid == null) {
       uid = UUID.randomUUID();
     }
-  }
-
-  public void deactivate() {
-    this.active = false;
   }
 }

@@ -22,27 +22,28 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 public class AuthenticationController {
 
-    private final AuthenticationService authenticationService;
-    private final UserService userService;
+  private final AuthenticationService authenticationService;
+  private final UserService userService;
 
-    @PostMapping("/register")
-    public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(authenticationService.register(request));
-    }
+  @PostMapping("/register")
+  public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest request) {
+    return ResponseEntity.status(HttpStatus.CREATED).body(authenticationService.register(request));
+  }
 
-    @PostMapping("/login")
-    public ResponseEntity<AuthenticateResponse> authenticate(@Valid @RequestBody AuthenticateRequest request) {
-        return ResponseEntity.ok(authenticationService.authenticate(request));
-    }
+  @PostMapping("/login")
+  public ResponseEntity<AuthenticateResponse> authenticate(
+      @Valid @RequestBody AuthenticateRequest request) {
+    return ResponseEntity.ok(authenticationService.authenticate(request));
+  }
 
-    @GetMapping("/invitations")
-    public ResponseEntity<CheckInviteResponse> checkInvite(@RequestParam @Email String email) {
-        return ResponseEntity.ok(new CheckInviteResponse(email, userService.isEmailInvited(email)));
-    }
+  @GetMapping("/invitations")
+  public ResponseEntity<CheckInviteResponse> checkInvite(@RequestParam @Email String email) {
+    return ResponseEntity.ok(new CheckInviteResponse(email, userService.isEmailInvited(email)));
+  }
 
-    @PostMapping("/password-reset")
-    public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
-        authenticationService.resetPassword(request.email());
-        return ResponseEntity.noContent().build();
-    }
+  @PostMapping("/password-reset")
+  public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+    authenticationService.resetPassword(request.email());
+    return ResponseEntity.noContent().build();
+  }
 }

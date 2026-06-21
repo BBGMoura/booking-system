@@ -1,67 +1,66 @@
 package com.acs.bookingsystem.payment;
 
-import com.acs.bookingsystem.danceclass.entity.DanceClass;
-import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.common.exception.RequestException;
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.acs.bookingsystem.common.exception.model.ErrorCode;
+import com.acs.bookingsystem.danceclass.entity.DanceClass;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class PriceCalculator {
 
-    private static final int CURRENCY_SCALE = 2;
-    private static final int MINUTES_PER_HOUR = 60;
+  private static final int CURRENCY_SCALE = 2;
+  private static final int MINUTES_PER_HOUR = 60;
 
-    private PriceCalculator() {}
+  private PriceCalculator() {}
 
-    /**
-     * Calculates the total price for a booking based on duration and class price.
-     *
-     * @param dateFrom   The booking start time.
-     * @param dateTo     The booking end time.
-     * @param danceClass The dance class containing the price per hour.
-     * @return The calculated total price.
-     * @throws RequestException if the booking duration is invalid.
-     */
-    public static BigDecimal calculateTotalPrice(LocalDateTime dateFrom, LocalDateTime dateTo, DanceClass danceClass) {
-        BigDecimal pricePerHour = danceClass.getPricePerHour();
+  /**
+   * Calculates the total price for a booking based on duration and class price.
+   *
+   * @param dateFrom The booking start time.
+   * @param dateTo The booking end time.
+   * @param danceClass The dance class containing the price per hour.
+   * @return The calculated total price.
+   * @throws RequestException if the booking duration is invalid.
+   */
+  public static BigDecimal calculateTotalPrice(
+      LocalDateTime dateFrom, LocalDateTime dateTo, DanceClass danceClass) {
+    BigDecimal pricePerHour = danceClass.getPricePerHour();
 
-        // todo why to minutes why not leave in hours?
-        long minutes = Duration.between(dateFrom, dateTo).toMinutes();
+    // todo why to minutes why not leave in hours?
+    long minutes = Duration.between(dateFrom, dateTo).toMinutes();
 
-        if (minutes <= 0) {
-            throw new RequestException("Cannot complete booking as time interval is 0.",
-                                       ErrorCode.INVALID_BOOKING_REQUEST);
-        }
+    if (minutes <= 0) {
+      throw new RequestException(
+          "Cannot complete booking as time interval is 0.", ErrorCode.INVALID_BOOKING_REQUEST);
+    }
 
-        // double check calculation
-        // should we store in long.
-        BigDecimal totalPrice = pricePerHour.multiply(BigDecimal.valueOf(minutes))
-                                            .divide(BigDecimal.valueOf(MINUTES_PER_HOUR),
-                                                    CURRENCY_SCALE,
-                                                    RoundingMode.HALF_UP);
+    // double check calculation
+    // should we store in long.
+    BigDecimal totalPrice =
+        pricePerHour
+            .multiply(BigDecimal.valueOf(minutes))
+            .divide(BigDecimal.valueOf(MINUTES_PER_HOUR), CURRENCY_SCALE, RoundingMode.HALF_UP);
 
-        log.info("""
+    log.info(
+        """
                          Price calculation complete for booking:
                              - Class: {} (ID: {})
                              - Time: {} to {}
                              - Duration: {} minutes
                              - Price per hour: {}
                              - Total price: {}""",
-                 danceClass.getClassType(),
-                 danceClass.getId(),
-                 dateFrom,
-                 dateTo,
-                 minutes,
-                 pricePerHour,
-                 totalPrice);
+        danceClass.getClassType(),
+        danceClass.getId(),
+        dateFrom,
+        dateTo,
+        minutes,
+        pricePerHour,
+        totalPrice);
 
-        return totalPrice;
-    }
+    return totalPrice;
+  }
 }

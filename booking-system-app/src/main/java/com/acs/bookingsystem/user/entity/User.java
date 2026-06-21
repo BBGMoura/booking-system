@@ -3,14 +3,13 @@ package com.acs.bookingsystem.user.entity;
 import com.acs.bookingsystem.user.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.UUID;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -29,8 +28,7 @@ public class User implements UserDetails {
   @Column(unique = true, nullable = false, updatable = false)
   private UUID uid;
 
-  @Version
-  private Long version;
+  @Version private Long version;
 
   @Column(unique = true, nullable = false)
   private String email;

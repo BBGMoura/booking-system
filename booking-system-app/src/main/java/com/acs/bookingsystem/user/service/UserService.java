@@ -1,10 +1,10 @@
 package com.acs.bookingsystem.user.service;
 
 import com.acs.bookingsystem.booking.service.BookingService;
-import com.acs.bookingsystem.common.exception.RequestException;
-import com.acs.bookingsystem.common.exception.NotFoundException;
-import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.common.email.EmailService;
+import com.acs.bookingsystem.common.exception.NotFoundException;
+import com.acs.bookingsystem.common.exception.RequestException;
+import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.user.entity.User;
 import com.acs.bookingsystem.user.model.UserProfile;
 import com.acs.bookingsystem.user.repository.UserRepository;
@@ -13,6 +13,7 @@ import com.acs.bookingsystem.user.request.RegisterRequest;
 import com.acs.bookingsystem.user.request.UpdateUserInfoRequest;
 import com.acs.bookingsystem.user.response.InviteResponse;
 import com.acs.bookingsystem.user.response.UserStatusResponse;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,8 +21,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +35,9 @@ public class UserService {
     return userRepository
         .findByUid(uid)
         .orElseThrow(
-            () -> new NotFoundException("Cannot find user with uid " + uid, ErrorCode.INVALID_USER_UID));
+            () ->
+                new NotFoundException(
+                    "Cannot find user with uid " + uid, ErrorCode.INVALID_USER_UID));
   }
 
   public UserProfile getUserProfile(User user) {
@@ -50,8 +51,9 @@ public class UserService {
 
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   public Page<UserProfile> getUserProfiles(int page, int size) {
-    return userRepository.findAll(PageRequest.of(page, size, Sort.by("lastName", "firstName")))
-                         .map(this::toProfile);
+    return userRepository
+        .findAll(PageRequest.of(page, size, Sort.by("lastName", "firstName")))
+        .map(this::toProfile);
   }
 
   @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -128,7 +130,7 @@ public class UserService {
   }
 
   public UserStatusResponse disableUser(User user) {
-    return applyDisable(user);
+    return applyDisable(user, user);
   }
 
   @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -140,15 +142,15 @@ public class UserService {
   }
 
   @PreAuthorize("hasRole('ROLE_ADMIN')")
-  public UserStatusResponse disableUser(UUID uid) {
-    return applyDisable(getUserByUid(uid));
+  public UserStatusResponse disableUser(UUID uid, User admin) {
+    return applyDisable(getUserByUid(uid), admin);
   }
 
   @Transactional
-  private UserStatusResponse applyDisable(User user) {
+  private UserStatusResponse applyDisable(User user, User cancelledBy) {
     user.setEnabled(false);
     userRepository.save(user);
-    bookingService.deactivateAllBookingsByUserId(user.getId());
+    bookingService.cancelAllBookingsByUserId(user.getId(), cancelledBy);
     return UserStatusResponse.builder().uid(user.getUid()).enabled(false).build();
   }
 

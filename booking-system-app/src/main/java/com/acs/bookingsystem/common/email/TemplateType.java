@@ -6,8 +6,8 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum TemplateType {
-    INVITATION("invitation"),
-    RESET_PASSWORD("resetPassword");
+  INVITATION("invitation"),
+  RESET_PASSWORD("resetPassword");
 
-    private final String key;
+  private final String key;
 }

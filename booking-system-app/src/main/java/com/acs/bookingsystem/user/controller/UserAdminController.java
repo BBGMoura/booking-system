@@ -1,18 +1,19 @@
 package com.acs.bookingsystem.user.controller;
 
+import com.acs.bookingsystem.security.CurrentUser;
+import com.acs.bookingsystem.user.entity.User;
 import com.acs.bookingsystem.user.model.UserProfile;
 import com.acs.bookingsystem.user.request.InviteRequest;
 import com.acs.bookingsystem.user.response.InviteResponse;
 import com.acs.bookingsystem.user.response.UserStatusResponse;
 import com.acs.bookingsystem.user.service.UserService;
 import jakarta.validation.Valid;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/admin/users")
@@ -20,30 +21,29 @@ import java.util.UUID;
 @Validated
 public class UserAdminController {
 
-    private final UserService userService;
+  private final UserService userService;
 
-    @GetMapping("/{userUid}")
-    public ResponseEntity<UserProfile> getUser(@PathVariable UUID userUid) {
-        return ResponseEntity.ok(userService.getUserProfileByUid(userUid));
-    }
+  @GetMapping("/{userUid}")
+  public ResponseEntity<UserProfile> getUser(@PathVariable UUID userUid) {
+    return ResponseEntity.ok(userService.getUserProfileByUid(userUid));
+  }
 
-    @GetMapping
-    public ResponseEntity<Page<UserProfile>> getUsers(@RequestParam(defaultValue = "0") int page,
-                                                      @RequestParam(defaultValue = "5") int size) {
-        return ResponseEntity.ok(userService.getUserProfiles(page, size));
-    }
+  @GetMapping
+  public ResponseEntity<Page<UserProfile>> getUsers(
+      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
+    return ResponseEntity.ok(userService.getUserProfiles(page, size));
+  }
 
-    @PostMapping("/invite")
-    public ResponseEntity<InviteResponse> inviteUser(@Valid @RequestBody InviteRequest request) {
-        return ResponseEntity.ok(userService.invite(request));
-    }
+  @PostMapping("/invite")
+  public ResponseEntity<InviteResponse> inviteUser(@Valid @RequestBody InviteRequest request) {
+    return ResponseEntity.ok(userService.invite(request));
+  }
 
-    @PatchMapping("/{userUid}/status")
-    public ResponseEntity<UserStatusResponse> updateUserStatus(@PathVariable UUID userUid,
-                                                               @RequestParam boolean enable) {
-        UserStatusResponse response = enable
-                ? userService.enableUser(userUid)
-                : userService.disableUser(userUid);
-        return ResponseEntity.ok(response);
-    }
+  @PatchMapping("/{userUid}/status")
+  public ResponseEntity<UserStatusResponse> updateUserStatus(
+      @CurrentUser User admin, @PathVariable UUID userUid, @RequestParam boolean enable) {
+    UserStatusResponse response =
+        enable ? userService.enableUser(userUid) : userService.disableUser(userUid, admin);
+    return ResponseEntity.ok(response);
+  }
 }

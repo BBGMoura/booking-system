@@ -11,17 +11,16 @@ import org.springframework.context.annotation.Configuration;
 @AllArgsConstructor
 public class MailConfig {
 
-    private final EmailProperties emailProperties;
+  private final EmailProperties emailProperties;
 
-    @Bean
-    public Mailer mailer() {
-        return MailerBuilder
-                .withSMTPServer(
-                        emailProperties.getSmtp().getServer(),
-                        emailProperties.getSmtp().getPort(),
-                        emailProperties.getSender().getAddress(),
-                        emailProperties.getSender().getPassword())
-                .withTransportStrategy(TransportStrategy.SMTPS)
-                .buildMailer();
-    }
+  @Bean
+  public Mailer mailer() {
+    return MailerBuilder.withSMTPServer(
+            emailProperties.getSmtp().getServer(),
+            emailProperties.getSmtp().getPort(),
+            emailProperties.getSender().getAddress(),
+            emailProperties.getSender().getPassword())
+        .withTransportStrategy(TransportStrategy.SMTPS)
+        .buildMailer();
+  }
 }
