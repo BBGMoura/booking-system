@@ -19,12 +19,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
           + "WHERE b.room = :room "
           + "AND (:shareable IS NULL OR b.shareable = :shareable) "
           + "AND (SELECT bs.status FROM BookingStatus bs WHERE bs.booking = b ORDER BY bs.createdOn DESC LIMIT 1) = 'BOOKED' "
-          + "AND ("
-          + "     (:dateFrom > b.bookedFrom AND :dateTo < b.bookedTo) OR "
-          + "     (b.bookedFrom >= :dateFrom AND b.bookedTo <= :dateTo) OR "
-          + "     (b.bookedFrom > :dateFrom AND b.bookedFrom < :dateTo AND :dateTo < b.bookedTo) OR "
-          + "     (b.bookedTo > :dateFrom AND b.bookedFrom < :dateFrom AND b.bookedTo < :dateTo)"
-          + ") "
+          + "AND (b.bookedFrom < :dateTo AND b.bookedTo > :dateFrom) "
           + "ORDER BY b.bookedFrom ASC")
   List<Booking> findActiveBookingsForRoomAndTimeRange(
       @Param("room") Room room,

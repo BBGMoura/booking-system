@@ -85,6 +85,39 @@ class ShareabilityLimitValidatorTest {
     assertThat(result.get().message()).contains("3");
   }
 
+  @Test
+  void givenShareableRequestWithStaggeredBookingsConvergingAtLimit_shouldFail() {
+    // A:[10:00-10:20], B:[10:10-10:30], C:[10:15-10:35] — all three active at slot [10:15-10:20]
+    List<Booking> staggered =
+        List.of(
+            shareableBooking(START, START.plusMinutes(20)),
+            shareableBooking(START.plusMinutes(10), START.plusMinutes(30)),
+            shareableBooking(START.plusMinutes(15), START.plusMinutes(35)));
+    when(bookingRepository.findActiveBookingsForRoomAndTimeRange(
+            eq(Room.ASTAIRE), eq(true), any(), any()))
+        .thenReturn(staggered);
+
+    Optional<ValidationFailure> result = validator.validate(shareableRequest());
+    assertThat(result).isPresent();
+    assertThat(result.get().code()).isEqualTo(ErrorCode.BOOKING_SHAREABLE_LIMIT);
+  }
+
+  @Test
+  void givenShareableRequestWithStaggeredBookingsNeverConverging_shouldPass() {
+    // A:[10:00-10:20], B:[10:25-10:45], C:[10:50-11:10] — never more than 1 active per slot
+    List<Booking> staggered =
+        List.of(
+            shareableBooking(START, START.plusMinutes(20)),
+            shareableBooking(START.plusMinutes(25), START.plusMinutes(45)),
+            shareableBooking(START.plusMinutes(50), END.plusMinutes(10)));
+    when(bookingRepository.findActiveBookingsForRoomAndTimeRange(
+            eq(Room.ASTAIRE), eq(true), any(), any()))
+        .thenReturn(staggered);
+
+    Optional<ValidationFailure> result = validator.validate(shareableRequest());
+    assertThat(result).isEmpty();
+  }
+
   private BookingRequest shareableRequest() {
     return new BookingRequest(Room.ASTAIRE, ClassType.PRACTICE, true, START, END);
   }
