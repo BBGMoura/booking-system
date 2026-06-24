@@ -41,7 +41,7 @@ class NonShareableConflictValidatorTest {
             eq(Room.ASTAIRE), eq(false), any(), any()))
         .thenReturn(List.of());
 
-    Optional<ValidationFailure> result = validator.validate(request());
+    Optional<ValidationFailure> result = validator.validate(nonShareableRequest());
     assertThat(result).isEmpty();
   }
 
@@ -51,13 +51,29 @@ class NonShareableConflictValidatorTest {
             eq(Room.ASTAIRE), eq(false), any(), any()))
         .thenReturn(List.of(new Booking()));
 
-    Optional<ValidationFailure> result = validator.validate(request());
+    Optional<ValidationFailure> result = validator.validate(nonShareableRequest());
     assertThat(result).isPresent();
     assertThat(result.get().code()).isEqualTo(ErrorCode.BOOKING_CONFLICT);
     assertThat(result.get().message()).contains("unavailable");
   }
 
-  private BookingRequest request() {
+  @Test
+  void givenShareableRequestWithExistingNonShareableBooking_shouldFail() {
+    when(bookingRepository.findActiveBookingsForRoomAndTimeRange(
+            eq(Room.ASTAIRE), eq(false), any(), any()))
+        .thenReturn(List.of(new Booking()));
+
+    Optional<ValidationFailure> result = validator.validate(shareableRequest());
+    assertThat(result).isPresent();
+    assertThat(result.get().code()).isEqualTo(ErrorCode.BOOKING_CONFLICT);
+    assertThat(result.get().message()).contains("unavailable");
+  }
+
+  private BookingRequest nonShareableRequest() {
     return new BookingRequest(Room.ASTAIRE, ClassType.PRIVATE, false, START, END);
+  }
+
+  private BookingRequest shareableRequest() {
+    return new BookingRequest(Room.ASTAIRE, ClassType.PRACTICE, true, START, END);
   }
 }

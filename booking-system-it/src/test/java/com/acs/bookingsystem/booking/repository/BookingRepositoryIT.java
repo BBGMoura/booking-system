@@ -66,6 +66,105 @@ class BookingRepositoryIT extends BaseIntegrationTest {
   }
 
   @Test
+  void findActiveBookingsForRoomAndTimeRange_detectsOverlap_whenExistingContainsNew() {
+    Booking booking =
+        saveBookingWithStatus(
+            Room.ASTAIRE, false, FROM.minusHours(1), TO.plusHours(1), BookingStatusType.BOOKED);
+
+    List<Booking> result =
+        bookingRepository.findActiveBookingsForRoomAndTimeRange(Room.ASTAIRE, null, FROM, TO);
+
+    assertThat(result).extracting(Booking::getUid).contains(booking.getUid());
+  }
+
+  @Test
+  void findActiveBookingsForRoomAndTimeRange_detectsOverlap_whenNewContainsExisting() {
+    Booking booking =
+        saveBookingWithStatus(
+            Room.ASTAIRE,
+            false,
+            FROM.plusMinutes(30),
+            TO.minusMinutes(15),
+            BookingStatusType.BOOKED);
+
+    List<Booking> result =
+        bookingRepository.findActiveBookingsForRoomAndTimeRange(Room.ASTAIRE, null, FROM, TO);
+
+    assertThat(result).extracting(Booking::getUid).contains(booking.getUid());
+  }
+
+  @Test
+  void findActiveBookingsForRoomAndTimeRange_detectsOverlap_whenExistingStartsDuringNew() {
+    Booking booking =
+        saveBookingWithStatus(
+            Room.ASTAIRE, false, FROM.plusMinutes(30), TO.plusHours(1), BookingStatusType.BOOKED);
+
+    List<Booking> result =
+        bookingRepository.findActiveBookingsForRoomAndTimeRange(Room.ASTAIRE, null, FROM, TO);
+
+    assertThat(result).extracting(Booking::getUid).contains(booking.getUid());
+  }
+
+  @Test
+  void findActiveBookingsForRoomAndTimeRange_detectsOverlap_whenExistingEndsDuringNew() {
+    Booking booking =
+        saveBookingWithStatus(
+            Room.ASTAIRE,
+            false,
+            FROM.minusHours(1),
+            FROM.plusMinutes(30),
+            BookingStatusType.BOOKED);
+
+    List<Booking> result =
+        bookingRepository.findActiveBookingsForRoomAndTimeRange(Room.ASTAIRE, null, FROM, TO);
+
+    assertThat(result).extracting(Booking::getUid).contains(booking.getUid());
+  }
+
+  @Test
+  void findActiveBookingsForRoomAndTimeRange_detectsOverlap_whenExistingHasSameStart() {
+    Booking booking =
+        saveBookingWithStatus(Room.ASTAIRE, false, FROM, TO.plusHours(1), BookingStatusType.BOOKED);
+
+    List<Booking> result =
+        bookingRepository.findActiveBookingsForRoomAndTimeRange(Room.ASTAIRE, null, FROM, TO);
+
+    assertThat(result).extracting(Booking::getUid).contains(booking.getUid());
+  }
+
+  @Test
+  void findActiveBookingsForRoomAndTimeRange_detectsOverlap_whenExistingHasSameEnd() {
+    Booking booking =
+        saveBookingWithStatus(
+            Room.ASTAIRE, false, FROM.minusHours(1), TO, BookingStatusType.BOOKED);
+
+    List<Booking> result =
+        bookingRepository.findActiveBookingsForRoomAndTimeRange(Room.ASTAIRE, null, FROM, TO);
+
+    assertThat(result).extracting(Booking::getUid).contains(booking.getUid());
+  }
+
+  @Test
+  void findActiveBookingsForRoomAndTimeRange_excludesAdjacentBookingEndingAtRangeStart() {
+    saveBookingWithStatus(Room.ASTAIRE, false, FROM.minusHours(2), FROM, BookingStatusType.BOOKED);
+
+    List<Booking> result =
+        bookingRepository.findActiveBookingsForRoomAndTimeRange(Room.ASTAIRE, null, FROM, TO);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void findActiveBookingsForRoomAndTimeRange_excludesAdjacentBookingStartingAtRangeEnd() {
+    saveBookingWithStatus(Room.ASTAIRE, false, TO, TO.plusHours(1), BookingStatusType.BOOKED);
+
+    List<Booking> result =
+        bookingRepository.findActiveBookingsForRoomAndTimeRange(Room.ASTAIRE, null, FROM, TO);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
   void findActiveBookingsForRoomAndTimeRange_excludesCancelledBookings() {
     saveBookingWithStatus(Room.ASTAIRE, false, FROM, TO, BookingStatusType.CANCELLED);
 
