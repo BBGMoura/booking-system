@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+@SuppressWarnings("java:S4684") // @CurrentUser resolves from security context, not request body
 @RestController
 @RequestMapping("/api/v1/admin/users")
 @RequiredArgsConstructor

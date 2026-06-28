@@ -34,6 +34,7 @@ public class SecurityConfig {
   private String allowedOrigins;
 
   @Bean
+  @SuppressWarnings("java:S4502") // CSRF safe to disable — stateless JWT API, no session cookies
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.csrf(
             AbstractHttpConfigurer
