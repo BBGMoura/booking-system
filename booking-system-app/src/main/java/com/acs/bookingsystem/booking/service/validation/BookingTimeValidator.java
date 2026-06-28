@@ -99,12 +99,10 @@ public class BookingTimeValidator implements BookingValidatorRule {
       }
     }
 
-    return validateTimeRange(dateFrom, openingTime, closingTime)
-        || validateTimeRange(dateTo, openingTime, closingTime);
-  }
-
-  private boolean validateTimeRange(
-      OffsetDateTime date, LocalTime openingTime, LocalTime closingTime) {
-    return date.toLocalTime().isBefore(openingTime) || date.toLocalTime().isAfter(closingTime);
+    LocalTime start = dateFrom.toLocalTime();
+    LocalTime end = dateTo.toLocalTime();
+    boolean invalidStart = start.isBefore(openingTime) || !start.isBefore(closingTime);
+    boolean invalidEnd = end.isBefore(openingTime) || end.isAfter(closingTime);
+    return invalidStart || invalidEnd;
   }
 }
