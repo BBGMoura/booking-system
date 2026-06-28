@@ -5,7 +5,7 @@ import com.acs.bookingsystem.danceclass.entity.DanceClass;
 import com.acs.bookingsystem.user.entity.User;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.*;
 
@@ -39,10 +39,10 @@ public class Booking {
   private boolean shareable;
 
   @Column(nullable = false)
-  private LocalDateTime bookedFrom;
+  private OffsetDateTime bookedFrom;
 
   @Column(nullable = false)
-  private LocalDateTime bookedTo;
+  private OffsetDateTime bookedTo;
 
   @Column(nullable = false)
   private BigDecimal totalPrice;

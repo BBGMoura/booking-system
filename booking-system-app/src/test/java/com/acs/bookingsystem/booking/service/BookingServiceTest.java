@@ -25,7 +25,8 @@ import com.acs.bookingsystem.danceclass.service.DanceClassService;
 import com.acs.bookingsystem.user.entity.User;
 import com.acs.bookingsystem.user.enums.Role;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -78,8 +79,8 @@ class BookingServiceTest {
           Room.ASTAIRE,
           ClassType.PRIVATE,
           false,
-          LocalDateTime.of(2025, 6, 2, 10, 0),
-          LocalDateTime.of(2025, 6, 2, 11, 0));
+          OffsetDateTime.of(2025, 6, 2, 10, 0, 0, 0, ZoneOffset.UTC),
+          OffsetDateTime.of(2025, 6, 2, 11, 0, 0, 0, ZoneOffset.UTC));
 
   private final Booking booking = Booking.builder().uid(BOOKING_UID).user(user).build();
 
@@ -297,8 +298,8 @@ class BookingServiceTest {
 
   @Test
   void givenRoomAndDates_whenGetBookingsByRoomAndDates_thenReturnsBookings() {
-    LocalDateTime from = LocalDateTime.of(2025, 6, 2, 10, 0);
-    LocalDateTime to = LocalDateTime.of(2025, 6, 2, 11, 0);
+    OffsetDateTime from = OffsetDateTime.of(2025, 6, 2, 10, 0, 0, 0, ZoneOffset.UTC);
+    OffsetDateTime to = OffsetDateTime.of(2025, 6, 2, 11, 0, 0, 0, ZoneOffset.UTC);
     when(bookingRepository.findActiveBookingsForRoomAndTimeRange(
             eq(Room.ASTAIRE), eq(null), eq(from), eq(to)))
         .thenReturn(List.of(booking));

@@ -7,6 +7,8 @@ import com.acs.bookingsystem.danceclass.entity.DanceClass;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -22,8 +24,8 @@ class PriceCalculatorTest {
     "'2024-11-12T14:30:00', '25.0'" // 2.5 hours
   })
   void calculateTotalPrice_forValidTimeSlots(String endDateTimeStr, String expectedPriceStr) {
-    LocalDateTime start = getStart();
-    LocalDateTime end = LocalDateTime.parse(endDateTimeStr);
+    OffsetDateTime start = getStart();
+    OffsetDateTime end = LocalDateTime.parse(endDateTimeStr).atOffset(ZoneOffset.UTC);
     BigDecimal expectedPrice = new BigDecimal(expectedPriceStr);
 
     BigDecimal actualPrice = PriceCalculator.calculateTotalPrice(start, end, danceClass);
@@ -31,7 +33,7 @@ class PriceCalculatorTest {
     assertEquals(0, expectedPrice.compareTo(actualPrice));
   }
 
-  private LocalDateTime getStart() {
-    return LocalDateTime.of(2024, Month.NOVEMBER, 12, 12, 0, 0);
+  private OffsetDateTime getStart() {
+    return LocalDateTime.of(2024, Month.NOVEMBER, 12, 12, 0).atOffset(ZoneOffset.UTC);
   }
 }

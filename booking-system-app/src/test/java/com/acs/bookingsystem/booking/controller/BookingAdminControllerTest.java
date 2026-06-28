@@ -27,7 +27,8 @@ import com.acs.bookingsystem.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
@@ -75,8 +76,8 @@ class BookingAdminControllerTest {
           BookingStatusType.BOOKED,
           false,
           ClassType.PRIVATE,
-          LocalDateTime.of(2025, 6, 2, 10, 0),
-          LocalDateTime.of(2025, 6, 2, 11, 0),
+          OffsetDateTime.of(2025, 6, 2, 10, 0, 0, 0, ZoneOffset.UTC),
+          OffsetDateTime.of(2025, 6, 2, 11, 0, 0, 0, ZoneOffset.UTC),
           BigDecimal.TEN);
 
   @BeforeEach
@@ -132,8 +133,8 @@ class BookingAdminControllerTest {
             Room.ASTAIRE,
             ClassType.PRIVATE,
             false,
-            LocalDateTime.of(2025, 6, 2, 10, 0),
-            LocalDateTime.of(2025, 6, 2, 11, 0));
+            OffsetDateTime.of(2025, 6, 2, 10, 0, 0, 0, ZoneOffset.UTC),
+            OffsetDateTime.of(2025, 6, 2, 11, 0, 0, 0, ZoneOffset.UTC));
     when(userService.getUserByUid(USER_UID)).thenReturn(adminUser);
     when(bookingService.createBooking(any(BookingRequest.class), any(User.class)))
         .thenReturn(bookingWithStatus);

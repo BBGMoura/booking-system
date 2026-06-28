@@ -3,8 +3,7 @@ package com.acs.bookingsystem.booking.entity;
 import com.acs.bookingsystem.booking.enums.BookingStatusType;
 import com.acs.bookingsystem.user.entity.User;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,7 +30,7 @@ public class BookingStatus {
   private BookingStatusType status;
 
   @Column(nullable = false)
-  private LocalDateTime createdOn;
+  private Instant createdOn;
 
   @ManyToOne
   @JoinColumn(referencedColumnName = "id", nullable = false)
@@ -40,7 +39,7 @@ public class BookingStatus {
   @PrePersist
   void prePersist() {
     if (createdOn == null) {
-      createdOn = LocalDateTime.now(ZoneId.systemDefault());
+      createdOn = Instant.now();
     }
   }
 }

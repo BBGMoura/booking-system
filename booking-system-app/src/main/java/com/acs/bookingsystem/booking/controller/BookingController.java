@@ -10,7 +10,7 @@ import com.acs.bookingsystem.booking.view.dto.BookingView;
 import com.acs.bookingsystem.security.CurrentUser;
 import com.acs.bookingsystem.user.entity.User;
 import jakarta.validation.Valid;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -60,8 +60,8 @@ public class BookingController {
   public ResponseEntity<List<BookingView>> getBookingSchedule(
       @CurrentUser User user,
       @RequestParam Room room,
-      @RequestParam LocalDateTime dateFrom,
-      @RequestParam LocalDateTime dateTo) {
+      @RequestParam OffsetDateTime dateFrom,
+      @RequestParam OffsetDateTime dateTo) {
     List<BookingView> bookings =
         bookingService.getBookingsByRoomAndDates(room, dateFrom, dateTo).stream()
             .map(b -> viewFactory.createView(b, user.getRole()))

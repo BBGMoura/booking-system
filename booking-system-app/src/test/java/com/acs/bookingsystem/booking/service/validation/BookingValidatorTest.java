@@ -12,8 +12,9 @@ import com.acs.bookingsystem.booking.repository.BookingRepository;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.danceclass.enums.ClassType;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,8 +30,10 @@ class BookingValidatorTest {
 
   private BookingValidator validator;
 
-  private static final LocalDateTime VALID_START = LocalDateTime.of(2025, 6, 2, 10, 0);
-  private static final LocalDateTime VALID_END = LocalDateTime.of(2025, 6, 2, 11, 0);
+  private static final OffsetDateTime VALID_START =
+      OffsetDateTime.of(2025, 6, 2, 10, 0, 0, 0, ZoneOffset.UTC);
+  private static final OffsetDateTime VALID_END =
+      OffsetDateTime.of(2025, 6, 2, 11, 0, 0, 0, ZoneOffset.UTC);
 
   @BeforeEach
   void setup() {
@@ -66,7 +69,7 @@ class BookingValidatorTest {
 
   @Test
   void givenInvalidTime_shouldFailWithTimeErrorAndNotHitDatabase() {
-    LocalDateTime invalidEnd = VALID_START.minusHours(1);
+    OffsetDateTime invalidEnd = VALID_START.minusHours(1);
 
     Optional<ValidationFailure> result = validator.validate(request(VALID_START, invalidEnd));
 
@@ -92,7 +95,7 @@ class BookingValidatorTest {
     return request(VALID_START, VALID_END);
   }
 
-  private BookingRequest request(LocalDateTime from, LocalDateTime to) {
+  private BookingRequest request(OffsetDateTime from, OffsetDateTime to) {
     return new BookingRequest(Room.ASTAIRE, ClassType.PRIVATE, false, from, to);
   }
 }

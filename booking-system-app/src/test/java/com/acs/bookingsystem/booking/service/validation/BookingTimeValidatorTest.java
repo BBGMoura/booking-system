@@ -5,8 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.acs.bookingsystem.booking.enums.Room;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.danceclass.enums.ClassType;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,8 +25,10 @@ class BookingTimeValidatorTest {
   private static final LocalTime SUN_CLOSE = LocalTime.of(16, 0);
 
   // A valid Monday slot: 10:00–11:00
-  private static final LocalDateTime VALID_START = LocalDateTime.of(2025, 6, 2, 10, 0); // Monday
-  private static final LocalDateTime VALID_END = LocalDateTime.of(2025, 6, 2, 11, 0);
+  private static final OffsetDateTime VALID_START =
+      OffsetDateTime.of(2025, 6, 2, 10, 0, 0, 0, ZoneOffset.UTC); // Monday
+  private static final OffsetDateTime VALID_END =
+      OffsetDateTime.of(2025, 6, 2, 11, 0, 0, 0, ZoneOffset.UTC);
 
   @BeforeEach
   void setup() {
@@ -72,7 +75,7 @@ class BookingTimeValidatorTest {
 
   @Test
   void givenDurationUnder15Minutes_shouldFail() {
-    LocalDateTime end = VALID_START.plusMinutes(10);
+    OffsetDateTime end = VALID_START.plusMinutes(10);
     Optional<ValidationFailure> result = validator.validate(request(VALID_START, end));
     assertThat(result).isPresent();
     assertThat(result.get().message()).contains("minimum of 15 minutes");
@@ -80,15 +83,15 @@ class BookingTimeValidatorTest {
 
   @Test
   void givenDurationExactly15Minutes_shouldPass() {
-    LocalDateTime end = VALID_START.plusMinutes(15);
+    OffsetDateTime end = VALID_START.plusMinutes(15);
     Optional<ValidationFailure> result = validator.validate(request(VALID_START, end));
     assertThat(result).isEmpty();
   }
 
   @Test
   void givenStartNotOnFiveMinuteInterval_shouldFail() {
-    LocalDateTime misalignedStart = LocalDateTime.of(2025, 6, 2, 10, 3);
-    LocalDateTime end = misalignedStart.plusMinutes(15);
+    OffsetDateTime misalignedStart = OffsetDateTime.of(2025, 6, 2, 10, 3, 0, 0, ZoneOffset.UTC);
+    OffsetDateTime end = misalignedStart.plusMinutes(15);
     Optional<ValidationFailure> result = validator.validate(request(misalignedStart, end));
     assertThat(result).isPresent();
     assertThat(result.get().message()).contains("start time");
@@ -96,8 +99,8 @@ class BookingTimeValidatorTest {
 
   @Test
   void givenStartWithSeconds_shouldFail() {
-    LocalDateTime startWithSeconds = LocalDateTime.of(2025, 6, 2, 10, 0, 30);
-    LocalDateTime end = startWithSeconds.plusMinutes(15);
+    OffsetDateTime startWithSeconds = OffsetDateTime.of(2025, 6, 2, 10, 0, 30, 0, ZoneOffset.UTC);
+    OffsetDateTime end = startWithSeconds.plusMinutes(15);
     Optional<ValidationFailure> result = validator.validate(request(startWithSeconds, end));
     assertThat(result).isPresent();
     assertThat(result.get().message()).contains("start time");
@@ -105,7 +108,7 @@ class BookingTimeValidatorTest {
 
   @Test
   void givenEndNotOnFiveMinuteInterval_shouldFail() {
-    LocalDateTime end = LocalDateTime.of(2025, 6, 2, 10, 17);
+    OffsetDateTime end = OffsetDateTime.of(2025, 6, 2, 10, 17, 0, 0, ZoneOffset.UTC);
     Optional<ValidationFailure> result = validator.validate(request(VALID_START, end));
     assertThat(result).isPresent();
     assertThat(result.get().message()).contains("end time");
@@ -113,8 +116,8 @@ class BookingTimeValidatorTest {
 
   @Test
   void givenBookingSpanningMidnight_shouldFail() {
-    LocalDateTime start = LocalDateTime.of(2025, 6, 2, 21, 0);
-    LocalDateTime end = LocalDateTime.of(2025, 6, 3, 9, 0);
+    OffsetDateTime start = OffsetDateTime.of(2025, 6, 2, 21, 0, 0, 0, ZoneOffset.UTC);
+    OffsetDateTime end = OffsetDateTime.of(2025, 6, 3, 9, 0, 0, 0, ZoneOffset.UTC);
     Optional<ValidationFailure> result = validator.validate(request(start, end));
     assertThat(result).isPresent();
     assertThat(result.get().message()).contains("same day");
@@ -122,8 +125,8 @@ class BookingTimeValidatorTest {
 
   @Test
   void givenBookingBeforeOpeningHours_shouldFail() {
-    LocalDateTime start = LocalDateTime.of(2025, 6, 2, 7, 0);
-    LocalDateTime end = LocalDateTime.of(2025, 6, 2, 8, 0);
+    OffsetDateTime start = OffsetDateTime.of(2025, 6, 2, 7, 0, 0, 0, ZoneOffset.UTC);
+    OffsetDateTime end = OffsetDateTime.of(2025, 6, 2, 8, 0, 0, 0, ZoneOffset.UTC);
     Optional<ValidationFailure> result = validator.validate(request(start, end));
     assertThat(result).isPresent();
     assertThat(result.get().message()).contains("opening hours");
@@ -131,8 +134,8 @@ class BookingTimeValidatorTest {
 
   @Test
   void givenBookingAfterClosingHours_shouldFail() {
-    LocalDateTime start = LocalDateTime.of(2025, 6, 2, 22, 0);
-    LocalDateTime end = LocalDateTime.of(2025, 6, 2, 23, 0);
+    OffsetDateTime start = OffsetDateTime.of(2025, 6, 2, 22, 0, 0, 0, ZoneOffset.UTC);
+    OffsetDateTime end = OffsetDateTime.of(2025, 6, 2, 23, 0, 0, 0, ZoneOffset.UTC);
     Optional<ValidationFailure> result = validator.validate(request(start, end));
     assertThat(result).isPresent();
     assertThat(result.get().message()).contains("opening hours");
@@ -140,16 +143,17 @@ class BookingTimeValidatorTest {
 
   @Test
   void givenValidSaturdayBooking_shouldPass() {
-    LocalDateTime start = LocalDateTime.of(2025, 6, 7, 10, 0); // Saturday
-    LocalDateTime end = LocalDateTime.of(2025, 6, 7, 11, 0);
+    OffsetDateTime start = OffsetDateTime.of(2025, 6, 7, 10, 0, 0, 0, ZoneOffset.UTC); // Saturday
+    OffsetDateTime end = OffsetDateTime.of(2025, 6, 7, 11, 0, 0, 0, ZoneOffset.UTC);
     Optional<ValidationFailure> result = validator.validate(request(start, end));
     assertThat(result).isEmpty();
   }
 
   @Test
   void givenSaturdayBookingAfterClosing_shouldFail() {
-    LocalDateTime start = LocalDateTime.of(2025, 6, 7, 18, 0); // Saturday at closing
-    LocalDateTime end = LocalDateTime.of(2025, 6, 7, 19, 0);
+    OffsetDateTime start =
+        OffsetDateTime.of(2025, 6, 7, 18, 0, 0, 0, ZoneOffset.UTC); // Saturday at closing
+    OffsetDateTime end = OffsetDateTime.of(2025, 6, 7, 19, 0, 0, 0, ZoneOffset.UTC);
     Optional<ValidationFailure> result = validator.validate(request(start, end));
     assertThat(result).isPresent();
     assertThat(result.get().message()).contains("opening hours");
@@ -157,13 +161,13 @@ class BookingTimeValidatorTest {
 
   @Test
   void givenValidSundayBooking_shouldPass() {
-    LocalDateTime start = LocalDateTime.of(2025, 6, 8, 10, 0); // Sunday
-    LocalDateTime end = LocalDateTime.of(2025, 6, 8, 11, 0);
+    OffsetDateTime start = OffsetDateTime.of(2025, 6, 8, 10, 0, 0, 0, ZoneOffset.UTC); // Sunday
+    OffsetDateTime end = OffsetDateTime.of(2025, 6, 8, 11, 0, 0, 0, ZoneOffset.UTC);
     Optional<ValidationFailure> result = validator.validate(request(start, end));
     assertThat(result).isEmpty();
   }
 
-  private BookingRequest request(LocalDateTime from, LocalDateTime to) {
+  private BookingRequest request(OffsetDateTime from, OffsetDateTime to) {
     return new BookingRequest(Room.ASTAIRE, ClassType.PRIVATE, false, from, to);
   }
 }

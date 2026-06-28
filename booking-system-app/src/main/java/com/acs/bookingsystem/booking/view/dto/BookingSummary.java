@@ -3,7 +3,7 @@ package com.acs.bookingsystem.booking.view.dto;
 import com.acs.bookingsystem.booking.enums.BookingStatusType;
 import com.acs.bookingsystem.booking.enums.Room;
 import com.acs.bookingsystem.danceclass.enums.ClassType;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public record BookingSummary(
@@ -12,6 +12,6 @@ public record BookingSummary(
     ClassType classType,
     BookingStatusType status,
     boolean shareable,
-    LocalDateTime bookedFrom,
-    LocalDateTime bookedTo)
+    OffsetDateTime bookedFrom,
+    OffsetDateTime bookedTo)
     implements BookingView {}

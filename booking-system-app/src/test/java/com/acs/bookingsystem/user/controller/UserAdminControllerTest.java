@@ -13,6 +13,7 @@ import com.acs.bookingsystem.user.UserTestData;
 import com.acs.bookingsystem.user.entity.User;
 import com.acs.bookingsystem.user.model.UserProfile;
 import com.acs.bookingsystem.user.request.InviteRequest;
+import com.acs.bookingsystem.user.request.UpdateUserStatusRequest;
 import com.acs.bookingsystem.user.response.InviteResponse;
 import com.acs.bookingsystem.user.response.UserStatusResponse;
 import com.acs.bookingsystem.user.service.AuthenticationService;
@@ -127,8 +128,9 @@ class UserAdminControllerTest {
 
     mockMvc
         .perform(
-            patch("/api/v1/admin/users/{userUid}/status", UserTestData.ADMIN_UUID)
-                .param("enable", "true"))
+            patch("/api/v1/admin/users/{userUid}", UserTestData.ADMIN_UUID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new UpdateUserStatusRequest(true))))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.enabled").value(true));
 
@@ -148,8 +150,9 @@ class UserAdminControllerTest {
 
     mockMvc
         .perform(
-            patch("/api/v1/admin/users/{userUid}/status", UserTestData.ADMIN_UUID)
-                .param("enable", "false"))
+            patch("/api/v1/admin/users/{userUid}", UserTestData.ADMIN_UUID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new UpdateUserStatusRequest(false))))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.enabled").value(false));
 
@@ -158,15 +161,18 @@ class UserAdminControllerTest {
   }
 
   @Test
-  void givenMissingEnableParam_whenUpdateUserStatus_thenReturn400() throws Exception {
+  void givenNullEnabled_whenUpdateUserStatus_thenReturn400() throws Exception {
     SecurityContextHolder.getContext()
         .setAuthentication(
             new UsernamePasswordAuthenticationToken(adminUser, null, adminUser.getAuthorities()));
 
     mockMvc
-        .perform(patch("/api/v1/admin/users/{userUid}/status", UserTestData.ADMIN_UUID))
+        .perform(
+            patch("/api/v1/admin/users/{userUid}", UserTestData.ADMIN_UUID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"enabled\":null}"))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"))
-        .andExpect(jsonPath("$.details[0].field").value("enable"));
+        .andExpect(jsonPath("$.details[0].field").value("enabled"));
   }
 }

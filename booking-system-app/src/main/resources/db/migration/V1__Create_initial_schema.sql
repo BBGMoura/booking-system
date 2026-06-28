@@ -32,8 +32,8 @@ CREATE TABLE booking (
     room VARCHAR(50) NOT NULL,
     dance_class_id BIGINT NOT NULL,
     shareable BOOLEAN DEFAULT FALSE,
-    booked_from TIMESTAMP NOT NULL,
-    booked_to TIMESTAMP NOT NULL,
+    booked_from TIMESTAMPTZ NOT NULL,
+    booked_to TIMESTAMPTZ NOT NULL,
     total_price DECIMAL(10,2) NOT NULL,
     CONSTRAINT fk_booking_user FOREIGN KEY (user_id) REFERENCES users(id),
     CONSTRAINT fk_booking_dance_class FOREIGN KEY (dance_class_id) REFERENCES dance_class(id)
@@ -43,7 +43,7 @@ CREATE TABLE booking_status (
     id BIGSERIAL PRIMARY KEY,
     booking_id BIGINT NOT NULL,
     status VARCHAR(50) NOT NULL,
-    created_on TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_on TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by_id BIGINT NOT NULL,
     CONSTRAINT fk_booking_status_booking FOREIGN KEY (booking_id) REFERENCES booking(id),
     CONSTRAINT fk_booking_status_user FOREIGN KEY (created_by_id) REFERENCES users(id)
@@ -53,7 +53,7 @@ CREATE TABLE payment (
     id BIGSERIAL PRIMARY KEY,
     booking_id BIGINT NOT NULL UNIQUE,
     payment_status VARCHAR(50) NOT NULL,
-    created_on TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_on TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     account_id BIGINT,
     CONSTRAINT fk_payment_booking FOREIGN KEY (booking_id) REFERENCES booking(id),
     CONSTRAINT fk_payment_account FOREIGN KEY (account_id) REFERENCES account(id)
@@ -81,13 +81,16 @@ ALTER TABLE booking ADD CONSTRAINT chk_booking_room
     CHECK (room IN ('ASTAIRE', 'BUSSELL', 'ALEX MOORE', 'FOSSE'));
 
 ALTER TABLE booking_status ADD CONSTRAINT chk_booking_status_type
-    CHECK (status IN ('BOOKED', 'CANCELLED'));
+    CHECK (status IN ('BOOKED', 'CANCELLED', 'COMPLETED'));
 
 CREATE INDEX idx_booking_status_booking_id_created_on
     ON booking_status (booking_id, created_on DESC);
 
 CREATE INDEX idx_booking_room_dates
     ON booking (room, booked_from, booked_to);
+
+CREATE INDEX idx_booking_user_id
+    ON booking (user_id);
 
 ALTER TABLE payment ADD CONSTRAINT chk_payment_status
     CHECK (payment_status IN ('OUTSTANDING', 'PAID', 'VOIDED'));

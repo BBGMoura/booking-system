@@ -6,7 +6,7 @@ import com.acs.bookingsystem.danceclass.entity.DanceClass;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -27,7 +27,7 @@ public class PriceCalculator {
    * @throws RequestException if the booking duration is invalid.
    */
   public static BigDecimal calculateTotalPrice(
-      LocalDateTime dateFrom, LocalDateTime dateTo, DanceClass danceClass) {
+      OffsetDateTime dateFrom, OffsetDateTime dateTo, DanceClass danceClass) {
     BigDecimal pricePerHour = danceClass.getPricePerHour();
 
     // todo why to minutes why not leave in hours?

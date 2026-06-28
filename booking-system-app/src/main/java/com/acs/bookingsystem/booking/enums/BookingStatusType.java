@@ -5,5 +5,6 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public enum BookingStatusType {
   BOOKED,
-  CANCELLED
+  CANCELLED,
+  COMPLETED
 }

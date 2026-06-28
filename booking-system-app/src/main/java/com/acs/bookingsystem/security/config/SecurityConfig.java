@@ -38,7 +38,7 @@ public class SecurityConfig {
     http.csrf(
             AbstractHttpConfigurer
                 ::disable) // Disable CSRF protection for stateless APIs -> not needed if using JWT
-                           // token
+        // token
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .authorizeHttpRequests(
             auth ->
@@ -87,9 +87,8 @@ public class SecurityConfig {
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
     configuration.setAllowedOrigins(
-        List.of(
-            allowedOrigins)); // Only allow requests from our frontend URL (CORS is only for
-                              // browsers, will not block cURLs)
+        List.of(allowedOrigins)); // Only allow requests from our frontend URL (CORS is only for
+    // browsers, will not block cURLs)
     configuration.setAllowedMethods(
         List.of(
             "GET", "POST", "PATCH", "PUT", "DELETE",
