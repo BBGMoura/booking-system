@@ -1,6 +1,5 @@
 package com.acs.bookingsystem.user.controller;
 
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -146,7 +145,7 @@ class UserAdminControllerTest {
 
     UserStatusResponse response =
         UserStatusResponse.builder().uid(UserTestData.ADMIN_UUID).enabled(false).build();
-    when(userService.disableUser(eq(UserTestData.ADMIN_UUID), eq(adminUser))).thenReturn(response);
+    when(userService.disableUser(UserTestData.ADMIN_UUID, adminUser)).thenReturn(response);
 
     mockMvc
         .perform(
@@ -156,7 +155,7 @@ class UserAdminControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.enabled").value(false));
 
-    verify(userService).disableUser(eq(UserTestData.ADMIN_UUID), eq(adminUser));
+    verify(userService).disableUser(UserTestData.ADMIN_UUID, adminUser);
     verify(userService, never()).enableUser(UserTestData.ADMIN_UUID);
   }
 

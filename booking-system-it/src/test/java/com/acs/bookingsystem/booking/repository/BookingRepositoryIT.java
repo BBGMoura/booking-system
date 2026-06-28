@@ -207,8 +207,7 @@ class BookingRepositoryIT extends BaseIntegrationTest {
     List<Booking> shareableOnly =
         bookingRepository.findActiveBookingsForRoomAndTimeRange(Room.ASTAIRE, true, FROM, TO);
 
-    assertThat(shareableOnly).allMatch(Booking::isShareable);
-    assertThat(shareableOnly).hasSize(1);
+    assertThat(shareableOnly).hasSize(1).allMatch(Booking::isShareable);
   }
 
   @Test

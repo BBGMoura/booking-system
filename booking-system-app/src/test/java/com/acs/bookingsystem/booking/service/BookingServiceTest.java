@@ -109,7 +109,7 @@ class BookingServiceTest {
 
     bookingService.createBooking(request, user);
 
-    verify(bookingStatusService).save(eq(booking), eq(user), eq(BookingStatusType.BOOKED));
+    verify(bookingStatusService).save(booking, user, BookingStatusType.BOOKED);
   }
 
   @Test
@@ -169,7 +169,7 @@ class BookingServiceTest {
 
     bookingService.cancelBookingByUserId(BOOKING_UID, USER_ID);
 
-    verify(bookingStatusService).save(eq(booking), eq(user), eq(BookingStatusType.CANCELLED));
+    verify(bookingStatusService).save(booking, user, BookingStatusType.CANCELLED);
   }
 
   @Test
@@ -190,7 +190,7 @@ class BookingServiceTest {
 
     bookingService.cancelBooking(BOOKING_UID, admin);
 
-    verify(bookingStatusService).save(eq(booking), eq(admin), eq(BookingStatusType.CANCELLED));
+    verify(bookingStatusService).save(booking, admin, BookingStatusType.CANCELLED);
   }
 
   @Test
@@ -214,8 +214,8 @@ class BookingServiceTest {
 
     bookingService.cancelAllBookingsByUserId(USER_ID, admin);
 
-    verify(bookingStatusService).save(eq(booking), eq(admin), eq(BookingStatusType.CANCELLED));
-    verify(bookingStatusService).save(eq(booking2), eq(admin), eq(BookingStatusType.CANCELLED));
+    verify(bookingStatusService).save(booking, admin, BookingStatusType.CANCELLED);
+    verify(bookingStatusService).save(booking2, admin, BookingStatusType.CANCELLED);
   }
 
   // --- getBookingByUid ---
@@ -300,8 +300,7 @@ class BookingServiceTest {
   void givenRoomAndDates_whenGetBookingsByRoomAndDates_thenReturnsBookings() {
     OffsetDateTime from = OffsetDateTime.of(2025, 6, 2, 10, 0, 0, 0, ZoneOffset.UTC);
     OffsetDateTime to = OffsetDateTime.of(2025, 6, 2, 11, 0, 0, 0, ZoneOffset.UTC);
-    when(bookingRepository.findActiveBookingsForRoomAndTimeRange(
-            eq(Room.ASTAIRE), eq(null), eq(from), eq(to)))
+    when(bookingRepository.findActiveBookingsForRoomAndTimeRange(Room.ASTAIRE, null, from, to))
         .thenReturn(List.of(booking));
     when(bookingStatusService.resolveStatus(booking)).thenReturn(BookingStatusType.BOOKED);
 
