@@ -38,9 +38,11 @@ public class User implements UserDetails {
   @Enumerated(EnumType.STRING)
   private Role role;
 
-  private Boolean locked;
+  @Column(nullable = false)
+  private boolean locked;
 
-  private Boolean enabled;
+  @Column(nullable = false)
+  private boolean enabled;
 
   @Column(length = 50)
   private String firstName;

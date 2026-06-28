@@ -150,7 +150,7 @@ class UserServiceTest {
     assertThat(result.getLastName()).isEqualTo("User");
     assertThat(result.getPhoneNumber()).isEqualTo("07123456789");
     assertThat(result.isEnabled()).isTrue();
-    assertThat(result.getLocked()).isFalse();
+    assertThat(result.isLocked()).isFalse();
   }
 
   @Test

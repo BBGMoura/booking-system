@@ -167,6 +167,35 @@ class BookingTimeValidatorTest {
     assertThat(result).isEmpty();
   }
 
+  @Test
+  void givenBookingStartingAtClosingTime_shouldFail() {
+    OffsetDateTime start =
+        OffsetDateTime.of(2025, 6, 2, 22, 0, 0, 0, ZoneOffset.UTC); // weekday close
+    OffsetDateTime end = OffsetDateTime.of(2025, 6, 2, 22, 15, 0, 0, ZoneOffset.UTC);
+    Optional<ValidationFailure> result = validator.validate(request(start, end));
+    assertThat(result).isPresent();
+    assertThat(result.get().message()).contains("opening hours");
+  }
+
+  @Test
+  void givenBookingEndingAtClosingTime_shouldPass() {
+    OffsetDateTime start = OffsetDateTime.of(2025, 6, 2, 21, 0, 0, 0, ZoneOffset.UTC);
+    OffsetDateTime end =
+        OffsetDateTime.of(2025, 6, 2, 22, 0, 0, 0, ZoneOffset.UTC); // weekday close
+    Optional<ValidationFailure> result = validator.validate(request(start, end));
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void givenSaturdayBookingStartingAtClosingTime_shouldFail() {
+    OffsetDateTime start =
+        OffsetDateTime.of(2025, 6, 7, 18, 0, 0, 0, ZoneOffset.UTC); // Saturday close
+    OffsetDateTime end = OffsetDateTime.of(2025, 6, 7, 18, 15, 0, 0, ZoneOffset.UTC);
+    Optional<ValidationFailure> result = validator.validate(request(start, end));
+    assertThat(result).isPresent();
+    assertThat(result.get().message()).contains("opening hours");
+  }
+
   private BookingRequest request(OffsetDateTime from, OffsetDateTime to) {
     return new BookingRequest(Room.ASTAIRE, ClassType.PRIVATE, false, from, to);
   }
