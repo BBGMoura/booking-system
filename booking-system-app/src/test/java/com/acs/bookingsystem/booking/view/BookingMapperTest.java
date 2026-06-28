@@ -14,6 +14,8 @@ import com.acs.bookingsystem.user.enums.Role;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,8 +26,10 @@ class BookingMapperTest {
 
   private static final UUID BOOKING_UID = UUID.randomUUID();
   private static final UUID USER_UID = UUID.randomUUID();
-  private static final LocalDateTime FROM = LocalDateTime.of(2025, Month.JUNE, 2, 10, 0);
-  private static final LocalDateTime TO = LocalDateTime.of(2025, Month.JUNE, 2, 11, 0);
+  private static final OffsetDateTime FROM =
+      LocalDateTime.of(2025, Month.JUNE, 2, 10, 0).atOffset(ZoneOffset.UTC);
+  private static final OffsetDateTime TO =
+      LocalDateTime.of(2025, Month.JUNE, 2, 11, 0).atOffset(ZoneOffset.UTC);
 
   private Booking booking;
 

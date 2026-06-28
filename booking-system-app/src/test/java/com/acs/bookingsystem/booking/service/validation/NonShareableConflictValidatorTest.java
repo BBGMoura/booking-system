@@ -11,7 +11,8 @@ import com.acs.bookingsystem.booking.repository.BookingRepository;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.danceclass.enums.ClassType;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,8 +28,10 @@ class NonShareableConflictValidatorTest {
 
   private NonShareableConflictValidator validator;
 
-  private static final LocalDateTime START = LocalDateTime.of(2025, 6, 2, 10, 0);
-  private static final LocalDateTime END = LocalDateTime.of(2025, 6, 2, 11, 0);
+  private static final OffsetDateTime START =
+      OffsetDateTime.of(2025, 6, 2, 10, 0, 0, 0, ZoneOffset.UTC);
+  private static final OffsetDateTime END =
+      OffsetDateTime.of(2025, 6, 2, 11, 0, 0, 0, ZoneOffset.UTC);
 
   @BeforeEach
   void setup() {

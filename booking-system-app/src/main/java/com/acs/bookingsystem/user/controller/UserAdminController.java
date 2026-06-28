@@ -4,6 +4,7 @@ import com.acs.bookingsystem.security.CurrentUser;
 import com.acs.bookingsystem.user.entity.User;
 import com.acs.bookingsystem.user.model.UserProfile;
 import com.acs.bookingsystem.user.request.InviteRequest;
+import com.acs.bookingsystem.user.request.UpdateUserStatusRequest;
 import com.acs.bookingsystem.user.response.InviteResponse;
 import com.acs.bookingsystem.user.response.UserStatusResponse;
 import com.acs.bookingsystem.user.service.UserService;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+@SuppressWarnings("java:S4684") // @CurrentUser resolves from security context, not request body
 @RestController
 @RequestMapping("/api/v1/admin/users")
 @RequiredArgsConstructor
@@ -39,11 +41,15 @@ public class UserAdminController {
     return ResponseEntity.ok(userService.invite(request));
   }
 
-  @PatchMapping("/{userUid}/status")
+  @PatchMapping("/{userUid}")
   public ResponseEntity<UserStatusResponse> updateUserStatus(
-      @CurrentUser User admin, @PathVariable UUID userUid, @RequestParam boolean enable) {
+      @CurrentUser User admin,
+      @PathVariable UUID userUid,
+      @Valid @RequestBody UpdateUserStatusRequest request) {
     UserStatusResponse response =
-        enable ? userService.enableUser(userUid) : userService.disableUser(userUid, admin);
+        request.enabled()
+            ? userService.enableUser(userUid)
+            : userService.disableUser(userUid, admin);
     return ResponseEntity.ok(response);
   }
 }

@@ -10,7 +10,7 @@ import com.acs.bookingsystem.booking.view.dto.BookingView;
 import com.acs.bookingsystem.security.CurrentUser;
 import com.acs.bookingsystem.user.entity.User;
 import jakarta.validation.Valid;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+@SuppressWarnings("java:S4684") // @CurrentUser resolves from security context, not request body
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/v1/bookings")
@@ -60,8 +61,8 @@ public class BookingController {
   public ResponseEntity<List<BookingView>> getBookingSchedule(
       @CurrentUser User user,
       @RequestParam Room room,
-      @RequestParam LocalDateTime dateFrom,
-      @RequestParam LocalDateTime dateTo) {
+      @RequestParam OffsetDateTime dateFrom,
+      @RequestParam OffsetDateTime dateTo) {
     List<BookingView> bookings =
         bookingService.getBookingsByRoomAndDates(room, dateFrom, dateTo).stream()
             .map(b -> viewFactory.createView(b, user.getRole()))

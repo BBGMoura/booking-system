@@ -16,7 +16,7 @@ import com.acs.bookingsystem.danceclass.service.DanceClassService;
 import com.acs.bookingsystem.payment.PriceCalculator;
 import com.acs.bookingsystem.user.entity.User;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -65,7 +65,7 @@ public class BookingService {
   }
 
   public List<BookingWithStatus> getBookingsByRoomAndDates(
-      Room room, LocalDateTime dateFrom, LocalDateTime dateTo) {
+      Room room, OffsetDateTime dateFrom, OffsetDateTime dateTo) {
     return bookingRepository
         .findActiveBookingsForRoomAndTimeRange(room, null, dateFrom, dateTo)
         .stream()

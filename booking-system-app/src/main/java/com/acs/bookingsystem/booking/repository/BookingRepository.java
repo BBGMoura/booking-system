@@ -2,7 +2,7 @@ package com.acs.bookingsystem.booking.repository;
 
 import com.acs.bookingsystem.booking.entity.Booking;
 import com.acs.bookingsystem.booking.enums.Room;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,8 +24,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
   List<Booking> findActiveBookingsForRoomAndTimeRange(
       @Param("room") Room room,
       @Param("shareable") Boolean shareable,
-      @Param("dateFrom") LocalDateTime dateFrom,
-      @Param("dateTo") LocalDateTime dateTo);
+      @Param("dateFrom") OffsetDateTime dateFrom,
+      @Param("dateTo") OffsetDateTime dateTo);
 
   Page<Booking> findAllByUserId(Long userId, Pageable pageable);
 
@@ -39,6 +39,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
   @Query(
       "SELECT b FROM Booking b "
           + "WHERE b.user.id = :userId "
+          + "AND b.bookedTo > CURRENT_TIMESTAMP "
           + "AND (SELECT bs.status FROM BookingStatus bs WHERE bs.booking = b ORDER BY bs.createdOn DESC LIMIT 1) = 'BOOKED'")
   List<Booking> findActiveBookingsByUserId(@Param("userId") Long userId);
 }

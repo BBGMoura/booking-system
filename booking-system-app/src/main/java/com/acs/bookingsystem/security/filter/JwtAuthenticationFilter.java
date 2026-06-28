@@ -45,7 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       response.setStatus(
           HttpServletResponse
               .SC_UNAUTHORIZED); // Return 401 directly instead of letting Spring Security turn it
-                                 // into a 403
+      // into a 403
       return;
     }
 

@@ -2,7 +2,7 @@ package com.acs.bookingsystem.payment;
 
 import com.acs.bookingsystem.booking.entity.Booking;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,7 +27,14 @@ public class Payment {
   private PaymentStatus paymentStatus;
 
   @Column(nullable = false)
-  private LocalDateTime createdOn;
+  private Instant createdOn;
+
+  @PrePersist
+  void prePersist() {
+    if (createdOn == null) {
+      createdOn = Instant.now();
+    }
+  }
 
   @ManyToOne
   @JoinColumn(referencedColumnName = "id")

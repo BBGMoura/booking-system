@@ -4,7 +4,7 @@ import com.acs.bookingsystem.booking.entity.Booking;
 import com.acs.bookingsystem.booking.repository.BookingRepository;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -46,11 +46,11 @@ public class ShareabilityLimitValidator implements BookingValidatorRule {
 
   private boolean overlapsMaximumShareableBookings(
       List<Booking> shareableBookings, BookingRequest bookingRequest) {
-    LocalDateTime start = bookingRequest.dateFrom();
-    final LocalDateTime end = bookingRequest.dateTo();
+    OffsetDateTime start = bookingRequest.dateFrom();
+    final OffsetDateTime end = bookingRequest.dateTo();
 
     while (start.isBefore(end)) {
-      LocalDateTime slotEnd = start.plusMinutes(TIME_INTERVAL);
+      OffsetDateTime slotEnd = start.plusMinutes(TIME_INTERVAL);
       int overlapCounter = 0;
 
       for (Booking booking : shareableBookings) {
@@ -65,7 +65,7 @@ public class ShareabilityLimitValidator implements BookingValidatorRule {
     return false;
   }
 
-  private boolean bookingsOverlap(LocalDateTime start, LocalDateTime end, Booking booking) {
+  private boolean bookingsOverlap(OffsetDateTime start, OffsetDateTime end, Booking booking) {
     return booking.getBookedFrom().isBefore(end) && booking.getBookedTo().isAfter(start);
   }
 

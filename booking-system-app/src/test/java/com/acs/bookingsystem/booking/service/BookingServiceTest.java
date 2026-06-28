@@ -25,7 +25,8 @@ import com.acs.bookingsystem.danceclass.service.DanceClassService;
 import com.acs.bookingsystem.user.entity.User;
 import com.acs.bookingsystem.user.enums.Role;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -78,8 +79,8 @@ class BookingServiceTest {
           Room.ASTAIRE,
           ClassType.PRIVATE,
           false,
-          LocalDateTime.of(2025, 6, 2, 10, 0),
-          LocalDateTime.of(2025, 6, 2, 11, 0));
+          OffsetDateTime.of(2025, 6, 2, 10, 0, 0, 0, ZoneOffset.UTC),
+          OffsetDateTime.of(2025, 6, 2, 11, 0, 0, 0, ZoneOffset.UTC));
 
   private final Booking booking = Booking.builder().uid(BOOKING_UID).user(user).build();
 
@@ -108,7 +109,7 @@ class BookingServiceTest {
 
     bookingService.createBooking(request, user);
 
-    verify(bookingStatusService).save(eq(booking), eq(user), eq(BookingStatusType.BOOKED));
+    verify(bookingStatusService).save(booking, user, BookingStatusType.BOOKED);
   }
 
   @Test
@@ -168,7 +169,7 @@ class BookingServiceTest {
 
     bookingService.cancelBookingByUserId(BOOKING_UID, USER_ID);
 
-    verify(bookingStatusService).save(eq(booking), eq(user), eq(BookingStatusType.CANCELLED));
+    verify(bookingStatusService).save(booking, user, BookingStatusType.CANCELLED);
   }
 
   @Test
@@ -189,7 +190,7 @@ class BookingServiceTest {
 
     bookingService.cancelBooking(BOOKING_UID, admin);
 
-    verify(bookingStatusService).save(eq(booking), eq(admin), eq(BookingStatusType.CANCELLED));
+    verify(bookingStatusService).save(booking, admin, BookingStatusType.CANCELLED);
   }
 
   @Test
@@ -213,8 +214,8 @@ class BookingServiceTest {
 
     bookingService.cancelAllBookingsByUserId(USER_ID, admin);
 
-    verify(bookingStatusService).save(eq(booking), eq(admin), eq(BookingStatusType.CANCELLED));
-    verify(bookingStatusService).save(eq(booking2), eq(admin), eq(BookingStatusType.CANCELLED));
+    verify(bookingStatusService).save(booking, admin, BookingStatusType.CANCELLED);
+    verify(bookingStatusService).save(booking2, admin, BookingStatusType.CANCELLED);
   }
 
   // --- getBookingByUid ---
@@ -297,10 +298,9 @@ class BookingServiceTest {
 
   @Test
   void givenRoomAndDates_whenGetBookingsByRoomAndDates_thenReturnsBookings() {
-    LocalDateTime from = LocalDateTime.of(2025, 6, 2, 10, 0);
-    LocalDateTime to = LocalDateTime.of(2025, 6, 2, 11, 0);
-    when(bookingRepository.findActiveBookingsForRoomAndTimeRange(
-            eq(Room.ASTAIRE), eq(null), eq(from), eq(to)))
+    OffsetDateTime from = OffsetDateTime.of(2025, 6, 2, 10, 0, 0, 0, ZoneOffset.UTC);
+    OffsetDateTime to = OffsetDateTime.of(2025, 6, 2, 11, 0, 0, 0, ZoneOffset.UTC);
+    when(bookingRepository.findActiveBookingsForRoomAndTimeRange(Room.ASTAIRE, null, from, to))
         .thenReturn(List.of(booking));
     when(bookingStatusService.resolveStatus(booking)).thenReturn(BookingStatusType.BOOKED);
 

@@ -26,7 +26,8 @@ import com.acs.bookingsystem.user.entity.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -69,8 +70,8 @@ class BookingControllerTest {
           BookingStatusType.BOOKED,
           false,
           ClassType.PRIVATE,
-          LocalDateTime.of(2025, 6, 2, 10, 0),
-          LocalDateTime.of(2025, 6, 2, 11, 0),
+          OffsetDateTime.of(2025, 6, 2, 10, 0, 0, 0, ZoneOffset.UTC),
+          OffsetDateTime.of(2025, 6, 2, 11, 0, 0, 0, ZoneOffset.UTC),
           BigDecimal.TEN);
 
   private final BookingSummary bookingSummary =
@@ -80,8 +81,8 @@ class BookingControllerTest {
           ClassType.PRIVATE,
           BookingStatusType.BOOKED,
           false,
-          LocalDateTime.of(2025, 6, 2, 10, 0),
-          LocalDateTime.of(2025, 6, 2, 11, 0));
+          OffsetDateTime.of(2025, 6, 2, 10, 0, 0, 0, ZoneOffset.UTC),
+          OffsetDateTime.of(2025, 6, 2, 11, 0, 0, 0, ZoneOffset.UTC));
 
   @BeforeEach
   void setup() {
@@ -97,8 +98,8 @@ class BookingControllerTest {
             Room.ASTAIRE,
             ClassType.PRIVATE,
             false,
-            LocalDateTime.of(2025, 6, 2, 10, 0),
-            LocalDateTime.of(2025, 6, 2, 11, 0));
+            OffsetDateTime.of(2025, 6, 2, 10, 0, 0, 0, ZoneOffset.UTC),
+            OffsetDateTime.of(2025, 6, 2, 11, 0, 0, 0, ZoneOffset.UTC));
 
     when(bookingService.createBooking(any(BookingRequest.class), any(User.class)))
         .thenReturn(bookingWithStatus);

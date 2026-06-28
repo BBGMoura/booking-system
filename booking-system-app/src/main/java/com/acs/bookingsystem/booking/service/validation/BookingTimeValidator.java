@@ -4,8 +4,8 @@ import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import java.time.DayOfWeek;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 
@@ -55,7 +55,7 @@ public class BookingTimeValidator implements BookingValidatorRule {
     return Optional.of(new ValidationFailure(message, ErrorCode.BOOKING_TIME_INVALID));
   }
 
-  private boolean endsBeforeStarts(LocalDateTime dateFrom, LocalDateTime dateTo) {
+  private boolean endsBeforeStarts(OffsetDateTime dateFrom, OffsetDateTime dateTo) {
     return !dateFrom.isBefore(dateTo);
   }
 
@@ -64,7 +64,7 @@ public class BookingTimeValidator implements BookingValidatorRule {
     return duration.compareTo(MINIMUM_BOOKING_TIME) < 0;
   }
 
-  private boolean isInvalidMinuteAlignment(LocalDateTime dateTime) {
+  private boolean isInvalidMinuteAlignment(OffsetDateTime dateTime) {
     return (dateTime.getSecond() != 0
         || dateTime.getNano() != 0
         || dateTime.getMinute() % TIME_INTERVAL.toMinutes() != 0);
@@ -75,11 +75,11 @@ public class BookingTimeValidator implements BookingValidatorRule {
     return duration.toMillis() % TIME_INTERVAL.toMillis() != 0;
   }
 
-  private boolean isNotSameDate(LocalDateTime dateFrom, LocalDateTime dateTo) {
+  private boolean isNotSameDate(OffsetDateTime dateFrom, OffsetDateTime dateTo) {
     return !dateFrom.toLocalDate().equals(dateTo.toLocalDate());
   }
 
-  private boolean isNotWithinOpeningHours(LocalDateTime dateFrom, LocalDateTime dateTo) {
+  private boolean isNotWithinOpeningHours(OffsetDateTime dateFrom, OffsetDateTime dateTo) {
     final DayOfWeek dayOfWeek = dateFrom.getDayOfWeek();
     LocalTime openingTime;
     LocalTime closingTime;
@@ -104,7 +104,7 @@ public class BookingTimeValidator implements BookingValidatorRule {
   }
 
   private boolean validateTimeRange(
-      LocalDateTime date, LocalTime openingTime, LocalTime closingTime) {
+      OffsetDateTime date, LocalTime openingTime, LocalTime closingTime) {
     return date.toLocalTime().isBefore(openingTime) || date.toLocalTime().isAfter(closingTime);
   }
 }

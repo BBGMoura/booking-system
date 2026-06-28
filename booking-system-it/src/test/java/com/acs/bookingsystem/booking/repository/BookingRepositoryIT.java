@@ -14,8 +14,11 @@ import com.acs.bookingsystem.user.entity.User;
 import com.acs.bookingsystem.user.enums.Role;
 import com.acs.bookingsystem.user.repository.UserRepository;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,8 +34,8 @@ class BookingRepositoryIT extends BaseIntegrationTest {
   @Autowired private UserRepository userRepository;
   @Autowired private DanceClassRepository danceClassRepository;
 
-  private static final LocalDateTime FROM = LocalDateTime.of(2025, Month.JUNE, 2, 10, 0);
-  private static final LocalDateTime TO = LocalDateTime.of(2025, Month.JUNE, 2, 11, 0);
+  private static final OffsetDateTime FROM = LocalDateTime.of(2025, Month.JUNE, 2, 10, 0).atOffset(ZoneOffset.UTC);
+  private static final OffsetDateTime TO = LocalDateTime.of(2025, Month.JUNE, 2, 11, 0).atOffset(ZoneOffset.UTC);
 
   private User user;
   private DanceClass danceClass;
@@ -186,8 +189,8 @@ class BookingRepositoryIT extends BaseIntegrationTest {
 
   @Test
   void findActiveBookingsForRoomAndTimeRange_excludesNonOverlappingBookings() {
-    LocalDateTime before = LocalDateTime.of(2025, Month.JUNE, 2, 8, 0);
-    LocalDateTime beforeEnd = LocalDateTime.of(2025, Month.JUNE, 2, 9, 0);
+    OffsetDateTime before = LocalDateTime.of(2025, Month.JUNE, 2, 8, 0).atOffset(ZoneOffset.UTC);
+    OffsetDateTime beforeEnd = LocalDateTime.of(2025, Month.JUNE, 2, 9, 0).atOffset(ZoneOffset.UTC);
     saveBookingWithStatus(Room.ASTAIRE, false, before, beforeEnd, BookingStatusType.BOOKED);
 
     List<Booking> result =
@@ -204,16 +207,14 @@ class BookingRepositoryIT extends BaseIntegrationTest {
     List<Booking> shareableOnly =
         bookingRepository.findActiveBookingsForRoomAndTimeRange(Room.ASTAIRE, true, FROM, TO);
 
-    assertThat(shareableOnly).allMatch(Booking::isShareable);
-    assertThat(shareableOnly).hasSize(1);
+    assertThat(shareableOnly).hasSize(1).allMatch(Booking::isShareable);
   }
 
   @Test
   void findActiveBookingsForRoomAndTimeRange_returnsLatestStatusPerBooking() {
     Booking booking = saveBooking(Room.ASTAIRE, false, FROM, TO);
-    saveStatus(booking, BookingStatusType.BOOKED, LocalDateTime.of(2025, Month.JANUARY, 1, 10, 0));
-    saveStatus(
-        booking, BookingStatusType.CANCELLED, LocalDateTime.of(2025, Month.JANUARY, 1, 11, 0));
+    saveStatus(booking, BookingStatusType.BOOKED, Instant.parse("2025-01-01T10:00:00Z"));
+    saveStatus(booking, BookingStatusType.CANCELLED, Instant.parse("2025-01-01T11:00:00Z"));
 
     List<Booking> result =
         bookingRepository.findActiveBookingsForRoomAndTimeRange(Room.ASTAIRE, null, FROM, TO);
@@ -221,18 +222,63 @@ class BookingRepositoryIT extends BaseIntegrationTest {
     assertThat(result).isEmpty();
   }
 
+  // --- findActiveBookingsByUserId ---
+
+  @Test
+  void findActiveBookingsByUserId_returnsUpcomingBookedBooking() {
+    OffsetDateTime future = OffsetDateTime.now(ZoneOffset.UTC).plusDays(1);
+    Booking booking =
+        saveBookingWithStatus(
+            Room.ASTAIRE, false, future, future.plusHours(1), BookingStatusType.BOOKED);
+
+    List<Booking> result = bookingRepository.findActiveBookingsByUserId(user.getId());
+
+    assertThat(result).extracting(Booking::getUid).containsExactly(booking.getUid());
+  }
+
+  @Test
+  void findActiveBookingsByUserId_excludesPastBookedBooking() {
+    OffsetDateTime future = OffsetDateTime.now(ZoneOffset.UTC).plusDays(1);
+    Booking upcoming =
+        saveBookingWithStatus(
+            Room.ASTAIRE, false, future, future.plusHours(1), BookingStatusType.BOOKED);
+    saveBookingWithStatus(Room.BUSSELL, false, FROM, TO, BookingStatusType.BOOKED);
+
+    List<Booking> result = bookingRepository.findActiveBookingsByUserId(user.getId());
+
+    assertThat(result).extracting(Booking::getUid).containsExactly(upcoming.getUid());
+  }
+
+  @Test
+  void findActiveBookingsByUserId_excludesCancelledUpcomingBooking() {
+    OffsetDateTime future = OffsetDateTime.now(ZoneOffset.UTC).plusDays(1);
+    Booking upcoming =
+        saveBookingWithStatus(
+            Room.ASTAIRE, false, future, future.plusHours(1), BookingStatusType.BOOKED);
+    saveBookingWithStatus(
+        Room.BUSSELL,
+        false,
+        future.plusDays(1),
+        future.plusDays(1).plusHours(1),
+        BookingStatusType.CANCELLED);
+
+    List<Booking> result = bookingRepository.findActiveBookingsByUserId(user.getId());
+
+    assertThat(result).extracting(Booking::getUid).containsExactly(upcoming.getUid());
+  }
+
   private Booking saveBookingWithStatus(
       Room room,
       boolean shareable,
-      LocalDateTime from,
-      LocalDateTime to,
+      OffsetDateTime from,
+      OffsetDateTime to,
       BookingStatusType statusType) {
     Booking booking = saveBooking(room, shareable, from, to);
-    saveStatus(booking, statusType, LocalDateTime.now());
+    saveStatus(booking, statusType, Instant.now());
     return booking;
   }
 
-  private Booking saveBooking(Room room, boolean shareable, LocalDateTime from, LocalDateTime to) {
+  private Booking saveBooking(Room room, boolean shareable, OffsetDateTime from, OffsetDateTime to) {
     return bookingRepository.save(
         Booking.builder()
             .uid(UUID.randomUUID())
@@ -246,7 +292,7 @@ class BookingRepositoryIT extends BaseIntegrationTest {
             .build());
   }
 
-  private void saveStatus(Booking booking, BookingStatusType type, LocalDateTime createdOn) {
+  private void saveStatus(Booking booking, BookingStatusType type, Instant createdOn) {
     bookingStatusRepository.save(
         BookingStatus.builder()
             .booking(booking)

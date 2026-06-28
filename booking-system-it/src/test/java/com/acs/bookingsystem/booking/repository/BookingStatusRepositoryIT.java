@@ -14,8 +14,11 @@ import com.acs.bookingsystem.user.entity.User;
 import com.acs.bookingsystem.user.enums.Role;
 import com.acs.bookingsystem.user.repository.UserRepository;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,8 +61,8 @@ class BookingStatusRepositoryIT extends BaseIntegrationTest {
                 .room(Room.ASTAIRE)
                 .danceClass(danceClass)
                 .shareable(false)
-                .bookedFrom(LocalDateTime.of(2025, Month.JUNE, 2, 10, 0))
-                .bookedTo(LocalDateTime.of(2025, Month.JUNE, 2, 11, 0))
+                .bookedFrom(LocalDateTime.of(2025, Month.JUNE, 2, 10, 0).atOffset(ZoneOffset.UTC))
+                .bookedTo(LocalDateTime.of(2025, Month.JUNE, 2, 11, 0).atOffset(ZoneOffset.UTC))
                 .totalPrice(BigDecimal.TEN)
                 .build());
   }
@@ -74,7 +77,7 @@ class BookingStatusRepositoryIT extends BaseIntegrationTest {
 
   @Test
   void findLatestStatusByBookingId_returnsSingleStatus() {
-    saveStatus(BookingStatusType.BOOKED, LocalDateTime.of(2025, Month.JANUARY, 1, 10, 0));
+    saveStatus(BookingStatusType.BOOKED, Instant.parse("2025-01-01T10:00:00Z"));
 
     Optional<BookingStatusType> result =
         bookingStatusRepository.findLatestStatusByBookingId(booking.getId());
@@ -84,8 +87,8 @@ class BookingStatusRepositoryIT extends BaseIntegrationTest {
 
   @Test
   void findLatestStatusByBookingId_returnsLatestWhenMultipleExist() {
-    saveStatus(BookingStatusType.BOOKED, LocalDateTime.of(2025, Month.JANUARY, 1, 10, 0));
-    saveStatus(BookingStatusType.CANCELLED, LocalDateTime.of(2025, Month.JANUARY, 1, 11, 0));
+    saveStatus(BookingStatusType.BOOKED, Instant.parse("2025-01-01T10:00:00Z"));
+    saveStatus(BookingStatusType.CANCELLED, Instant.parse("2025-01-01T11:00:00Z"));
 
     Optional<BookingStatusType> result =
         bookingStatusRepository.findLatestStatusByBookingId(booking.getId());
@@ -95,8 +98,8 @@ class BookingStatusRepositoryIT extends BaseIntegrationTest {
 
   @Test
   void findLatestByBookingId_returnsFullStatusEntity() {
-    saveStatus(BookingStatusType.BOOKED, LocalDateTime.of(2025, Month.JANUARY, 1, 10, 0));
-    saveStatus(BookingStatusType.CANCELLED, LocalDateTime.of(2025, Month.JANUARY, 1, 11, 0));
+    saveStatus(BookingStatusType.BOOKED, Instant.parse("2025-01-01T10:00:00Z"));
+    saveStatus(BookingStatusType.CANCELLED, Instant.parse("2025-01-01T11:00:00Z"));
 
     Optional<BookingStatus> result = bookingStatusRepository.findLatestByBookingId(booking.getId());
 
@@ -105,7 +108,7 @@ class BookingStatusRepositoryIT extends BaseIntegrationTest {
     assertThat(result.get().getCreatedBy().getId()).isEqualTo(user.getId());
   }
 
-  private void saveStatus(BookingStatusType type, LocalDateTime createdOn) {
+  private void saveStatus(BookingStatusType type, Instant createdOn) {
     bookingStatusRepository.save(
         BookingStatus.builder()
             .booking(booking)

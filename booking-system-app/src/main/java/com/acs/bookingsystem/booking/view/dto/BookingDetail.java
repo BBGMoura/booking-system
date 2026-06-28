@@ -4,7 +4,7 @@ import com.acs.bookingsystem.booking.enums.BookingStatusType;
 import com.acs.bookingsystem.booking.enums.Room;
 import com.acs.bookingsystem.danceclass.enums.ClassType;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 public record BookingDetail(
@@ -14,7 +14,7 @@ public record BookingDetail(
     BookingStatusType status,
     boolean shareable,
     ClassType classType,
-    LocalDateTime dateFrom,
-    LocalDateTime dateTo,
+    OffsetDateTime dateFrom,
+    OffsetDateTime dateTo,
     BigDecimal totalPrice)
     implements BookingView {}
