@@ -14,14 +14,16 @@ import org.springframework.stereotype.Service;
 @Service
 @AllArgsConstructor
 public class EmailService {
+  private static final String RESET_LINK_PLACEHOLDER = "{link}";
+
   private final EmailProperties emailProperties;
   private final Mailer mailer;
   private static final Logger LOG = LoggerFactory.getLogger(EmailService.class);
 
-  public void sendPasswordResetEmail(String recipientEmail, String newPassword) {
+  public void sendPasswordResetEmail(String recipientEmail, String resetLink) {
     EmailProperties.Template template = emailProperties.getTemplate().get(RESET_PASSWORD.getKey());
     String subject = template.getSubject();
-    String body = template.getBody().replace("{password}", newPassword);
+    String body = template.getBody().replace(RESET_LINK_PLACEHOLDER, resetLink);
     sendEmail(recipientEmail, subject, body);
   }
 

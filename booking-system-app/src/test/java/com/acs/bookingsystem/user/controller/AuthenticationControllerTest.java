@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.acs.bookingsystem.security.config.SecurityConfig;
 import com.acs.bookingsystem.security.util.JwtUtil;
 import com.acs.bookingsystem.user.request.AuthenticateRequest;
+import com.acs.bookingsystem.user.request.ConfirmPasswordResetRequest;
 import com.acs.bookingsystem.user.request.RegisterRequest;
 import com.acs.bookingsystem.user.request.ResetPasswordRequest;
 import com.acs.bookingsystem.user.response.AuthenticateResponse;
@@ -109,7 +110,7 @@ class AuthenticationControllerTest {
   }
 
   @Test
-  void givenValidEmail_whenResetPassword_thenReturns204() throws Exception {
+  void givenValidEmail_whenResetPassword_thenReturns200() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest("test@example.com");
 
     mockMvc
@@ -117,9 +118,44 @@ class AuthenticationControllerTest {
             post("/api/v1/auth/password-reset")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isNoContent());
+        .andExpect(status().isOk());
 
     verify(authenticationService).resetPassword("test@example.com");
+  }
+
+  @Test
+  void givenValidTokenAndPassword_whenConfirmReset_thenReturns200() throws Exception {
+    ConfirmPasswordResetRequest request =
+        new ConfirmPasswordResetRequest("some-jwt-token", "NewPass1!");
+
+    mockMvc
+        .perform(
+            put("/api/v1/auth/password-reset")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isOk());
+
+    verify(authenticationService).confirmPasswordReset("some-jwt-token", "NewPass1!");
+  }
+
+  @Test
+  void givenBlankToken_whenConfirmReset_thenReturns400() throws Exception {
+    mockMvc
+        .perform(
+            put("/api/v1/auth/password-reset")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"token\":\"\",\"newPassword\":\"NewPass1!\"}"))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void givenWeakPassword_whenConfirmReset_thenReturns400() throws Exception {
+    mockMvc
+        .perform(
+            put("/api/v1/auth/password-reset")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"token\":\"tok\",\"newPassword\":\"weak\"}"))
+        .andExpect(status().isBadRequest());
   }
 
   @Test

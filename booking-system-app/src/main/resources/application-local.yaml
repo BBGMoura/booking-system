@@ -17,3 +17,6 @@ logging:
 
 allowed:
   origins: http://localhost:3000
+
+password-reset:
+  url: http://localhost:3000/reset-password

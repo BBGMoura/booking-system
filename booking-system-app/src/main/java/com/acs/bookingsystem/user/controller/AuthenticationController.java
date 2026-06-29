@@ -1,6 +1,7 @@
 package com.acs.bookingsystem.user.controller;
 
 import com.acs.bookingsystem.user.request.AuthenticateRequest;
+import com.acs.bookingsystem.user.request.ConfirmPasswordResetRequest;
 import com.acs.bookingsystem.user.request.RegisterRequest;
 import com.acs.bookingsystem.user.request.ResetPasswordRequest;
 import com.acs.bookingsystem.user.response.AuthenticateResponse;
@@ -44,6 +45,13 @@ public class AuthenticationController {
   @PostMapping("/password-reset")
   public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
     authenticationService.resetPassword(request.email());
-    return ResponseEntity.noContent().build();
+    return ResponseEntity.ok().build();
+  }
+
+  @PutMapping("/password-reset")
+  public ResponseEntity<Void> confirmPasswordReset(
+      @Valid @RequestBody ConfirmPasswordResetRequest request) {
+    authenticationService.confirmPasswordReset(request.token(), request.newPassword());
+    return ResponseEntity.ok().build();
   }
 }
