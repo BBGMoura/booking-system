@@ -13,6 +13,7 @@ import com.acs.bookingsystem.user.request.RegisterRequest;
 import com.acs.bookingsystem.user.request.UpdateUserInfoRequest;
 import com.acs.bookingsystem.user.response.InviteResponse;
 import com.acs.bookingsystem.user.response.UserStatusResponse;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -154,14 +155,11 @@ public class UserService {
     return UserStatusResponse.builder().uid(user.getUid()).enabled(false).build();
   }
 
-  public void resetPassword(String email, String encodedPassword) {
-    User user =
-        userRepository
-            .findByEmail(email)
-            .orElseThrow(
-                () ->
-                    new RequestException(
-                        "Cannot find user with email " + email, ErrorCode.USER_ERROR));
+  public Optional<User> findUserByEmail(String email) {
+    return userRepository.findByEmail(email);
+  }
+
+  public void resetPassword(User user, String encodedPassword) {
     user.setPassword(encodedPassword);
     userRepository.save(user);
   }

@@ -2,6 +2,7 @@ package com.acs.bookingsystem.authorization.config;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.acs.bookingsystem.security.model.PasswordResetClaims;
 import com.acs.bookingsystem.security.util.JwtUtil;
 import java.lang.reflect.Field;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,5 +48,30 @@ class JwtUtilTest {
   void testIsTokenValid() {
     String token = jwtUtil.generateToken(userDetails);
     assertTrue(jwtUtil.isTokenValid(token, userDetails));
+  }
+
+  @Test
+  void generatePasswordResetToken_returnsNonEmptyToken() {
+    String token =
+        jwtUtil.generatePasswordResetToken(
+            "user@example.com", "$2a$10$abcdefghijklmnopqrstuvuOPAhbjNTGDwNnYGmkHBDjhBpxQ7yy2");
+    assertFalse(token.isEmpty());
+  }
+
+  @Test
+  void extractPasswordResetClaims_returnsCorrectEmailAndFingerprint() {
+    String bcryptHash = "$2a$10$abcdefghijklmnopqrstuvuOPAhbjNTGDwNnYGmkHBDjhBpxQ7yy2";
+    String token = jwtUtil.generatePasswordResetToken("user@example.com", bcryptHash);
+    PasswordResetClaims claims = jwtUtil.extractPasswordResetClaims(token);
+    assertEquals("user@example.com", claims.email());
+    assertEquals(bcryptHash, claims.passwordHash());
+  }
+
+  @Test
+  void extractPasswordResetClaims_throwsForRegularAuthToken() {
+    String authToken = jwtUtil.generateToken(userDetails);
+    assertThrows(
+        com.acs.bookingsystem.common.exception.AuthorizationException.class,
+        () -> jwtUtil.extractPasswordResetClaims(authToken));
   }
 }

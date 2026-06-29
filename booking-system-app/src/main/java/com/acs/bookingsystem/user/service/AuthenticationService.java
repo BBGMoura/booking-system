@@ -1,6 +1,9 @@
 package com.acs.bookingsystem.user.service;
 
 import com.acs.bookingsystem.common.email.EmailService;
+import com.acs.bookingsystem.common.exception.AuthorizationException;
+import com.acs.bookingsystem.common.exception.model.ErrorCode;
+import com.acs.bookingsystem.security.model.PasswordResetClaims;
 import com.acs.bookingsystem.security.util.JwtUtil;
 import com.acs.bookingsystem.security.util.PasswordUtil;
 import com.acs.bookingsystem.user.entity.User;
@@ -10,6 +13,7 @@ import com.acs.bookingsystem.user.request.UpdateUserRequest;
 import com.acs.bookingsystem.user.response.AuthenticateResponse;
 import com.acs.bookingsystem.user.response.RegisterResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,6 +30,9 @@ public class AuthenticationService {
   private final JwtUtil jwtUtil;
   private final PasswordUtil passwordUtil;
   private final EmailService emailService;
+
+  @Value("${password-reset.url}")
+  private String passwordResetUrl;
 
   public AuthenticateResponse authenticate(AuthenticateRequest request) {
     Authentication authentication =
@@ -60,8 +67,28 @@ public class AuthenticationService {
   }
 
   public void resetPassword(String email) {
-    String newPassword = passwordUtil.generateNewPassword();
-    userService.resetPassword(email, passwordUtil.encodePassword(newPassword));
-    emailService.sendPasswordResetEmail(email, newPassword);
+    userService
+        .findUserByEmail(email)
+        .ifPresent(
+            user -> {
+              if (user.getPassword() == null) return;
+              String token = jwtUtil.generatePasswordResetToken(email, user.getPassword());
+              emailService.sendPasswordResetEmail(email, passwordResetUrl + "?token=" + token);
+            });
+  }
+
+  @Transactional
+  public void confirmPasswordReset(String token, String newPassword) {
+    PasswordResetClaims claims = jwtUtil.extractPasswordResetClaims(token);
+    User user =
+        userService
+            .findUserByEmail(claims.email())
+            .orElseThrow(
+                () -> new AuthorizationException("Invalid reset token", ErrorCode.INVALID_TOKEN));
+    if (!user.getPassword().equals(claims.passwordHash())) {
+      throw new AuthorizationException(
+          "Reset token already used or invalid", ErrorCode.INVALID_TOKEN);
+    }
+    userService.resetPassword(user, passwordUtil.encodePassword(newPassword));
   }
 }

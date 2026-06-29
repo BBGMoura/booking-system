@@ -17,3 +17,6 @@ email:
 jwt:
   secret:
     key: dGVzdC1zZWNyZXQta2V5LWZvci1pbnRlZ3JhdGlvbi10ZXN0cw==
+
+password-reset:
+  url: http://localhost:3000/reset-password

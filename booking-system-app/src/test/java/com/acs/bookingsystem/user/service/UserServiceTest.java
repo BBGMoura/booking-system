@@ -268,28 +268,29 @@ class UserServiceTest {
     assertThat(userService.isEmailInvited("unknown@example.com")).isFalse();
   }
 
+  // --- findUserByEmail ---
+
+  @Test
+  void givenExistingEmail_whenFindUserByEmail_thenReturnsUser() {
+    when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+    assertThat(userService.findUserByEmail("test@example.com")).contains(user);
+  }
+
+  @Test
+  void givenUnknownEmail_whenFindUserByEmail_thenReturnsEmpty() {
+    when(userRepository.findByEmail("unknown@example.com")).thenReturn(Optional.empty());
+    assertThat(userService.findUserByEmail("unknown@example.com")).isEmpty();
+  }
+
   // --- resetPassword ---
 
   @Test
-  void givenValidEmail_whenResetPassword_thenUpdatesPassword() {
-    when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
-    when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-
-    userService.resetPassword("test@example.com", "newEncoded");
+  void givenUser_whenResetPassword_thenSetsPasswordAndSaves() {
+    userService.resetPassword(user, "newEncoded");
 
     ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
     verify(userRepository).save(captor.capture());
     assertThat(captor.getValue().getPassword()).isEqualTo("newEncoded");
-  }
-
-  @Test
-  void givenUnknownEmail_whenResetPassword_thenThrowsRequestException() {
-    when(userRepository.findByEmail("unknown@example.com")).thenReturn(Optional.empty());
-
-    assertThatThrownBy(() -> userService.resetPassword("unknown@example.com", "encoded"))
-        .isInstanceOf(RequestException.class);
-
-    verify(userRepository, never()).save(any());
   }
 
   // --- updateUserCredentials ---
