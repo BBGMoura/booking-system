@@ -1,10 +1,16 @@
 package com.acs.bookingsystem.user.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import com.acs.bookingsystem.common.email.EmailService;
+import com.acs.bookingsystem.common.exception.AuthorizationException;
+import com.acs.bookingsystem.security.model.PasswordResetClaims;
 import com.acs.bookingsystem.security.util.JwtUtil;
 import com.acs.bookingsystem.security.util.PasswordUtil;
 import com.acs.bookingsystem.user.entity.User;
@@ -14,6 +20,7 @@ import com.acs.bookingsystem.user.request.RegisterRequest;
 import com.acs.bookingsystem.user.request.UpdateUserRequest;
 import com.acs.bookingsystem.user.response.AuthenticateResponse;
 import com.acs.bookingsystem.user.response.RegisterResponse;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -112,13 +119,70 @@ class AuthenticationServiceTest {
   // --- resetPassword ---
 
   @Test
-  void givenValidEmail_whenResetPassword_thenGeneratesEncodesAndSendsEmail() {
-    when(passwordUtil.generateNewPassword()).thenReturn("NewRandom1!");
-    when(passwordUtil.encodePassword("NewRandom1!")).thenReturn("encodedRandom");
+  void givenKnownEmailWithPassword_whenResetPassword_thenGeneratesTokenAndEmailsLink() {
+    User userWithPassword =
+        User.builder()
+            .email("test@example.com")
+            .password("$2a$10$abcdefghijklmnopqrstuvuOPAhbjNTGDwNnYGmkHBDjhBpxQ7yy2")
+            .build();
+    when(userService.findUserByEmail("test@example.com")).thenReturn(Optional.of(userWithPassword));
+    when(jwtUtil.generatePasswordResetToken(eq("test@example.com"), anyString()))
+        .thenReturn("reset-token");
 
     authenticationService.resetPassword("test@example.com");
 
-    verify(userService).resetPassword("test@example.com", "encodedRandom");
-    verify(emailService).sendPasswordResetEmail("test@example.com", "NewRandom1!");
+    verify(emailService).sendPasswordResetEmail(eq("test@example.com"), contains("reset-token"));
+    verify(userService, never()).resetPassword(any(User.class), anyString());
+  }
+
+  @Test
+  void givenUnknownEmail_whenResetPassword_thenDoesNothing() {
+    when(userService.findUserByEmail("unknown@example.com")).thenReturn(Optional.empty());
+
+    authenticationService.resetPassword("unknown@example.com");
+
+    verify(emailService, never()).sendPasswordResetEmail(any(), any());
+    verify(jwtUtil, never()).generatePasswordResetToken(any(), any());
+  }
+
+  @Test
+  void givenUserWithNoPassword_whenResetPassword_thenDoesNothing() {
+    User uninvitedUser = User.builder().email("nopw@example.com").build();
+    when(userService.findUserByEmail("nopw@example.com")).thenReturn(Optional.of(uninvitedUser));
+
+    authenticationService.resetPassword("nopw@example.com");
+
+    verify(emailService, never()).sendPasswordResetEmail(any(), any());
+  }
+
+  // --- confirmPasswordReset ---
+
+  @Test
+  void givenValidToken_whenConfirmPasswordReset_thenSetsNewPassword() {
+    String bcryptHash = "$2a$10$abcdefghijklmnopqrstuvuOPAhbjNTGDwNnYGmkHBDjhBpxQ7yy2";
+    PasswordResetClaims claims = new PasswordResetClaims("test@example.com", bcryptHash);
+    User userWithPassword = User.builder().email("test@example.com").password(bcryptHash).build();
+    when(jwtUtil.extractPasswordResetClaims("valid-token")).thenReturn(claims);
+    when(userService.findUserByEmail("test@example.com")).thenReturn(Optional.of(userWithPassword));
+    when(passwordUtil.encodePassword("NewPass1!")).thenReturn("encodedNew");
+
+    authenticationService.confirmPasswordReset("valid-token", "NewPass1!");
+
+    verify(userService).resetPassword(userWithPassword, "encodedNew");
+  }
+
+  @Test
+  void givenTokenWithStaleHash_whenConfirmPasswordReset_thenThrows() {
+    PasswordResetClaims claims = new PasswordResetClaims("test@example.com", "$2a$10$oldhashvalue");
+    User userWithPassword =
+        User.builder()
+            .email("test@example.com")
+            .password("$2a$10$newhashafterpreviousreset")
+            .build();
+    when(jwtUtil.extractPasswordResetClaims("stale-token")).thenReturn(claims);
+    when(userService.findUserByEmail("test@example.com")).thenReturn(Optional.of(userWithPassword));
+
+    assertThatThrownBy(() -> authenticationService.confirmPasswordReset("stale-token", "NewPass1!"))
+        .isInstanceOf(AuthorizationException.class);
   }
 }
