@@ -42,7 +42,7 @@ logging:
 
 jwt:
   secret:
-    key: OOVIh6cWzG1n8/g4u2vmpcSxkbZB+DTJ8V0Hq9d4K6g=
+    key: ${JWT_SECRET}
 
 server:
   tomcat:
@@ -75,8 +75,8 @@ schedule:
 
 email:
   sender:
-    address: testingemailjavamail@gmail.com
-    password: bbju zzyr dykp qucy
+    address: ${EMAIL_ADDRESS}
+    password: ${EMAIL_PASSWORD}
 
   smtp:
     server: smtp.gmail.com
