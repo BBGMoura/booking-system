@@ -34,7 +34,7 @@ spring:
       auto-commit: false        # HikariCP disables auto-commit
 
   flyway:
-    enabled: false
+    enabled: true
 
 logging:
   level:

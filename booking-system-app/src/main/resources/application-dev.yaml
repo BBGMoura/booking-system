@@ -4,9 +4,6 @@ spring:
       username: ${POSTGRES_USER}
       password: ${POSTGRES_PASSWORD}
 
-  flyway:
-    enabled: true
-
 logging:
   level:
     org.flywaydb: INFO
