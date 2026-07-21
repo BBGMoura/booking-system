@@ -2,11 +2,13 @@
 
 **Ticket:** BOO-8 — Add rate limiting to auth endpoints
 
-**Goal:** Stop unlimited, zero-cost automated abuse of the unauthenticated auth endpoints — credential brute-forcing on login, password-reset spam, and bot mass account creation on register — while keeping the mechanism generic enough that adding rate limiting to a new endpoint later is a config/annotation change, not new plumbing.
+**Goal:** Stop unlimited, zero-cost automated abuse of the unauthenticated auth endpoints — credential brute-forcing on login, password-reset spam, bot mass account creation on register, and invite-list enumeration — while keeping the mechanism generic enough that adding rate limiting to a new endpoint later is a config/annotation change, not new plumbing.
 
 ## Scope
 
-In scope: `POST /auth/login`, `POST /auth/password-reset`, `POST /auth/register`.
+In scope: `POST /auth/login`, `POST /auth/password-reset`, `POST /auth/register`, `GET /auth/invitations`.
+
+`GET /auth/invitations` (`AuthenticationController#checkInvite`) was added during design review: it's on the same permit-all `/api/*/auth/**` path as the other three, takes an email and returns whether it's invited — letting anyone enumerate the invite list for free by scripting through email addresses. Same profile (unauthenticated, zero-cost, IP-keyable) as the rest of this ticket's scope.
 
 Out of scope (explicitly, not silently dropped):
 - Rate limiting any other endpoint. Every other route in this app already requires a valid JWT (`SecurityConfig` permits only `/api/*/auth/**` and swagger/h2-console; everything else is `authenticated()`). Anonymous, zero-cost abuse — the threat this ticket addresses — is only possible against the three endpoints above. Authenticated-endpoint abuse (e.g. booking-creation scraping) is a different threat model (would key by user ID, not IP, and needs per-endpoint usage data to size limits sensibly) and belongs in its own ticket if it's ever observed.
@@ -14,7 +16,7 @@ Out of scope (explicitly, not silently dropped):
 
 ## Architecture
 
-A custom `@RateLimit` annotation plus a Spring AOP `@Around` aspect (`RateLimitAspect`) wraps the three controller methods. Flow per request:
+A custom `@RateLimit` annotation plus a Spring AOP `@Around` aspect (`RateLimitAspect`) wraps the four controller methods. Flow per request:
 
 1. Spring MVC resolves and validates method arguments as normal (`@Valid` on the request body already ran).
 2. The aspect resolves a **key** for the request — client IP, or a value pulled from the (already-validated) request body via SpEL.
@@ -42,9 +44,10 @@ Bucket4j's `ProxyManager` is built around "get-or-create a bucket for key X," ba
 - `@RateLimit(bucket = "login", key = RateLimitKeyType.IP)` on `AuthenticationController#login`.
 - `@RateLimit(bucket = "passwordReset", key = RateLimitKeyType.SPEL, keyExpression = "#request.email()")` on `resetPassword`.
 - `@RateLimit(bucket = "register", key = RateLimitKeyType.IP)` on `register`.
+- `@RateLimit(bucket = "checkInvite", key = RateLimitKeyType.IP)` on `checkInvite`.
 - `RateLimitAspect` — the `@Around` advice described above.
 - `ClientIpResolver` — resolves the key for IP-based buckets.
-- `RateLimitProperties` (`@ConfigurationProperties(prefix = "rate-limit")`) — nested static `Login` / `PasswordReset` / `Register` classes (`capacity`, `refillPeriod`, `refillStrategy`), following the existing `EmailProperties` / `ScheduleProperties` convention in this repo.
+- `RateLimitProperties` (`@ConfigurationProperties(prefix = "rate-limit")`) — nested static `Login` / `PasswordReset` / `Register` / `CheckInvite` classes (`capacity`, `refillPeriod`, `refillStrategy`), following the existing `EmailProperties` / `ScheduleProperties` convention in this repo.
 - `RateLimitExceededException` — new exception, mapped in `UniversalExceptionHandler` to `429`, using the existing `ErrorModel` shape, plus a `Retry-After` header computed from Bucket4j's `ConsumptionProbe.getNanosToWaitForRefill()`.
 
 ## Endpoints and default limits
@@ -56,8 +59,10 @@ All limits below are defaults, fully configurable via `rate-limit.*` properties 
 | `POST /auth/login` | Client IP | 10 | 10 tokens / 1 minute | Greedy |
 | `POST /auth/password-reset` | Email (request body) | 3 | 3 tokens / 15 minutes | Greedy |
 | `POST /auth/register` | Client IP | 10 | 10 tokens / 1 hour | Greedy |
+| `GET /auth/invitations` | Client IP | 20 | 20 tokens / 1 minute | Greedy |
 
 Notes:
+- **Invitations: 20/minute/IP.** This is a read-only lookup (no email sent, no account created), so the cost of a legitimate burst is low — the limit here exists purely to stop email-list enumeration/scraping at scale, not to protect a scarce resource. Generous enough not to interfere with a real registration flow's own invite check.
 - **Login: 10/minute, not the ticket's literal 5/minute.** Discussed explicitly during design: the security difference between 5 and 10 attempts/minute against a real password's keyspace is negligible (both make online brute-forcing impractical), while 10 meaningfully reduces false-positive lockouts from typos/autofill/caps-lock. Keyed by IP (not account), which also avoids the OWASP-flagged risk of account-based lockout being usable as a DoS against a legitimate user.
 - **Greedy refill is the default for all three buckets**, not intervally (fixed-window) refill. Greedy replenishes tokens continuously (e.g. login's 10/min ≈ 1 token every 6s) rather than resetting the whole bucket at a clock boundary, avoiding the classic fixed-window flaw where a client could burst, wait a fraction of a second past the boundary, and immediately burst again for up to 2x the intended limit.
 - **Register's limit (10/hour/IP) is not specified by the ticket** — it was added during design discussion since `/auth/register` shares the same unauthenticated, zero-cost profile as login/password-reset. Starting default is generous enough to not block legitimate shared-IP signups (e.g. an office) while still blocking bot mass-registration; expected to be tuned from real usage/abuse data post-launch.
