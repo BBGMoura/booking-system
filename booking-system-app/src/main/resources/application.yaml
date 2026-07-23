@@ -110,3 +110,18 @@ email:
 
         Best regards,
         The ACS Team
+
+rate-limit:
+  buckets:
+    login:
+      capacity: 10
+      refill-period: 1m
+    passwordReset:
+      capacity: 3
+      refill-period: 15m
+    register:
+      capacity: 10
+      refill-period: 1h
+    checkInvite:
+      capacity: 20
+      refill-period: 1m
