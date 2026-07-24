@@ -7,6 +7,7 @@ import com.acs.bookingsystem.common.exception.RequestException;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.common.exception.model.ErrorDetail;
 import com.acs.bookingsystem.common.exception.model.ErrorModel;
+import com.acs.bookingsystem.common.ratelimit.RateLimitExceededException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.validation.ConstraintViolationException;
 import java.util.Arrays;
@@ -14,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -170,6 +172,21 @@ public class UniversalExceptionHandler {
             determineAuthenticationMessage(ex),
             List.of());
     return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+  }
+
+  @ExceptionHandler(RateLimitExceededException.class)
+  public ResponseEntity<ErrorModel> handleRateLimitExceeded(RateLimitExceededException ex) {
+    LOG.warn("Rate limit exceeded: {}", ex.getMessage());
+    ErrorModel error =
+        new ErrorModel(
+            new Date(),
+            HttpStatus.TOO_MANY_REQUESTS.value(),
+            ErrorCode.RATE_LIMIT_EXCEEDED.toString(),
+            ErrorCode.RATE_LIMIT_EXCEEDED.getDescription(),
+            List.of());
+    return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+        .header(HttpHeaders.RETRY_AFTER, String.valueOf(ex.getRetryAfterSeconds()))
+        .body(error);
   }
 
   private static String getFormatErrorMessage(Throwable cause) {
