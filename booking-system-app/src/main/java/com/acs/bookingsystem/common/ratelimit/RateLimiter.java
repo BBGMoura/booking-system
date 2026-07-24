@@ -17,6 +17,10 @@ public class RateLimiter {
 
   public void checkLimit(String bucketName, String key) {
     RateLimitProperties.Bucket config = properties.getBuckets().get(bucketName);
+    if (config == null) {
+      throw new IllegalArgumentException(
+          "No rate limit configuration found for bucket: " + bucketName);
+    }
     BucketProxy bucket =
         proxyManager.builder().build(bucketName + ":" + key, () -> buildConfiguration(config));
 

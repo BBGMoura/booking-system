@@ -1,5 +1,6 @@
 package com.acs.bookingsystem.common.ratelimit;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -66,6 +67,16 @@ class RateLimiterTest {
     rateLimiter.checkLimit("login", "1.1.1.1");
 
     assertThatCode(() -> rateLimiter.checkLimit("login", "2.2.2.2")).doesNotThrowAnyException();
+  }
+
+  @Test
+  void throwsWhenBucketNameNotConfigured() {
+    IllegalArgumentException exception =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> rateLimiter.checkLimit("unknownBucket", "1.2.3.4"));
+
+    assertThat(exception.getMessage()).contains("unknownBucket");
   }
 
   @Test
