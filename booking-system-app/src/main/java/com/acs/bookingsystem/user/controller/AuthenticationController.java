@@ -1,5 +1,7 @@
 package com.acs.bookingsystem.user.controller;
 
+import com.acs.bookingsystem.common.ratelimit.RateLimit;
+import com.acs.bookingsystem.common.ratelimit.RateLimitKeyType;
 import com.acs.bookingsystem.user.request.AuthenticateRequest;
 import com.acs.bookingsystem.user.request.ConfirmPasswordResetRequest;
 import com.acs.bookingsystem.user.request.RegisterRequest;
@@ -27,22 +29,29 @@ public class AuthenticationController {
   private final UserService userService;
 
   @PostMapping("/register")
+  @RateLimit(bucket = "register", key = RateLimitKeyType.IP)
   public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest request) {
     return ResponseEntity.status(HttpStatus.CREATED).body(authenticationService.register(request));
   }
 
   @PostMapping("/login")
+  @RateLimit(bucket = "login", key = RateLimitKeyType.IP)
   public ResponseEntity<AuthenticateResponse> authenticate(
       @Valid @RequestBody AuthenticateRequest request) {
     return ResponseEntity.ok(authenticationService.authenticate(request));
   }
 
   @GetMapping("/invitations")
+  @RateLimit(bucket = "checkInvite", key = RateLimitKeyType.IP)
   public ResponseEntity<CheckInviteResponse> checkInvite(@RequestParam @Email String email) {
     return ResponseEntity.ok(new CheckInviteResponse(email, userService.isEmailInvited(email)));
   }
 
   @PostMapping("/password-reset")
+  @RateLimit(
+      bucket = "passwordReset",
+      key = RateLimitKeyType.SPEL,
+      keyExpression = "#request.email()")
   public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
     authenticationService.resetPassword(request.email());
     return ResponseEntity.ok().build();
