@@ -39,6 +39,13 @@ class RateLimitAspectTest {
         key = RateLimitKeyType.SPEL,
         keyExpression = "#request.email()")
     void spelLimited(DummyRequest request) {}
+
+    @RateLimit(
+        bucket = "passwordReset",
+        key = RateLimitKeyType.SPEL,
+        keyExpression = "#request.email()")
+    @RateLimit(bucket = "passwordResetIp", key = RateLimitKeyType.IP)
+    void stackedLimited(DummyRequest request) {}
   }
 
   record DummyRequest(String email) {}
@@ -57,7 +64,6 @@ class RateLimitAspectTest {
   @Test
   void resolvesIpKeyAndProceedsWhenWithinLimit() throws Throwable {
     Method method = Dummy.class.getDeclaredMethod("ipLimited");
-    RateLimit rateLimit = method.getAnnotation(RateLimit.class);
     when(joinPoint.getSignature()).thenReturn(methodSignature);
     when(methodSignature.getMethod()).thenReturn(method);
     when(joinPoint.getArgs()).thenReturn(new Object[0]);
@@ -67,7 +73,7 @@ class RateLimitAspectTest {
     RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(servletRequest));
     when(clientIpResolver.resolve(any(HttpServletRequest.class))).thenReturn("1.2.3.4");
 
-    Object result = aspect.enforceLimit(joinPoint, rateLimit);
+    Object result = aspect.enforceLimit(joinPoint);
 
     assertThat(result).isEqualTo("ok");
     verify(rateLimiter).checkLimit("login", "1.2.3.4");
@@ -77,14 +83,13 @@ class RateLimitAspectTest {
   @Test
   void resolvesSpelKeyFromMethodArgument() throws Throwable {
     Method method = Dummy.class.getDeclaredMethod("spelLimited", DummyRequest.class);
-    RateLimit rateLimit = method.getAnnotation(RateLimit.class);
     DummyRequest request = new DummyRequest("user@example.com");
     when(joinPoint.getSignature()).thenReturn(methodSignature);
     when(methodSignature.getMethod()).thenReturn(method);
     when(joinPoint.getArgs()).thenReturn(new Object[] {request});
     when(joinPoint.proceed()).thenReturn("ok");
 
-    aspect.enforceLimit(joinPoint, rateLimit);
+    aspect.enforceLimit(joinPoint);
 
     verify(rateLimiter).checkLimit("passwordReset", "user@example.com");
   }
@@ -92,7 +97,6 @@ class RateLimitAspectTest {
   @Test
   void propagatesRateLimitExceededExceptionWithoutProceeding() throws Throwable {
     Method method = Dummy.class.getDeclaredMethod("ipLimited");
-    RateLimit rateLimit = method.getAnnotation(RateLimit.class);
     when(joinPoint.getSignature()).thenReturn(methodSignature);
     when(methodSignature.getMethod()).thenReturn(method);
     when(joinPoint.getArgs()).thenReturn(new Object[0]);
@@ -102,7 +106,45 @@ class RateLimitAspectTest {
     when(clientIpResolver.resolve(any(HttpServletRequest.class))).thenReturn("1.2.3.4");
     doThrow(new RateLimitExceededException(5)).when(rateLimiter).checkLimit("login", "1.2.3.4");
 
-    assertThrows(RateLimitExceededException.class, () -> aspect.enforceLimit(joinPoint, rateLimit));
+    assertThrows(RateLimitExceededException.class, () -> aspect.enforceLimit(joinPoint));
+    verify(joinPoint, never()).proceed();
+  }
+
+  @Test
+  void checksEveryStackedRateLimitAndProceedsWhenAllWithinLimit() throws Throwable {
+    Method method = Dummy.class.getDeclaredMethod("stackedLimited", DummyRequest.class);
+    DummyRequest request = new DummyRequest("user@example.com");
+    when(joinPoint.getSignature()).thenReturn(methodSignature);
+    when(methodSignature.getMethod()).thenReturn(method);
+    when(joinPoint.getArgs()).thenReturn(new Object[] {request});
+    when(joinPoint.proceed()).thenReturn("ok");
+
+    MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(servletRequest));
+    when(clientIpResolver.resolve(any(HttpServletRequest.class))).thenReturn("1.2.3.4");
+
+    Object result = aspect.enforceLimit(joinPoint);
+
+    assertThat(result).isEqualTo("ok");
+    verify(rateLimiter).checkLimit("passwordReset", "user@example.com");
+    verify(rateLimiter).checkLimit("passwordResetIp", "1.2.3.4");
+    verify(joinPoint).proceed();
+  }
+
+  @Test
+  void stackedRateLimitStopsAtFirstBreachWithoutCheckingTheRest() throws Throwable {
+    Method method = Dummy.class.getDeclaredMethod("stackedLimited", DummyRequest.class);
+    DummyRequest request = new DummyRequest("user@example.com");
+    when(joinPoint.getSignature()).thenReturn(methodSignature);
+    when(methodSignature.getMethod()).thenReturn(method);
+    when(joinPoint.getArgs()).thenReturn(new Object[] {request});
+    doThrow(new RateLimitExceededException(5))
+        .when(rateLimiter)
+        .checkLimit("passwordReset", "user@example.com");
+
+    assertThrows(RateLimitExceededException.class, () -> aspect.enforceLimit(joinPoint));
+
+    verify(rateLimiter, never()).checkLimit("passwordResetIp", "1.2.3.4");
     verify(joinPoint, never()).proceed();
   }
 }

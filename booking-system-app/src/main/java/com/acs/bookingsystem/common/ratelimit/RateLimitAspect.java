@@ -27,10 +27,16 @@ public class RateLimitAspect {
       new DefaultParameterNameDiscoverer();
   private final ExpressionParser expressionParser = new SpelExpressionParser();
 
-  @Around("@annotation(rateLimit)")
-  public Object enforceLimit(ProceedingJoinPoint joinPoint, RateLimit rateLimit) throws Throwable {
-    String key = resolveKey(joinPoint, rateLimit);
-    rateLimiter.checkLimit(rateLimit.bucket(), key);
+  @Around(
+      "@annotation(com.acs.bookingsystem.common.ratelimit.RateLimit) || "
+          + "@annotation(com.acs.bookingsystem.common.ratelimit.RateLimits)")
+  public Object enforceLimit(ProceedingJoinPoint joinPoint) throws Throwable {
+    MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+    RateLimit[] rateLimits = signature.getMethod().getAnnotationsByType(RateLimit.class);
+    for (RateLimit rateLimit : rateLimits) {
+      String key = resolveKey(joinPoint, rateLimit);
+      rateLimiter.checkLimit(rateLimit.bucket(), key);
+    }
     return joinPoint.proceed();
   }
 
@@ -48,6 +54,8 @@ public class RateLimitAspect {
     return clientIpResolver.resolve(request);
   }
 
+  // Relies on parameter name debug info being compiled in (javac -g, on by default via
+  // spring-boot-starter-parent) so #paramName resolves to the real argument name below.
   private String resolveSpel(ProceedingJoinPoint joinPoint, String expression) {
     MethodSignature signature = (MethodSignature) joinPoint.getSignature();
     String[] paramNames = parameterNameDiscoverer.getParameterNames(signature.getMethod());

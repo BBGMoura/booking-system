@@ -119,6 +119,9 @@ rate-limit:
     passwordReset:
       capacity: 3
       refill-period: 15m
+    passwordResetIp:
+      capacity: 10
+      refill-period: 1h
     register:
       capacity: 10
       refill-period: 1h

@@ -52,6 +52,7 @@ public class AuthenticationController {
       bucket = "passwordReset",
       key = RateLimitKeyType.SPEL,
       keyExpression = "#request.email()")
+  @RateLimit(bucket = "passwordResetIp", key = RateLimitKeyType.IP)
   public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
     authenticationService.resetPassword(request.email());
     return ResponseEntity.ok().build();

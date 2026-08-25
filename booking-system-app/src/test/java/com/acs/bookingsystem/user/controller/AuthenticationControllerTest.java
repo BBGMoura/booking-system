@@ -48,7 +48,11 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 @TestPropertySource(
     properties = {
       "rate-limit.buckets.login.capacity=5",
-      "rate-limit.buckets.login.refill-period=10m"
+      "rate-limit.buckets.login.refill-period=10m",
+      "rate-limit.buckets.passwordResetIp.capacity=5",
+      "rate-limit.buckets.passwordResetIp.refill-period=10m",
+      "rate-limit.buckets.checkInvite.capacity=5",
+      "rate-limit.buckets.checkInvite.refill-period=10m"
     })
 class AuthenticationControllerTest {
 
@@ -127,6 +131,34 @@ class AuthenticationControllerTest {
         .perform(get("/api/v1/auth/invitations").param("email", "unknown@example.com"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.invited").value(false));
+  }
+
+  @Test
+  void givenSixthRequestFromSameIp_whenCheckInvite_thenReturns429() throws Exception {
+    when(userService.isEmailInvited("invited@example.com")).thenReturn(true);
+
+    RequestPostProcessor fromDedicatedTestIp =
+        req -> {
+          req.setRemoteAddr("10.10.10.52");
+          return req;
+        };
+
+    for (int i = 0; i < 5; i++) {
+      mockMvc
+          .perform(
+              get("/api/v1/auth/invitations")
+                  .with(fromDedicatedTestIp)
+                  .param("email", "invited@example.com"))
+          .andExpect(status().isOk());
+    }
+
+    mockMvc
+        .perform(
+            get("/api/v1/auth/invitations")
+                .with(fromDedicatedTestIp)
+                .param("email", "invited@example.com"))
+        .andExpect(status().isTooManyRequests())
+        .andExpect(header().exists("Retry-After"));
   }
 
   @Test
@@ -217,6 +249,68 @@ class AuthenticationControllerTest {
     mockMvc
         .perform(
             post("/api/v1/auth/login")
+                .with(fromDedicatedTestIp)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isTooManyRequests())
+        .andExpect(header().exists("Retry-After"));
+  }
+
+  @Test
+  void givenFourResetsForSameEmail_whenResetPassword_thenReturns429() throws Exception {
+    ResetPasswordRequest request = new ResetPasswordRequest("email-limit-test@example.com");
+
+    RequestPostProcessor fromDedicatedTestIp =
+        req -> {
+          req.setRemoteAddr("10.10.10.50");
+          return req;
+        };
+
+    for (int i = 0; i < 3; i++) {
+      mockMvc
+          .perform(
+              post("/api/v1/auth/password-reset")
+                  .with(fromDedicatedTestIp)
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(objectMapper.writeValueAsString(request)))
+          .andExpect(status().isOk());
+    }
+
+    mockMvc
+        .perform(
+            post("/api/v1/auth/password-reset")
+                .with(fromDedicatedTestIp)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isTooManyRequests())
+        .andExpect(header().exists("Retry-After"));
+  }
+
+  @Test
+  void givenSixResetsFromSameIpForDifferentEmails_whenResetPassword_thenReturns429()
+      throws Exception {
+    RequestPostProcessor fromDedicatedTestIp =
+        req -> {
+          req.setRemoteAddr("10.10.10.51");
+          return req;
+        };
+
+    for (int i = 0; i < 5; i++) {
+      ResetPasswordRequest request =
+          new ResetPasswordRequest("ip-limit-test-" + i + "@example.com");
+      mockMvc
+          .perform(
+              post("/api/v1/auth/password-reset")
+                  .with(fromDedicatedTestIp)
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(objectMapper.writeValueAsString(request)))
+          .andExpect(status().isOk());
+    }
+
+    ResetPasswordRequest request = new ResetPasswordRequest("ip-limit-test-5@example.com");
+    mockMvc
+        .perform(
+            post("/api/v1/auth/password-reset")
                 .with(fromDedicatedTestIp)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
