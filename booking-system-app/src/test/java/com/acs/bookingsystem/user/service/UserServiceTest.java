@@ -293,28 +293,15 @@ class UserServiceTest {
     assertThat(captor.getValue().getPassword()).isEqualTo("newEncoded");
   }
 
-  // --- updateUserCredentials ---
+  // --- updatePassword ---
 
   @Test
-  void givenNewEmail_whenUpdateCredentials_thenUpdatesEmail() {
+  void givenNewPassword_whenUpdatePassword_thenUpdatesPasswordAndSaves() {
     when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
     ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
 
-    userService.updateUserCredentials(user, "new@example.com", null);
-
-    verify(userRepository).save(captor.capture());
-    assertThat(captor.getValue().getEmail()).isEqualTo("new@example.com");
-    assertThat(captor.getValue().getPassword()).isEqualTo(user.getPassword());
-  }
-
-  @Test
-  void givenNewPassword_whenUpdateCredentials_thenUpdatesPassword() {
-    when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-
-    ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
-
-    userService.updateUserCredentials(user, null, "newEncoded");
+    userService.updatePassword(user, "newEncoded");
 
     verify(userRepository).save(captor.capture());
     assertThat(captor.getValue().getPassword()).isEqualTo("newEncoded");

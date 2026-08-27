@@ -120,13 +120,8 @@ public class UserService {
     return toProfile(userRepository.save(user));
   }
 
-  public User updateUserCredentials(User user, String email, String encodedPassword) {
-    if (email != null && !email.isBlank()) {
-      user.setEmail(email);
-    }
-    if (encodedPassword != null && !encodedPassword.isBlank()) {
-      user.setPassword(encodedPassword);
-    }
+  public User updatePassword(User user, String encodedPassword) {
+    user.setPassword(encodedPassword);
     return userRepository.save(user);
   }
 

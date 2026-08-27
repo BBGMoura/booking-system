@@ -30,7 +30,7 @@ public class User implements UserDetails {
 
   @Version private Long version;
 
-  @Column(unique = true, nullable = false)
+  @Column(unique = true, nullable = false, updatable = false)
   private String email;
 
   @JsonIgnore @ToString.Exclude private String password;

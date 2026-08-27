@@ -3,8 +3,8 @@ package com.acs.bookingsystem.user.controller;
 import com.acs.bookingsystem.security.CurrentUser;
 import com.acs.bookingsystem.user.entity.User;
 import com.acs.bookingsystem.user.model.UserProfile;
+import com.acs.bookingsystem.user.request.UpdatePasswordRequest;
 import com.acs.bookingsystem.user.request.UpdateUserInfoRequest;
-import com.acs.bookingsystem.user.request.UpdateUserRequest;
 import com.acs.bookingsystem.user.response.AuthenticateResponse;
 import com.acs.bookingsystem.user.response.UserStatusResponse;
 import com.acs.bookingsystem.user.service.AuthenticationService;
@@ -35,10 +35,10 @@ public class UserController {
     return ResponseEntity.ok(userService.updateUserInfo(user, request));
   }
 
-  @PutMapping("/credentials")
-  public ResponseEntity<AuthenticateResponse> updateUserCredentials(
-      @CurrentUser User user, @Valid @RequestBody UpdateUserRequest request) {
-    return ResponseEntity.ok(authenticationService.updateUserCredentials(user, request));
+  @PutMapping("/password")
+  public ResponseEntity<AuthenticateResponse> updatePassword(
+      @CurrentUser User user, @Valid @RequestBody UpdatePasswordRequest request) {
+    return ResponseEntity.ok(authenticationService.updatePassword(user, request));
   }
 
   @PatchMapping("/status")
