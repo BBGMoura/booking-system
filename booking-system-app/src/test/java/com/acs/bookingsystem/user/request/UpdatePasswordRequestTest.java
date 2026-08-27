@@ -64,9 +64,6 @@ class UpdatePasswordRequestTest {
     UpdatePasswordRequest request = new UpdatePasswordRequest(password);
 
     Set<ConstraintViolation<UpdatePasswordRequest>> violations = validator.validate(request);
-    assertTrue(
-        violations.isEmpty()
-            || violations.stream()
-                .noneMatch(v -> v.getPropertyPath().toString().equals("password")));
+    assertTrue(violations.isEmpty());
   }
 }

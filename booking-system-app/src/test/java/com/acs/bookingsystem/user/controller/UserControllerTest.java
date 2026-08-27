@@ -98,6 +98,21 @@ class UserControllerTest {
   }
 
   @Test
+  void givenEmailInRequestBody_whenUpdatePassword_thenIgnoresEmailAndReturns200() throws Exception {
+    String rawBody = "{\"email\":\"attacker@example.com\",\"password\":\"NewPass1!\"}";
+    AuthenticateResponse response = AuthenticateResponse.builder().token("new-jwt-token").build();
+    when(authenticationService.updatePassword(any(User.class), any())).thenReturn(response);
+
+    mockMvc
+        .perform(
+            put("/api/v1/users/me/password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(rawBody))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.token").value("new-jwt-token"));
+  }
+
+  @Test
   void givenAuthenticatedUser_whenDisableUser_thenReturns200() throws Exception {
     UserStatusResponse response =
         UserStatusResponse.builder().uid(profile.uid()).enabled(false).build();
