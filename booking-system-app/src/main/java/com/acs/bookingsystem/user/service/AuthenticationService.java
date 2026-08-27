@@ -9,7 +9,7 @@ import com.acs.bookingsystem.security.util.PasswordUtil;
 import com.acs.bookingsystem.user.entity.User;
 import com.acs.bookingsystem.user.request.AuthenticateRequest;
 import com.acs.bookingsystem.user.request.RegisterRequest;
-import com.acs.bookingsystem.user.request.UpdateUserRequest;
+import com.acs.bookingsystem.user.request.UpdatePasswordRequest;
 import com.acs.bookingsystem.user.response.AuthenticateResponse;
 import com.acs.bookingsystem.user.response.RegisterResponse;
 import lombok.RequiredArgsConstructor;
@@ -59,10 +59,10 @@ public class AuthenticationService {
   }
 
   @Transactional
-  public AuthenticateResponse updateUserCredentials(User user, UpdateUserRequest request) {
+  public AuthenticateResponse updatePassword(User user, UpdatePasswordRequest request) {
     String encodedPassword =
         request.password() != null ? passwordUtil.encodePassword(request.password()) : null;
-    User updatedUser = userService.updateUserCredentials(user, request.email(), encodedPassword);
+    User updatedUser = userService.updatePassword(user, encodedPassword);
     return AuthenticateResponse.builder().token(jwtUtil.generateToken(updatedUser)).build();
   }
 

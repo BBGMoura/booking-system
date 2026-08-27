@@ -17,7 +17,7 @@ import com.acs.bookingsystem.user.entity.User;
 import com.acs.bookingsystem.user.enums.Role;
 import com.acs.bookingsystem.user.request.AuthenticateRequest;
 import com.acs.bookingsystem.user.request.RegisterRequest;
-import com.acs.bookingsystem.user.request.UpdateUserRequest;
+import com.acs.bookingsystem.user.request.UpdatePasswordRequest;
 import com.acs.bookingsystem.user.response.AuthenticateResponse;
 import com.acs.bookingsystem.user.response.RegisterResponse;
 import java.util.Optional;
@@ -90,28 +90,28 @@ class AuthenticationServiceTest {
     verify(passwordUtil).encodePassword("Password1!");
   }
 
-  // --- updateUserCredentials ---
+  // --- updatePassword ---
 
   @Test
-  void givenPasswordProvided_whenUpdateCredentials_thenEncodesAndUpdates() {
-    UpdateUserRequest request = new UpdateUserRequest("new@example.com", "NewPass1!");
+  void givenPasswordProvided_whenUpdatePassword_thenEncodesAndUpdates() {
+    UpdatePasswordRequest request = new UpdatePasswordRequest("NewPass1!");
     when(passwordUtil.encodePassword("NewPass1!")).thenReturn("encodedNew");
-    when(userService.updateUserCredentials(user, "new@example.com", "encodedNew")).thenReturn(user);
+    when(userService.updatePassword(user, "encodedNew")).thenReturn(user);
     when(jwtUtil.generateToken(user)).thenReturn("new-token");
 
-    AuthenticateResponse response = authenticationService.updateUserCredentials(user, request);
+    AuthenticateResponse response = authenticationService.updatePassword(user, request);
 
     assertThat(response.token()).isEqualTo("new-token");
     verify(passwordUtil).encodePassword("NewPass1!");
   }
 
   @Test
-  void givenNoPassword_whenUpdateCredentials_thenSkipsEncoding() {
-    UpdateUserRequest request = new UpdateUserRequest("new@example.com", null);
-    when(userService.updateUserCredentials(user, "new@example.com", null)).thenReturn(user);
+  void givenNoPassword_whenUpdatePassword_thenSkipsEncoding() {
+    UpdatePasswordRequest request = new UpdatePasswordRequest(null);
+    when(userService.updatePassword(user, null)).thenReturn(user);
     when(jwtUtil.generateToken(user)).thenReturn("token");
 
-    authenticationService.updateUserCredentials(user, request);
+    authenticationService.updatePassword(user, request);
 
     verify(passwordUtil, never()).encodePassword(any());
   }

@@ -13,8 +13,8 @@ import com.acs.bookingsystem.security.util.JwtUtil;
 import com.acs.bookingsystem.user.UserTestData;
 import com.acs.bookingsystem.user.entity.User;
 import com.acs.bookingsystem.user.model.UserProfile;
+import com.acs.bookingsystem.user.request.UpdatePasswordRequest;
 import com.acs.bookingsystem.user.request.UpdateUserInfoRequest;
-import com.acs.bookingsystem.user.request.UpdateUserRequest;
 import com.acs.bookingsystem.user.response.AuthenticateResponse;
 import com.acs.bookingsystem.user.response.UserStatusResponse;
 import com.acs.bookingsystem.user.service.AuthenticationService;
@@ -83,14 +83,14 @@ class UserControllerTest {
   }
 
   @Test
-  void givenValidCredentials_whenUpdateCredentials_thenReturns200WithToken() throws Exception {
-    UpdateUserRequest request = new UpdateUserRequest("new@example.com", "NewPass1!");
+  void givenValidPassword_whenUpdatePassword_thenReturns200WithToken() throws Exception {
+    UpdatePasswordRequest request = new UpdatePasswordRequest("NewPass1!");
     AuthenticateResponse response = AuthenticateResponse.builder().token("new-jwt-token").build();
-    when(authenticationService.updateUserCredentials(any(User.class), any())).thenReturn(response);
+    when(authenticationService.updatePassword(any(User.class), any())).thenReturn(response);
 
     mockMvc
         .perform(
-            put("/api/v1/users/me/credentials")
+            put("/api/v1/users/me/password")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
