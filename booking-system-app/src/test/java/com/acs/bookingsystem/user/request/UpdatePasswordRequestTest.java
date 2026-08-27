@@ -27,12 +27,24 @@ class UpdatePasswordRequestTest {
   }
 
   @Test
-  void nullPasswordValid() {
-    // password can be null (no-op update)
+  void nullPasswordInvalid() {
+    // password is the only field on this DTO -- there is nothing left to update if it's absent
     UpdatePasswordRequest request = new UpdatePasswordRequest(null);
 
     Set<ConstraintViolation<UpdatePasswordRequest>> violations = validator.validate(request);
-    assertTrue(violations.isEmpty());
+    assertFalse(violations.isEmpty());
+    assertTrue(
+        violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("password")));
+  }
+
+  @Test
+  void blankPasswordInvalid() {
+    UpdatePasswordRequest request = new UpdatePasswordRequest("");
+
+    Set<ConstraintViolation<UpdatePasswordRequest>> violations = validator.validate(request);
+    assertFalse(violations.isEmpty());
+    assertTrue(
+        violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("password")));
   }
 
   @ParameterizedTest

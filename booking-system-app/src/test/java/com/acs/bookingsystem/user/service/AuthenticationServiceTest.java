@@ -105,17 +105,6 @@ class AuthenticationServiceTest {
     verify(passwordUtil).encodePassword("NewPass1!");
   }
 
-  @Test
-  void givenNoPassword_whenUpdatePassword_thenSkipsEncoding() {
-    UpdatePasswordRequest request = new UpdatePasswordRequest(null);
-    when(userService.updatePassword(user, null)).thenReturn(user);
-    when(jwtUtil.generateToken(user)).thenReturn("token");
-
-    authenticationService.updatePassword(user, request);
-
-    verify(passwordUtil, never()).encodePassword(any());
-  }
-
   // --- resetPassword ---
 
   @Test

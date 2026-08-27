@@ -113,6 +113,14 @@ class UserControllerTest {
   }
 
   @Test
+  void givenInvalidBody_whenUpdatePassword_thenReturns400() throws Exception {
+    mockMvc
+        .perform(
+            put("/api/v1/users/me/password").contentType(MediaType.APPLICATION_JSON).content("{}"))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
   void givenAuthenticatedUser_whenDisableUser_thenReturns200() throws Exception {
     UserStatusResponse response =
         UserStatusResponse.builder().uid(profile.uid()).enabled(false).build();

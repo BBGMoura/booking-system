@@ -60,8 +60,7 @@ public class AuthenticationService {
 
   @Transactional
   public AuthenticateResponse updatePassword(User user, UpdatePasswordRequest request) {
-    String encodedPassword =
-        request.password() != null ? passwordUtil.encodePassword(request.password()) : null;
+    String encodedPassword = passwordUtil.encodePassword(request.password());
     User updatedUser = userService.updatePassword(user, encodedPassword);
     return AuthenticateResponse.builder().token(jwtUtil.generateToken(updatedUser)).build();
   }

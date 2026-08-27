@@ -121,9 +121,7 @@ public class UserService {
   }
 
   public User updatePassword(User user, String encodedPassword) {
-    if (encodedPassword != null && !encodedPassword.isBlank()) {
-      user.setPassword(encodedPassword);
-    }
+    user.setPassword(encodedPassword);
     return userRepository.save(user);
   }
 
