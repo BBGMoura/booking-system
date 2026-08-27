@@ -25,16 +25,14 @@ spring:
 
   datasource:
     hikari: # HikariCP is your connection pool
-      maximum-pool-size: 3      # Max 3 database connections (down from default 10)
-      minimum-idle: 1           # Keep at least 1 connection open (down from default 5)
+      minimum-idle: 0           # Let the pool drain to zero so Neon can auto-suspend when idle
       idle-timeout: 300000      # Close idle connections after 5 minutes
       max-lifetime: 1200000     # Replace connections every 20 minutes
-      connection-timeout: 20000 # Wait 20 seconds for connection before failing
       leak-detection-threshold: 60000  # Warn if connection held longer than 1 minute
       auto-commit: false        # HikariCP disables auto-commit
 
   flyway:
-    enabled: false
+    enabled: true
 
 logging:
   level:
@@ -112,3 +110,21 @@ email:
 
         Best regards,
         The ACS Team
+
+rate-limit:
+  buckets:
+    login:
+      capacity: 10
+      refill-period: 1m
+    passwordReset:
+      capacity: 3
+      refill-period: 15m
+    passwordResetIp:
+      capacity: 10
+      refill-period: 1h
+    register:
+      capacity: 10
+      refill-period: 1h
+    checkInvite:
+      capacity: 20
+      refill-period: 1m

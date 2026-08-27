@@ -26,7 +26,8 @@ public enum ErrorCode {
   BOOKING_CONFLICT("Booking timeslot is unavailable."),
   BOOKING_SHAREABLE_LIMIT("Booking shareable limit reached."),
   BOOKING_LOCK_TIMEOUT("Booking could not be processed due to high demand. Please try again."),
-  CONFLICT("Request conflict. Please try again.");
+  CONFLICT("Request conflict. Please try again."),
+  RATE_LIMIT_EXCEEDED("Too many requests. Please try again later.");
 
   private final String description;
 }

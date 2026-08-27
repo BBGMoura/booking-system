@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -12,6 +13,7 @@ import com.acs.bookingsystem.common.exception.LockTimeoutException;
 import com.acs.bookingsystem.common.exception.NotFoundException;
 import com.acs.bookingsystem.common.exception.RequestException;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
+import com.acs.bookingsystem.common.ratelimit.RateLimitExceededException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -111,6 +113,11 @@ class UniversalExceptionHandlerTest {
     @GetMapping("/test/missing-param")
     void requireParam(@RequestParam boolean enable) {
       // intentionally empty — exists only to trigger MissingServletRequestParameterException
+    }
+
+    @GetMapping("/test/rate-limit")
+    void throwRateLimitExceededException() {
+      throw new RateLimitExceededException(5);
     }
   }
 
@@ -240,5 +247,15 @@ class UniversalExceptionHandlerTest {
         .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"))
         .andExpect(jsonPath("$.details[0].field").value("enable"))
         .andExpect(jsonPath("$.details[0].message").value("Required parameter is missing"));
+  }
+
+  @Test
+  void givenRateLimitExceededException_shouldReturn429WithRetryAfterHeader() throws Exception {
+    mockMvc
+        .perform(get("/test/rate-limit"))
+        .andExpect(status().isTooManyRequests())
+        .andExpect(header().string("Retry-After", "5"))
+        .andExpect(jsonPath("$.status").value(429))
+        .andExpect(jsonPath("$.error").value("RATE_LIMIT_EXCEEDED"));
   }
 }

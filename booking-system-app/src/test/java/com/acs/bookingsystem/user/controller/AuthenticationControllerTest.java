@@ -4,9 +4,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.acs.bookingsystem.common.ratelimit.ClientIpResolver;
+import com.acs.bookingsystem.common.ratelimit.RateLimitAspect;
+import com.acs.bookingsystem.common.ratelimit.RateLimitProperties;
+import com.acs.bookingsystem.common.ratelimit.RateLimiter;
 import com.acs.bookingsystem.security.config.SecurityConfig;
 import com.acs.bookingsystem.security.util.JwtUtil;
 import com.acs.bookingsystem.user.request.AuthenticateRequest;
@@ -18,18 +23,37 @@ import com.acs.bookingsystem.user.response.RegisterResponse;
 import com.acs.bookingsystem.user.service.AuthenticationService;
 import com.acs.bookingsystem.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import io.github.bucket4j.caffeine.CaffeineProxyManager;
+import io.github.bucket4j.distributed.proxy.ProxyManager;
+import java.time.Duration;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 @WebMvcTest(AuthenticationController.class)
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, AuthenticationControllerTest.RateLimitTestConfig.class})
+@TestPropertySource(
+    properties = {
+      "rate-limit.buckets.login.capacity=5",
+      "rate-limit.buckets.login.refill-period=10m",
+      "rate-limit.buckets.passwordResetIp.capacity=5",
+      "rate-limit.buckets.passwordResetIp.refill-period=10m",
+      "rate-limit.buckets.checkInvite.capacity=5",
+      "rate-limit.buckets.checkInvite.refill-period=10m"
+    })
 class AuthenticationControllerTest {
 
   @Autowired private MockMvc mockMvc;
@@ -110,6 +134,34 @@ class AuthenticationControllerTest {
   }
 
   @Test
+  void givenSixthRequestFromSameIp_whenCheckInvite_thenReturns429() throws Exception {
+    when(userService.isEmailInvited("invited@example.com")).thenReturn(true);
+
+    RequestPostProcessor fromDedicatedTestIp =
+        req -> {
+          req.setRemoteAddr("10.10.10.52");
+          return req;
+        };
+
+    for (int i = 0; i < 5; i++) {
+      mockMvc
+          .perform(
+              get("/api/v1/auth/invitations")
+                  .with(fromDedicatedTestIp)
+                  .param("email", "invited@example.com"))
+          .andExpect(status().isOk());
+    }
+
+    mockMvc
+        .perform(
+            get("/api/v1/auth/invitations")
+                .with(fromDedicatedTestIp)
+                .param("email", "invited@example.com"))
+        .andExpect(status().isTooManyRequests())
+        .andExpect(header().exists("Retry-After"));
+  }
+
+  @Test
   void givenValidEmail_whenResetPassword_thenReturns200() throws Exception {
     ResetPasswordRequest request = new ResetPasswordRequest("test@example.com");
 
@@ -170,5 +222,126 @@ class AuthenticationControllerTest {
                 .content(
                     objectMapper.writeValueAsString(new AuthenticateRequest("a@b.com", "pass"))))
         .andExpect(status().isOk());
+  }
+
+  @Test
+  void givenSixthRequestFromSameIp_whenLogin_thenReturns429() throws Exception {
+    AuthenticateRequest request = new AuthenticateRequest("limited@example.com", "Password1!");
+    when(authenticationService.authenticate(any()))
+        .thenReturn(AuthenticateResponse.builder().token("jwt-token").build());
+
+    RequestPostProcessor fromDedicatedTestIp =
+        req -> {
+          req.setRemoteAddr("10.10.10.99");
+          return req;
+        };
+
+    for (int i = 0; i < 5; i++) {
+      mockMvc
+          .perform(
+              post("/api/v1/auth/login")
+                  .with(fromDedicatedTestIp)
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(objectMapper.writeValueAsString(request)))
+          .andExpect(status().isOk());
+    }
+
+    mockMvc
+        .perform(
+            post("/api/v1/auth/login")
+                .with(fromDedicatedTestIp)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isTooManyRequests())
+        .andExpect(header().exists("Retry-After"));
+  }
+
+  @Test
+  void givenFourResetsForSameEmail_whenResetPassword_thenReturns429() throws Exception {
+    ResetPasswordRequest request = new ResetPasswordRequest("email-limit-test@example.com");
+
+    RequestPostProcessor fromDedicatedTestIp =
+        req -> {
+          req.setRemoteAddr("10.10.10.50");
+          return req;
+        };
+
+    for (int i = 0; i < 3; i++) {
+      mockMvc
+          .perform(
+              post("/api/v1/auth/password-reset")
+                  .with(fromDedicatedTestIp)
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(objectMapper.writeValueAsString(request)))
+          .andExpect(status().isOk());
+    }
+
+    mockMvc
+        .perform(
+            post("/api/v1/auth/password-reset")
+                .with(fromDedicatedTestIp)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isTooManyRequests())
+        .andExpect(header().exists("Retry-After"));
+  }
+
+  @Test
+  void givenSixResetsFromSameIpForDifferentEmails_whenResetPassword_thenReturns429()
+      throws Exception {
+    RequestPostProcessor fromDedicatedTestIp =
+        req -> {
+          req.setRemoteAddr("10.10.10.51");
+          return req;
+        };
+
+    for (int i = 0; i < 5; i++) {
+      ResetPasswordRequest request =
+          new ResetPasswordRequest("ip-limit-test-" + i + "@example.com");
+      mockMvc
+          .perform(
+              post("/api/v1/auth/password-reset")
+                  .with(fromDedicatedTestIp)
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(objectMapper.writeValueAsString(request)))
+          .andExpect(status().isOk());
+    }
+
+    ResetPasswordRequest request = new ResetPasswordRequest("ip-limit-test-5@example.com");
+    mockMvc
+        .perform(
+            post("/api/v1/auth/password-reset")
+                .with(fromDedicatedTestIp)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isTooManyRequests())
+        .andExpect(header().exists("Retry-After"));
+  }
+
+  @TestConfiguration
+  @EnableAspectJAutoProxy(proxyTargetClass = true)
+  @EnableConfigurationProperties(RateLimitProperties.class)
+  static class RateLimitTestConfig {
+
+    @Bean
+    ProxyManager<String> rateLimitProxyManager() {
+      return new CaffeineProxyManager<>(
+          Caffeine.newBuilder().maximumSize(100), Duration.ofHours(1));
+    }
+
+    @Bean
+    ClientIpResolver clientIpResolver() {
+      return new ClientIpResolver();
+    }
+
+    @Bean
+    RateLimiter rateLimiter(RateLimitProperties properties, ProxyManager<String> proxyManager) {
+      return new RateLimiter(properties, proxyManager);
+    }
+
+    @Bean
+    RateLimitAspect rateLimitAspect(RateLimiter rateLimiter, ClientIpResolver clientIpResolver) {
+      return new RateLimitAspect(rateLimiter, clientIpResolver);
+    }
   }
 }
