@@ -71,6 +71,11 @@ schedule:
     opening: "11:00"
     closing: "17:00"
 
+admin:
+  bootstrap:
+    email: ${ADMIN_BOOTSTRAP_EMAIL:}
+    password: ${ADMIN_BOOTSTRAP_PASSWORD:}
+
 email:
   sender:
     address: ${EMAIL_ADDRESS}

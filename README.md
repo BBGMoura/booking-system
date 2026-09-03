@@ -31,3 +31,14 @@ mvn clean install
 
 java -Dspring.profiles.active=local -jar target/booking-system-image.jar.
 ```
+
+## Admin Bootstrap
+
+On startup, if no admin user exists yet, the app creates one from the
+`ADMIN_BOOTSTRAP_EMAIL` / `ADMIN_BOOTSTRAP_PASSWORD` environment variables (see
+`.env.example`). This only ever fires once — once an admin exists, further password changes
+go through the normal reset/change-password flow, not this mechanism.
+
+If both are left unset, the app still starts, but logs a warning and has no usable admin
+account. For local dev, set them in `application-local.yaml` (git-ignored) if you need a
+working admin locally; otherwise it's safe to leave blank.
