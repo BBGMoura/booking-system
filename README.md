@@ -11,14 +11,19 @@ The database password must be set and changed in both the _docker-compose.yaml_ 
 
 If you change the `POSTGRES_PASSWORD` in _docker-compose.yaml_, you must also update the `spring.datasource.password` in _application-local.yml_ to match.
 
-2. Start the Database:
+2. Start the Database and Mailpit:
 The _docker-compose.yaml_ file is located in the _local_ folder. Navigate to this folder.
-Run the following command to start the PostgreSQL database container: 
+Run the following command to start the PostgreSQL database and Mailpit containers:
 
 ```bash
 cd ./local
-docker-compose up -d postgres
+docker-compose up -d
 ```
+
+Mailpit is a fake SMTP server for local dev — the app sends real emails to it instead of a
+real provider, and you view them at http://localhost:8025 instead of an inbox. No real email
+account or credentials needed locally. Deployed environments (dev/prod) still use a real
+Gmail account via `EMAIL_ADDRESS`/`EMAIL_PASSWORD`.
 
 3. Run the Application:
 

@@ -20,7 +20,8 @@ public class MailConfig {
             emailProperties.getSmtp().getPort(),
             emailProperties.getSender().getAddress(),
             emailProperties.getSender().getPassword())
-        .withTransportStrategy(TransportStrategy.SMTPS)
+        .withTransportStrategy(
+            TransportStrategy.valueOf(emailProperties.getSmtp().getTransportStrategy()))
         .buildMailer();
   }
 }

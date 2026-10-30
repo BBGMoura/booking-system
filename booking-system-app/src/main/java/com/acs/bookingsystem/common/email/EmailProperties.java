@@ -28,6 +28,13 @@ public class EmailProperties {
   public static class Smtp {
     private String server;
     private int port;
+
+    /**
+     * Name of a {@link org.simplejavamail.api.mailer.config.TransportStrategy} constant (e.g. SMTP,
+     * SMTP_TLS, SMTPS). Defaults to SMTPS to match Gmail's implicit-TLS setup used in deployed
+     * environments; local dev overrides this to plain SMTP for Mailpit.
+     */
+    private String transportStrategy = "SMTPS";
   }
 
   @Getter
