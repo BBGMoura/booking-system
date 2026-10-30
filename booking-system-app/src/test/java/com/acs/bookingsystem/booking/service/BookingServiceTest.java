@@ -40,6 +40,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 @ExtendWith(MockitoExtension.class)
 class BookingServiceTest {
@@ -266,13 +267,58 @@ class BookingServiceTest {
   @Test
   void givenUserId_whenGetAllBookingsByUserId_thenReturnsPaginatedResults() {
     Page<Booking> page = new PageImpl<>(List.of(booking));
-    when(bookingRepository.findAllByUserId(eq(USER_ID), any(Pageable.class))).thenReturn(page);
+    when(bookingRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
     when(bookingStatusService.resolveStatus(booking)).thenReturn(BookingStatusType.BOOKED);
 
     Page<BookingWithStatus> result = bookingService.getAllBookingsByUserId(USER_ID, 0, 5);
 
     assertThat(result.getContent()).hasSize(1);
     assertThat(result.getContent().get(0).status()).isEqualTo(BookingStatusType.BOOKED);
+  }
+
+  @Test
+  void givenNoOrder_whenGetAllBookingsByUserId_thenSortsDescending() {
+    Page<Booking> page = new PageImpl<>(List.of(booking));
+    ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+    when(bookingRepository.findAll(any(Specification.class), pageableCaptor.capture()))
+        .thenReturn(page);
+    when(bookingStatusService.resolveStatus(booking)).thenReturn(BookingStatusType.BOOKED);
+
+    bookingService.getAllBookingsByUserId(USER_ID, 0, 5, null, null, null, null);
+
+    Sort.Order order = pageableCaptor.getValue().getSort().getOrderFor("bookedFrom");
+    assertThat(order).isNotNull();
+    assertThat(order.getDirection()).isEqualTo(Sort.Direction.DESC);
+  }
+
+  @Test
+  void givenOrderAsc_whenGetAllBookingsByUserId_thenSortsAscending() {
+    Page<Booking> page = new PageImpl<>(List.of(booking));
+    ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+    when(bookingRepository.findAll(any(Specification.class), pageableCaptor.capture()))
+        .thenReturn(page);
+    when(bookingStatusService.resolveStatus(booking)).thenReturn(BookingStatusType.BOOKED);
+
+    bookingService.getAllBookingsByUserId(USER_ID, 0, 5, null, null, null, Sort.Direction.ASC);
+
+    Sort.Order order = pageableCaptor.getValue().getSort().getOrderFor("bookedFrom");
+    assertThat(order).isNotNull();
+    assertThat(order.getDirection()).isEqualTo(Sort.Direction.ASC);
+  }
+
+  @Test
+  void givenOrderDesc_whenGetAllBookingsByUserId_thenSortsDescending() {
+    Page<Booking> page = new PageImpl<>(List.of(booking));
+    ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+    when(bookingRepository.findAll(any(Specification.class), pageableCaptor.capture()))
+        .thenReturn(page);
+    when(bookingStatusService.resolveStatus(booking)).thenReturn(BookingStatusType.BOOKED);
+
+    bookingService.getAllBookingsByUserId(USER_ID, 0, 5, null, null, null, Sort.Direction.DESC);
+
+    Sort.Order order = pageableCaptor.getValue().getSort().getOrderFor("bookedFrom");
+    assertThat(order).isNotNull();
+    assertThat(order.getDirection()).isEqualTo(Sort.Direction.DESC);
   }
 
   // --- getAllBookingsByUserUid ---

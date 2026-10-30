@@ -36,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -130,7 +131,8 @@ class BookingControllerTest {
 
   @Test
   void givenValidRequest_whenGetBookings_thenReturns200() throws Exception {
-    when(bookingService.getAllBookingsByUserId(any(Long.class), any(int.class), any(int.class)))
+    when(bookingService.getAllBookingsByUserId(
+            any(Long.class), any(int.class), any(int.class), any(), any(), any(), any()))
         .thenReturn(new PageImpl<>(List.of(bookingWithStatus)));
     when(viewFactory.createView(any(BookingWithStatus.class), eq(ViewType.DETAIL)))
         .thenReturn(bookingSummary);
@@ -139,6 +141,94 @@ class BookingControllerTest {
         .perform(get("/api/v1/bookings"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.content").isArray());
+  }
+
+  @Test
+  void givenNoFilters_whenGetBookings_thenCallsServiceWithNullFilters() throws Exception {
+    when(bookingService.getAllBookingsByUserId(
+            any(Long.class), any(int.class), any(int.class), any(), any(), any(), any()))
+        .thenReturn(new PageImpl<>(List.of(bookingWithStatus)));
+    when(viewFactory.createView(any(BookingWithStatus.class), eq(ViewType.DETAIL)))
+        .thenReturn(bookingSummary);
+
+    mockMvc.perform(get("/api/v1/bookings")).andExpect(status().isOk());
+
+    verify(bookingService)
+        .getAllBookingsByUserId(
+            any(Long.class), eq(0), eq(5), eq(null), eq(null), eq(null), eq(null));
+  }
+
+  @Test
+  void givenStatus_whenGetBookings_thenPassesStatusToService() throws Exception {
+    when(bookingService.getAllBookingsByUserId(
+            any(Long.class), any(int.class), any(int.class), any(), any(), any(), any()))
+        .thenReturn(new PageImpl<>(List.of(bookingWithStatus)));
+    when(viewFactory.createView(any(BookingWithStatus.class), eq(ViewType.DETAIL)))
+        .thenReturn(bookingSummary);
+
+    mockMvc.perform(get("/api/v1/bookings").param("status", "BOOKED")).andExpect(status().isOk());
+
+    verify(bookingService)
+        .getAllBookingsByUserId(
+            any(Long.class),
+            eq(0),
+            eq(5),
+            eq(BookingStatusType.BOOKED),
+            eq(null),
+            eq(null),
+            eq(null));
+  }
+
+  @Test
+  void givenInvalidStatus_whenGetBookings_thenReturns400() throws Exception {
+    mockMvc
+        .perform(get("/api/v1/bookings").param("status", "NOT_A_REAL_STATUS"))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void givenDateFromAndDateTo_whenGetBookings_thenPassesDatesToService() throws Exception {
+    when(bookingService.getAllBookingsByUserId(
+            any(Long.class), any(int.class), any(int.class), any(), any(), any(), any()))
+        .thenReturn(new PageImpl<>(List.of(bookingWithStatus)));
+    when(viewFactory.createView(any(BookingWithStatus.class), eq(ViewType.DETAIL)))
+        .thenReturn(bookingSummary);
+
+    OffsetDateTime dateFrom = OffsetDateTime.of(2025, 6, 2, 0, 0, 0, 0, ZoneOffset.UTC);
+    OffsetDateTime dateTo = OffsetDateTime.of(2025, 6, 9, 0, 0, 0, 0, ZoneOffset.UTC);
+
+    mockMvc
+        .perform(
+            get("/api/v1/bookings")
+                .param("dateFrom", dateFrom.toString())
+                .param("dateTo", dateTo.toString()))
+        .andExpect(status().isOk());
+
+    verify(bookingService)
+        .getAllBookingsByUserId(
+            any(Long.class), eq(0), eq(5), eq(null), eq(dateFrom), eq(dateTo), eq(null));
+  }
+
+  @Test
+  void givenOrder_whenGetBookings_thenPassesOrderToService() throws Exception {
+    when(bookingService.getAllBookingsByUserId(
+            any(Long.class), any(int.class), any(int.class), any(), any(), any(), any()))
+        .thenReturn(new PageImpl<>(List.of(bookingWithStatus)));
+    when(viewFactory.createView(any(BookingWithStatus.class), eq(ViewType.DETAIL)))
+        .thenReturn(bookingSummary);
+
+    mockMvc.perform(get("/api/v1/bookings").param("order", "ASC")).andExpect(status().isOk());
+
+    verify(bookingService)
+        .getAllBookingsByUserId(
+            any(Long.class), eq(0), eq(5), eq(null), eq(null), eq(null), eq(Sort.Direction.ASC));
+  }
+
+  @Test
+  void givenInvalidOrder_whenGetBookings_thenReturns400() throws Exception {
+    mockMvc
+        .perform(get("/api/v1/bookings").param("order", "sideways"))
+        .andExpect(status().isBadRequest());
   }
 
   @Test

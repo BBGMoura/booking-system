@@ -1,6 +1,7 @@
 package com.acs.bookingsystem.booking.controller;
 
 import com.acs.bookingsystem.booking.BookingWithStatus;
+import com.acs.bookingsystem.booking.enums.BookingStatusType;
 import com.acs.bookingsystem.booking.enums.Room;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.booking.service.BookingService;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -49,10 +51,14 @@ public class BookingController {
   public ResponseEntity<Page<BookingView>> getBookings(
       @CurrentUser User user,
       @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "5") int size) {
+      @RequestParam(defaultValue = "5") int size,
+      @RequestParam(required = false) BookingStatusType status,
+      @RequestParam(required = false) OffsetDateTime dateFrom,
+      @RequestParam(required = false) OffsetDateTime dateTo,
+      @RequestParam(required = false) Sort.Direction order) {
     Page<BookingView> bookings =
         bookingService
-            .getAllBookingsByUserId(user.getId(), page, size)
+            .getAllBookingsByUserId(user.getId(), page, size, status, dateFrom, dateTo, order)
             .map(b -> viewFactory.createView(b, ViewType.DETAIL));
     return ResponseEntity.ok(bookings);
   }
