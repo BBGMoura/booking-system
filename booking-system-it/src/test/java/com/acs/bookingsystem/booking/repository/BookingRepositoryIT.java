@@ -24,6 +24,9 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -34,8 +37,10 @@ class BookingRepositoryIT extends BaseIntegrationTest {
   @Autowired private UserRepository userRepository;
   @Autowired private DanceClassRepository danceClassRepository;
 
-  private static final OffsetDateTime FROM = LocalDateTime.of(2025, Month.JUNE, 2, 10, 0).atOffset(ZoneOffset.UTC);
-  private static final OffsetDateTime TO = LocalDateTime.of(2025, Month.JUNE, 2, 11, 0).atOffset(ZoneOffset.UTC);
+  private static final OffsetDateTime FROM =
+      LocalDateTime.of(2025, Month.JUNE, 2, 10, 0).atOffset(ZoneOffset.UTC);
+  private static final OffsetDateTime TO =
+      LocalDateTime.of(2025, Month.JUNE, 2, 11, 0).atOffset(ZoneOffset.UTC);
 
   private User user;
   private DanceClass danceClass;
@@ -267,6 +272,182 @@ class BookingRepositoryIT extends BaseIntegrationTest {
     assertThat(result).extracting(Booking::getUid).containsExactly(upcoming.getUid());
   }
 
+  // --- BookingSpecifications, via bookingRepository.findAll(spec, pageable) ---
+
+  @Test
+  void specifications_forUserOnly_returnsAllBookingsForUser() {
+    Booking booking =
+        saveBookingWithStatus(Room.ASTAIRE, false, FROM, TO, BookingStatusType.BOOKED);
+
+    Page<Booking> result =
+        bookingRepository.findAll(
+            Specification.where(BookingSpecifications.forUser(user.getId())), Pageable.unpaged());
+
+    assertThat(result.getContent()).extracting(Booking::getUid).containsExactly(booking.getUid());
+  }
+
+  @Test
+  void specifications_forUser_excludesOtherUsersBookings() {
+    saveBookingWithStatus(Room.ASTAIRE, false, FROM, TO, BookingStatusType.BOOKED);
+    User otherUser =
+        userRepository.save(
+            User.builder()
+                .uid(UUID.randomUUID())
+                .email(UUID.randomUUID() + "@test.com")
+                .role(Role.ROLE_USER)
+                .locked(false)
+                .enabled(true)
+                .build());
+    bookingRepository.save(
+        Booking.builder()
+            .uid(UUID.randomUUID())
+            .user(otherUser)
+            .room(Room.BUSSELL)
+            .danceClass(danceClass)
+            .shareable(false)
+            .bookedFrom(FROM)
+            .bookedTo(TO)
+            .totalPrice(BigDecimal.TEN)
+            .build());
+
+    Page<Booking> result =
+        bookingRepository.findAll(
+            Specification.where(BookingSpecifications.forUser(user.getId())), Pageable.unpaged());
+
+    assertThat(result.getContent()).hasSize(1);
+  }
+
+  @Test
+  void specifications_inRange_dateFromOnly_includesBookingAtExactBoundary() {
+    Booking atBoundary =
+        saveBookingWithStatus(Room.ASTAIRE, false, FROM, TO, BookingStatusType.BOOKED);
+
+    Page<Booking> result = inRangeResult(FROM, null);
+
+    assertThat(result.getContent())
+        .extracting(Booking::getUid)
+        .containsExactly(atBoundary.getUid());
+  }
+
+  @Test
+  void specifications_inRange_dateFromOnly_excludesBookingStartingBeforeIt() {
+    saveBookingWithStatus(Room.ASTAIRE, false, FROM, TO, BookingStatusType.BOOKED);
+
+    Page<Booking> result = inRangeResult(FROM.plusMinutes(1), null);
+
+    assertThat(result.getContent()).isEmpty();
+  }
+
+  @Test
+  void specifications_inRange_dateToOnly_includesBookingStartingBeforeIt() {
+    Booking before = saveBookingWithStatus(Room.ASTAIRE, false, FROM, TO, BookingStatusType.BOOKED);
+
+    Page<Booking> result = inRangeResult(null, FROM.plusMinutes(1));
+
+    assertThat(result.getContent()).extracting(Booking::getUid).containsExactly(before.getUid());
+  }
+
+  @Test
+  void specifications_inRange_dateToOnly_excludesBookingStartingAtExactBoundary() {
+    saveBookingWithStatus(Room.ASTAIRE, false, FROM, TO, BookingStatusType.BOOKED);
+
+    Page<Booking> result = inRangeResult(null, FROM);
+
+    assertThat(result.getContent()).isEmpty();
+  }
+
+  @Test
+  void specifications_inRange_bothBounds_includesBookingStartingWithinRange() {
+    Booking within = saveBookingWithStatus(Room.ASTAIRE, false, FROM, TO, BookingStatusType.BOOKED);
+
+    Page<Booking> result = inRangeResult(FROM.minusDays(1), FROM.plusDays(1));
+
+    assertThat(result.getContent()).extracting(Booking::getUid).containsExactly(within.getUid());
+  }
+
+  @Test
+  void specifications_inRange_bothBounds_excludesBookingStartingOutsideRange() {
+    saveBookingWithStatus(Room.ASTAIRE, false, FROM, TO, BookingStatusType.BOOKED);
+
+    Page<Booking> result = inRangeResult(FROM.plusDays(1), FROM.plusDays(2));
+
+    assertThat(result.getContent()).isEmpty();
+  }
+
+  @Test
+  void specifications_inRange_includesCancelledBookings() {
+    Booking booking =
+        saveBookingWithStatus(Room.ASTAIRE, false, FROM, TO, BookingStatusType.CANCELLED);
+
+    Page<Booking> result = inRangeResult(FROM, null);
+
+    assertThat(result.getContent()).extracting(Booking::getUid).containsExactly(booking.getUid());
+  }
+
+  @Test
+  void specifications_combinesDateFromAndStatus() {
+    OffsetDateTime future = OffsetDateTime.now(ZoneOffset.UTC).plusDays(1);
+    Booking match =
+        saveBookingWithStatus(
+            Room.ASTAIRE, false, future, future.plusHours(1), BookingStatusType.BOOKED);
+    saveBookingWithStatus(
+        Room.BUSSELL, false, future, future.plusHours(1), BookingStatusType.CANCELLED);
+    OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+
+    Page<Booking> result =
+        bookingRepository.findAll(
+            Specification.where(BookingSpecifications.forUser(user.getId()))
+                .and(BookingSpecifications.inRange(now, null))
+                .and(BookingSpecifications.hasLatestStatus(BookingStatusType.BOOKED)),
+            Pageable.unpaged());
+
+    assertThat(result.getContent()).extracting(Booking::getUid).containsExactly(match.getUid());
+  }
+
+  private Page<Booking> inRangeResult(OffsetDateTime dateFrom, OffsetDateTime dateTo) {
+    return bookingRepository.findAll(
+        Specification.where(BookingSpecifications.forUser(user.getId()))
+            .and(BookingSpecifications.inRange(dateFrom, dateTo)),
+        Pageable.unpaged());
+  }
+
+  @Test
+  void specifications_hasLatestStatus_filtersToGivenStatus() {
+    Booking booked = saveBookingWithStatus(Room.ASTAIRE, false, FROM, TO, BookingStatusType.BOOKED);
+    saveBookingWithStatus(Room.BUSSELL, false, FROM, TO, BookingStatusType.CANCELLED);
+
+    Page<Booking> result =
+        bookingRepository.findAll(
+            Specification.where(BookingSpecifications.forUser(user.getId()))
+                .and(BookingSpecifications.hasLatestStatus(BookingStatusType.BOOKED)),
+            Pageable.unpaged());
+
+    assertThat(result.getContent()).extracting(Booking::getUid).containsExactly(booked.getUid());
+  }
+
+  @Test
+  void specifications_hasLatestStatus_usesLatestStatusNotFirst() {
+    Booking booking = saveBooking(Room.ASTAIRE, false, FROM, TO);
+    saveStatus(booking, BookingStatusType.BOOKED, Instant.parse("2025-01-01T10:00:00Z"));
+    saveStatus(booking, BookingStatusType.CANCELLED, Instant.parse("2025-01-01T11:00:00Z"));
+
+    Page<Booking> bookedResult =
+        bookingRepository.findAll(
+            Specification.where(BookingSpecifications.forUser(user.getId()))
+                .and(BookingSpecifications.hasLatestStatus(BookingStatusType.BOOKED)),
+            Pageable.unpaged());
+    Page<Booking> cancelledResult =
+        bookingRepository.findAll(
+            Specification.where(BookingSpecifications.forUser(user.getId()))
+                .and(BookingSpecifications.hasLatestStatus(BookingStatusType.CANCELLED)),
+            Pageable.unpaged());
+
+    assertThat(bookedResult.getContent()).isEmpty();
+    assertThat(cancelledResult.getContent())
+        .extracting(Booking::getUid)
+        .containsExactly(booking.getUid());
+  }
+
   private Booking saveBookingWithStatus(
       Room room,
       boolean shareable,
@@ -278,7 +459,8 @@ class BookingRepositoryIT extends BaseIntegrationTest {
     return booking;
   }
 
-  private Booking saveBooking(Room room, boolean shareable, OffsetDateTime from, OffsetDateTime to) {
+  private Booking saveBooking(
+      Room room, boolean shareable, OffsetDateTime from, OffsetDateTime to) {
     return bookingRepository.save(
         Booking.builder()
             .uid(UUID.randomUUID())

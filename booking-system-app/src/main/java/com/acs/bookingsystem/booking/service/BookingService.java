@@ -6,6 +6,7 @@ import com.acs.bookingsystem.booking.enums.BookingStatusType;
 import com.acs.bookingsystem.booking.enums.Room;
 import com.acs.bookingsystem.booking.repository.AdvisoryLockRepository;
 import com.acs.bookingsystem.booking.repository.BookingRepository;
+import com.acs.bookingsystem.booking.repository.BookingSpecifications;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.booking.service.validation.BookingValidator;
 import com.acs.bookingsystem.common.exception.NotFoundException;
@@ -25,6 +26,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,9 +53,34 @@ public class BookingService {
   }
 
   public Page<BookingWithStatus> getAllBookingsByUserId(Long userId, int page, int size) {
-    Pageable pageable = PageRequest.of(page, size, Sort.by("bookedFrom").descending());
+    return getAllBookingsByUserId(userId, page, size, null, null, null, null);
+  }
+
+  /**
+   * @param dateFrom/dateTo each independently optional: bookings starting at/after dateFrom and/or
+   *     before dateTo. Checked against bookedFrom alone — bookings can never span more than one day
+   *     (BookingTimeValidator enforces same-day start/end), so no overlap logic is needed here.
+   * @param order sort direction on bookedFrom; defaults to descending (today's existing behavior)
+   *     when not given
+   */
+  public Page<BookingWithStatus> getAllBookingsByUserId(
+      Long userId,
+      int page,
+      int size,
+      BookingStatusType status,
+      OffsetDateTime dateFrom,
+      OffsetDateTime dateTo,
+      Sort.Direction order) {
+    Sort.Direction direction = order != null ? order : Sort.Direction.DESC;
+    Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "bookedFrom"));
+
+    Specification<Booking> spec =
+        Specification.where(BookingSpecifications.forUser(userId))
+            .and(BookingSpecifications.hasLatestStatus(status))
+            .and(BookingSpecifications.inRange(dateFrom, dateTo));
+
     return bookingRepository
-        .findAllByUserId(userId, pageable)
+        .findAll(spec, pageable)
         .map(b -> new BookingWithStatus(b, bookingStatusService.resolveStatus(b)));
   }
 

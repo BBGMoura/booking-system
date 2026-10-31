@@ -28,6 +28,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @ControllerAdvice
 public class UniversalExceptionHandler {
@@ -83,6 +84,18 @@ public class UniversalExceptionHandler {
             ErrorCode.VALIDATION_ERROR.toString(),
             ErrorCode.VALIDATION_ERROR.getDescription(),
             List.of(new ErrorDetail(ex.getParameterName(), "Required parameter is missing")));
+    return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+  public ResponseEntity<ErrorModel> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+    ErrorModel error =
+        new ErrorModel(
+            new Date(),
+            HttpStatus.BAD_REQUEST.value(),
+            ErrorCode.VALIDATION_ERROR.toString(),
+            ErrorCode.VALIDATION_ERROR.getDescription(),
+            List.of(new ErrorDetail(ex.getName(), getTypeMismatchErrorMessage(ex))));
     return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
   }
 
@@ -187,6 +200,16 @@ public class UniversalExceptionHandler {
     return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
         .header(HttpHeaders.RETRY_AFTER, String.valueOf(ex.getRetryAfterSeconds()))
         .body(error);
+  }
+
+  private static String getTypeMismatchErrorMessage(MethodArgumentTypeMismatchException ex) {
+    Class<?> requiredType = ex.getRequiredType();
+    if (requiredType != null && requiredType.isEnum()) {
+      return String.format(
+          "'%s' is not a valid value for '%s'. Must be one of: %s",
+          ex.getValue(), ex.getName(), Arrays.toString(requiredType.getEnumConstants()));
+    }
+    return String.format("'%s' is not a valid value for '%s'.", ex.getValue(), ex.getName());
   }
 
   private static String getFormatErrorMessage(Throwable cause) {

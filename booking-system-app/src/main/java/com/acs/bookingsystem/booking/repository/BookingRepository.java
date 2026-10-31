@@ -9,10 +9,12 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface BookingRepository extends JpaRepository<Booking, Long> {
+public interface BookingRepository
+    extends JpaRepository<Booking, Long>, JpaSpecificationExecutor<Booking> {
 
   @Query(
       "SELECT b FROM Booking b "
@@ -26,8 +28,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
       @Param("shareable") Boolean shareable,
       @Param("dateFrom") OffsetDateTime dateFrom,
       @Param("dateTo") OffsetDateTime dateTo);
-
-  Page<Booking> findAllByUserId(Long userId, Pageable pageable);
 
   @Query("SELECT b FROM Booking b JOIN b.user u WHERE u.uid = :userUid")
   Page<Booking> findAllByUserUid(@Param("userUid") UUID userUid, Pageable pageable);
