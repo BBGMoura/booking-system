@@ -119,6 +119,16 @@ class UniversalExceptionHandlerTest {
     void throwRateLimitExceededException() {
       throw new RateLimitExceededException(5);
     }
+
+    @GetMapping("/test/enum-param")
+    void requireEnumParam(@RequestParam TestEnum value) {
+      // intentionally empty — exists only to trigger MethodArgumentTypeMismatchException
+    }
+  }
+
+  enum TestEnum {
+    A,
+    B
   }
 
   record ValidationRequest(@NotBlank String email, @NotBlank String name) {}
@@ -257,5 +267,18 @@ class UniversalExceptionHandlerTest {
         .andExpect(header().string("Retry-After", "5"))
         .andExpect(jsonPath("$.status").value(429))
         .andExpect(jsonPath("$.error").value("RATE_LIMIT_EXCEEDED"));
+  }
+
+  @Test
+  void givenInvalidEnumQueryParam_shouldReturn400WithValidValuesListed() throws Exception {
+    mockMvc
+        .perform(get("/test/enum-param").param("value", "nope"))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status").value(400))
+        .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"))
+        .andExpect(jsonPath("$.details[0].field").value("value"))
+        .andExpect(
+            jsonPath("$.details[0].message")
+                .value("'nope' is not a valid value for 'value'. Must be one of: [A, B]"));
   }
 }
