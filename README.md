@@ -47,3 +47,16 @@ go through the normal reset/change-password flow, not this mechanism.
 If both are left unset, the app still starts, but logs a warning and has no usable admin
 account. For local dev, set them in `application-local.yaml` (git-ignored) if you need a
 working admin locally; otherwise it's safe to leave blank.
+
+## CORS Allowed Origins
+
+The frontend origins allowed to call the API are set with `ALLOWED_ORIGINS` (property
+`allowed.origins`): a comma-separated list, e.g.
+
+```
+ALLOWED_ORIGINS=http://localhost:3000,https://booking-ui-d6mq.onrender.com,https://booking-ui-d6mq-pr-*.onrender.com
+```
+
+Entries may contain `*` wildcards (useful for per-PR preview deployments). Whitespace around
+entries is trimmed and empty entries are ignored. A bare `*` is rejected and the app fails to
+start. If unset, the `dev` profile defaults to `http://localhost:3000`.

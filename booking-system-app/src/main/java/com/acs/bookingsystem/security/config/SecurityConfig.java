@@ -1,6 +1,7 @@
 package com.acs.bookingsystem.security.config;
 
 import com.acs.bookingsystem.security.filter.JwtAuthenticationFilter;
+import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -86,10 +87,18 @@ public class SecurityConfig {
 
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
+    return buildCorsConfigurationSource(allowedOrigins);
+  }
+
+  /**
+   * @param allowedOrigins comma-separated origins; entries may contain {@code *} wildcards
+   * @throws IllegalStateException if no origin is configured or an entry is a bare {@code *}
+   */
+  static CorsConfigurationSource buildCorsConfigurationSource(String allowedOrigins) {
     CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(
-        List.of(allowedOrigins)); // Only allow requests from our frontend URL (CORS is only for
-    // browsers, will not block cURLs)
+    // Patterns (not plain origins) are required for wildcards alongside allowCredentials(true).
+    // CORS is only for browsers, it will not block cURLs.
+    configuration.setAllowedOriginPatterns(parseAllowedOrigins(allowedOrigins));
     configuration.setAllowedMethods(
         List.of(
             "GET", "POST", "PATCH", "PUT", "DELETE",
@@ -101,5 +110,23 @@ public class SecurityConfig {
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
     return source;
+  }
+
+  static List<String> parseAllowedOrigins(String allowedOrigins) {
+    List<String> origins =
+        Arrays.stream(allowedOrigins == null ? new String[0] : allowedOrigins.split(","))
+            .map(String::trim)
+            .filter(origin -> !origin.isEmpty())
+            .toList();
+    if (origins.isEmpty()) {
+      throw new IllegalStateException("allowed.origins must contain at least one origin");
+    }
+    if (origins.contains("*")) {
+      // A bare wildcard combined with credentials would let any site make authenticated requests.
+      throw new IllegalStateException(
+          "allowed.origins must not contain a bare '*'; list explicit origins or patterns such as"
+              + " 'https://app-pr-*.example.com'");
+    }
+    return origins;
   }
 }
