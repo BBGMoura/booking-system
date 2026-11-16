@@ -31,6 +31,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class AuthenticationServiceTest {
@@ -106,6 +107,23 @@ class AuthenticationServiceTest {
   }
 
   // --- resetPassword ---
+
+  @Test
+  void givenConfiguredResetUrl_whenResetPassword_thenEmailLinkUsesIt() {
+    ReflectionTestUtils.setField(
+        authenticationService, "passwordResetUrl", "https://ui.example.com/reset-password");
+    User userWithPassword =
+        User.builder().email("test@example.com").password("$2a$10$hash").build();
+    when(userService.findUserByEmail("test@example.com")).thenReturn(Optional.of(userWithPassword));
+    when(jwtUtil.generatePasswordResetToken(eq("test@example.com"), anyString()))
+        .thenReturn("reset-token");
+
+    authenticationService.resetPassword("test@example.com");
+
+    verify(emailService)
+        .sendPasswordResetEmail(
+            "test@example.com", "https://ui.example.com/reset-password?token=reset-token");
+  }
 
   @Test
   void givenKnownEmailWithPassword_whenResetPassword_thenGeneratesTokenAndEmailsLink() {
