@@ -10,6 +10,3 @@ logging:
 
 allowed:
   origins: ${ALLOWED_ORIGINS:http://localhost:3000}
-
-password-reset:
-  url: http://localhost:3000/reset-password

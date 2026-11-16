@@ -76,6 +76,9 @@ admin:
     email: ${ADMIN_BOOTSTRAP_EMAIL:}
     password: ${ADMIN_BOOTSTRAP_PASSWORD:}
 
+password-reset:
+  url: ${PASSWORD_RESET_URL}
+
 email:
   sender:
     address: ${EMAIL_ADDRESS}
