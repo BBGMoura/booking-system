@@ -77,7 +77,7 @@ admin:
     password: ${ADMIN_BOOTSTRAP_PASSWORD:}
 
 password-reset:
-  url: ${PASSWORD_RESET_URL:http://localhost:3000/reset-password}
+  url: ${PASSWORD_RESET_URL}
 
 email:
   sender:
