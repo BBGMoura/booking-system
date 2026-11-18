@@ -72,6 +72,8 @@ class BookingAdminControllerTest {
       new BookingDetail(
           BOOKING_UID,
           UUID.randomUUID(),
+          "Ginger",
+          "Rogers",
           Room.ASTAIRE,
           BookingStatusType.BOOKED,
           false,
@@ -110,7 +112,9 @@ class BookingAdminControllerTest {
     mockMvc
         .perform(get("/api/v1/admin/bookings/{bookingUid}", BOOKING_UID))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.uid").value(BOOKING_UID.toString()));
+        .andExpect(jsonPath("$.uid").value(BOOKING_UID.toString()))
+        .andExpect(jsonPath("$.firstName").value("Ginger"))
+        .andExpect(jsonPath("$.lastName").value("Rogers"));
   }
 
   @Test
@@ -123,7 +127,9 @@ class BookingAdminControllerTest {
     mockMvc
         .perform(get("/api/v1/admin/bookings/user/{userUid}", USER_UID))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.content").isArray());
+        .andExpect(jsonPath("$.content").isArray())
+        .andExpect(jsonPath("$.content[0].firstName").value("Ginger"))
+        .andExpect(jsonPath("$.content[0].lastName").value("Rogers"));
   }
 
   @Test
@@ -147,7 +153,9 @@ class BookingAdminControllerTest {
                 .param("userUid", USER_UID.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isCreated());
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.firstName").value("Ginger"))
+        .andExpect(jsonPath("$.lastName").value("Rogers"));
   }
 
   @Test
