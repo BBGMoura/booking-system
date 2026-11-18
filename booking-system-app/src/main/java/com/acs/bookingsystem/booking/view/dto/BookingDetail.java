@@ -10,6 +10,8 @@ import java.util.UUID;
 public record BookingDetail(
     UUID uid,
     UUID userUid,
+    String firstName,
+    String lastName,
     Room room,
     BookingStatusType status,
     boolean shareable,

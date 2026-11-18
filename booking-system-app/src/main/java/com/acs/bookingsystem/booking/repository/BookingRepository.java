@@ -16,8 +16,11 @@ import org.springframework.data.repository.query.Param;
 public interface BookingRepository
     extends JpaRepository<Booking, Long>, JpaSpecificationExecutor<Booking> {
 
+  // A room's schedule spans many bookers and the detail view reads each booker's name, so the user
+  // is fetched here rather than with a follow-up select per booker.
   @Query(
       "SELECT b FROM Booking b "
+          + "JOIN FETCH b.user "
           + "WHERE b.room = :room "
           + "AND (:shareable IS NULL OR b.shareable = :shareable) "
           + "AND (SELECT bs.status FROM BookingStatus bs WHERE bs.booking = b ORDER BY bs.createdOn DESC LIMIT 1) = 'BOOKED' "

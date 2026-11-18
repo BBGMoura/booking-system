@@ -23,6 +23,7 @@ import com.acs.bookingsystem.security.config.SecurityConfig;
 import com.acs.bookingsystem.security.util.JwtUtil;
 import com.acs.bookingsystem.user.UserTestData;
 import com.acs.bookingsystem.user.entity.User;
+import com.acs.bookingsystem.user.enums.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.math.BigDecimal;
@@ -67,6 +68,8 @@ class BookingControllerTest {
       new BookingDetail(
           BOOKING_UID,
           UUID.randomUUID(),
+          "Ginger",
+          "Rogers",
           Room.ASTAIRE,
           BookingStatusType.BOOKED,
           false,
@@ -126,7 +129,52 @@ class BookingControllerTest {
     mockMvc
         .perform(get("/api/v1/bookings/{bookingUid}", BOOKING_UID))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.uid").value(BOOKING_UID.toString()));
+        .andExpect(jsonPath("$.uid").value(BOOKING_UID.toString()))
+        .andExpect(jsonPath("$.firstName").value("Ginger"))
+        .andExpect(jsonPath("$.lastName").value("Rogers"));
+  }
+
+  @Test
+  void givenAdmin_whenGetBookingSchedule_thenReturnsDetailWithBookerName() throws Exception {
+    User admin = UserTestData.adminUser;
+    SecurityContextHolder.getContext()
+        .setAuthentication(
+            new UsernamePasswordAuthenticationToken(admin, null, admin.getAuthorities()));
+    when(bookingService.getBookingsByRoomAndDates(eq(Room.ASTAIRE), any(), any()))
+        .thenReturn(List.of(bookingWithStatus));
+    when(viewFactory.createView(any(BookingWithStatus.class), eq(Role.ROLE_ADMIN)))
+        .thenReturn(bookingDetail);
+
+    mockMvc
+        .perform(
+            get("/api/v1/bookings/schedule")
+                .param("room", "ASTAIRE")
+                .param("dateFrom", "2025-06-02T00:00:00Z")
+                .param("dateTo", "2025-06-03T00:00:00Z"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].uid").value(BOOKING_UID.toString()))
+        .andExpect(jsonPath("$[0].firstName").value("Ginger"))
+        .andExpect(jsonPath("$[0].lastName").value("Rogers"));
+  }
+
+  @Test
+  void givenUser_whenGetBookingSchedule_thenReturnsSummaryWithoutBookerName() throws Exception {
+    when(bookingService.getBookingsByRoomAndDates(eq(Room.ASTAIRE), any(), any()))
+        .thenReturn(List.of(bookingWithStatus));
+    when(viewFactory.createView(any(BookingWithStatus.class), eq(Role.ROLE_USER)))
+        .thenReturn(bookingSummary);
+
+    mockMvc
+        .perform(
+            get("/api/v1/bookings/schedule")
+                .param("room", "ASTAIRE")
+                .param("dateFrom", "2025-06-02T00:00:00Z")
+                .param("dateTo", "2025-06-03T00:00:00Z"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].uid").value(BOOKING_UID.toString()))
+        .andExpect(jsonPath("$[0].userUid").doesNotExist())
+        .andExpect(jsonPath("$[0].firstName").doesNotExist())
+        .andExpect(jsonPath("$[0].lastName").doesNotExist());
   }
 
   @Test

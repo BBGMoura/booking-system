@@ -13,6 +13,8 @@ public class BookingMapper {
     return new BookingDetail(
         booking.getUid(),
         booking.getUser().getUid(),
+        booking.getUser().getFirstName(),
+        booking.getUser().getLastName(),
         booking.getRoom(),
         status,
         booking.isShareable(),
