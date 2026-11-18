@@ -160,6 +160,34 @@ class BookingServiceTest {
     verify(bookingStatusService, never()).save(any(), any(), any());
   }
 
+  // --- validateBooking ---
+
+  @Test
+  void givenValidRequest_whenValidateBooking_thenPassesWithoutSavingOrLocking() {
+    when(danceClassService.getActiveDanceClass(ClassType.PRIVATE, Role.ROLE_USER))
+        .thenReturn(danceClass);
+    when(bookingValidator.validate(request)).thenReturn(Optional.empty());
+
+    bookingService.validateBooking(request, user);
+
+    verify(bookingRepository, never()).save(any());
+    verify(bookingStatusService, never()).save(any(), any(), any());
+    verify(advisoryLockRepository, never()).acquireRoomLock(any());
+  }
+
+  @Test
+  void givenValidationFailure_whenValidateBooking_thenThrowsRequestExceptionWithFailureCode() {
+    when(danceClassService.getActiveDanceClass(ClassType.PRIVATE, Role.ROLE_USER))
+        .thenReturn(danceClass);
+    when(bookingValidator.validate(request))
+        .thenReturn(Optional.of(new ValidationFailure("Conflict", ErrorCode.BOOKING_CONFLICT)));
+
+    assertThatThrownBy(() -> bookingService.validateBooking(request, user))
+        .isInstanceOfSatisfying(
+            RequestException.class,
+            e -> assertThat(e.getError()).isEqualTo(ErrorCode.BOOKING_CONFLICT));
+  }
+
   // --- cancelBookingByUserId ---
 
   @Test

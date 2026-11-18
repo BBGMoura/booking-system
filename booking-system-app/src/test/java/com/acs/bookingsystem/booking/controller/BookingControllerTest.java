@@ -2,6 +2,7 @@ package com.acs.bookingsystem.booking.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -18,6 +19,8 @@ import com.acs.bookingsystem.booking.view.BookingViewFactory;
 import com.acs.bookingsystem.booking.view.ViewType;
 import com.acs.bookingsystem.booking.view.dto.BookingDetail;
 import com.acs.bookingsystem.booking.view.dto.BookingSummary;
+import com.acs.bookingsystem.common.exception.RequestException;
+import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.danceclass.enums.ClassType;
 import com.acs.bookingsystem.security.config.SecurityConfig;
 import com.acs.bookingsystem.security.util.JwtUtil;
@@ -117,6 +120,42 @@ class BookingControllerTest {
                 .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.uid").value(BOOKING_UID.toString()));
+  }
+
+  @Test
+  void givenValidRequest_whenValidateBooking_thenReturns204() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/v1/bookings/validate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(validRequest())))
+        .andExpect(status().isNoContent());
+
+    verify(bookingService).validateBooking(any(BookingRequest.class), any(User.class));
+  }
+
+  @Test
+  void givenRuleBroken_whenValidateBooking_thenReturnsSame400AsCreate() throws Exception {
+    doThrow(new RequestException("Conflict", ErrorCode.BOOKING_CONFLICT))
+        .when(bookingService)
+        .validateBooking(any(BookingRequest.class), any(User.class));
+
+    mockMvc
+        .perform(
+            post("/api/v1/bookings/validate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(validRequest())))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error").value("BOOKING_CONFLICT"));
+  }
+
+  private BookingRequest validRequest() {
+    return new BookingRequest(
+        Room.ASTAIRE,
+        ClassType.PRIVATE,
+        false,
+        OffsetDateTime.of(2025, 6, 2, 10, 0, 0, 0, ZoneOffset.UTC),
+        OffsetDateTime.of(2025, 6, 2, 11, 0, 0, 0, ZoneOffset.UTC));
   }
 
   @Test

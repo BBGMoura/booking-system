@@ -40,6 +40,13 @@ public class BookingController {
         viewFactory.createView(result, ViewType.DETAIL), HttpStatus.CREATED);
   }
 
+  @PostMapping("/validate")
+  public ResponseEntity<Void> validateBooking(
+      @CurrentUser User user, @Valid @RequestBody BookingRequest bookingRequest) {
+    bookingService.validateBooking(bookingRequest, user);
+    return ResponseEntity.noContent().build();
+  }
+
   @GetMapping("/{bookingUid}")
   public ResponseEntity<BookingView> getOwnBookingByUid(
       @CurrentUser User user, @PathVariable UUID bookingUid) {

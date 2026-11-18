@@ -209,4 +209,131 @@ class BookingControllerIT extends BaseIntegrationTest {
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
   }
+
+  // --- validate vs create: same verdict ---
+
+  private void ensureActivePrivateClass() {
+    if (danceClassRepository
+        .findByActiveIsTrueAndClassTypeAndRole(ClassType.PRIVATE, Role.ROLE_USER)
+        .isEmpty()) {
+      danceClassRepository.save(
+          new DanceClass(null, ClassType.PRIVATE, true, BigDecimal.TEN, Role.ROLE_USER));
+    }
+  }
+
+  private ResponseEntity<String> postBooking(
+      String path, String token, boolean shareable, OffsetDateTime from, OffsetDateTime to) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.setBearerAuth(token);
+    headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+    String body =
+        String.format(
+            "{\"room\":\"%s\",\"classType\":\"PRIVATE\",\"isShareable\":%s,"
+                + "\"dateFrom\":\"%s\",\"dateTo\":\"%s\"}",
+            Room.ASTAIRE, shareable, from, to);
+    return restTemplate.exchange(
+        path, HttpMethod.POST, new HttpEntity<>(body, headers), String.class);
+  }
+
+  private void assertValidateMatchesCreate(
+      OffsetDateTime from, OffsetDateTime to, boolean shareable, String expectedError)
+      throws Exception {
+    ensureActivePrivateClass();
+    String token = createUserAndGetToken();
+
+    ResponseEntity<String> validate =
+        postBooking("/api/v1/bookings/validate", token, shareable, from, to);
+    ResponseEntity<String> create = postBooking("/api/v1/bookings", token, shareable, from, to);
+
+    if (expectedError == null) {
+      assertThat(validate.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+      assertThat(create.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    } else {
+      assertThat(validate.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+      assertThat(create.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+      JsonNode validateBody = objectMapper.readTree(validate.getBody());
+      JsonNode createBody = objectMapper.readTree(create.getBody());
+      assertThat(validateBody.get("error").asText()).isEqualTo(expectedError);
+      assertThat(validateBody.get("error")).isEqualTo(createBody.get("error"));
+      assertThat(validateBody.get("message")).isEqualTo(createBody.get("message"));
+    }
+  }
+
+  private void saveShareableBooking(OffsetDateTime from) {
+    User booker = saveUser(Role.ROLE_USER, null, null);
+    DanceClass danceClass =
+        danceClassRepository.save(
+            new DanceClass(null, ClassType.PRIVATE, false, BigDecimal.TEN, Role.ROLE_USER));
+    Booking booking =
+        bookingRepository.save(
+            Booking.builder()
+                .user(booker)
+                .room(Room.ASTAIRE)
+                .danceClass(danceClass)
+                .shareable(true)
+                .bookedFrom(from)
+                .bookedTo(from.plusHours(1))
+                .totalPrice(BigDecimal.TEN)
+                .build());
+    bookingStatusRepository.save(
+        BookingStatus.builder()
+            .booking(booking)
+            .status(BookingStatusType.BOOKED)
+            .createdBy(booker)
+            .build());
+  }
+
+  @Test
+  void givenFreeSlot_whenValidateBooking_thenReturns204LikeCreate() throws Exception {
+    OffsetDateTime from = OffsetDateTime.of(2031, 3, 3, 10, 0, 0, 0, ZoneOffset.UTC);
+    assertValidateMatchesCreate(from, from.plusHours(1), false, null);
+  }
+
+  @Test
+  void givenValidatedSlot_whenValidateBooking_thenNothingIsSaved() {
+    ensureActivePrivateClass();
+    OffsetDateTime from = OffsetDateTime.of(2031, 3, 4, 10, 0, 0, 0, ZoneOffset.UTC);
+    long before = bookingRepository.count();
+
+    ResponseEntity<String> response =
+        postBooking(
+            "/api/v1/bookings/validate", createUserAndGetToken(), false, from, from.plusHours(1));
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+    assertThat(bookingRepository.count()).isEqualTo(before);
+  }
+
+  @Test
+  void givenNonShareableOverlapsExisting_whenValidateBooking_thenConflictLikeCreate()
+      throws Exception {
+    OffsetDateTime from = OffsetDateTime.of(2031, 3, 5, 10, 0, 0, 0, ZoneOffset.UTC);
+    saveShareableBooking(from);
+    assertValidateMatchesCreate(
+        from.plusMinutes(30), from.plusMinutes(90), false, "BOOKING_CONFLICT");
+  }
+
+  @Test
+  void givenShareableOverlapsNonShareable_whenValidateBooking_thenConflictLikeCreate()
+      throws Exception {
+    OffsetDateTime from = OffsetDateTime.of(2031, 3, 6, 10, 0, 0, 0, ZoneOffset.UTC);
+    saveBookedBooking(saveUser(Role.ROLE_USER, null, null), Room.ASTAIRE, from);
+    assertValidateMatchesCreate(
+        from.plusMinutes(30), from.plusMinutes(90), true, "BOOKING_CONFLICT");
+  }
+
+  @Test
+  void givenThreeShareableOverlap_whenValidateBooking_thenShareableLimitLikeCreate()
+      throws Exception {
+    OffsetDateTime from = OffsetDateTime.of(2031, 3, 7, 10, 0, 0, 0, ZoneOffset.UTC);
+    saveShareableBooking(from);
+    saveShareableBooking(from);
+    saveShareableBooking(from);
+    assertValidateMatchesCreate(from, from.plusHours(1), true, "BOOKING_SHAREABLE_LIMIT");
+  }
+
+  @Test
+  void givenInvalidTime_whenValidateBooking_thenTimeInvalidLikeCreate() throws Exception {
+    OffsetDateTime from = OffsetDateTime.of(2031, 3, 10, 10, 3, 0, 0, ZoneOffset.UTC);
+    assertValidateMatchesCreate(from, from.plusHours(1), false, "BOOKING_TIME_INVALID");
+  }
 }
