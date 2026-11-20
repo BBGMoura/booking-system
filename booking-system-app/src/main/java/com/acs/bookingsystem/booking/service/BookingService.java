@@ -100,6 +100,16 @@ public class BookingService {
         .toList();
   }
 
+  /**
+   * Runs the same checks as {@link #createBooking} without saving. Unlike createBooking it takes no
+   * room lock: nothing is written, so the answer is only a snapshot and a later create can still be
+   * rejected if another booking lands first.
+   */
+  public void validateBooking(BookingRequest bookingRequest, User user) {
+    danceClassService.getActiveDanceClass(bookingRequest.classType(), user.getRole());
+    validateOrThrow(bookingRequest);
+  }
+
   @Transactional
   public BookingWithStatus createBooking(BookingRequest bookingRequest, User user) {
     log.info("Creating booking for user with uid {}", user.getUid());
@@ -109,12 +119,7 @@ public class BookingService {
 
     advisoryLockRepository.acquireRoomLock(bookingRequest.room());
 
-    bookingValidator
-        .validate(bookingRequest)
-        .ifPresent(
-            f -> {
-              throw new RequestException(f.message(), f.code());
-            });
+    validateOrThrow(bookingRequest);
 
     BigDecimal totalCost =
         PriceCalculator.calculateTotalPrice(
@@ -157,6 +162,15 @@ public class BookingService {
     activeBookings.forEach(
         b -> bookingStatusService.save(b, cancelledBy, BookingStatusType.CANCELLED));
     log.debug("Cancelled {} bookings for user {}", activeBookings.size(), userId);
+  }
+
+  private void validateOrThrow(BookingRequest bookingRequest) {
+    bookingValidator
+        .validate(bookingRequest)
+        .ifPresent(
+            f -> {
+              throw new RequestException(f.message(), f.code());
+            });
   }
 
   private Booking fetchBookingByUid(UUID uid) {
