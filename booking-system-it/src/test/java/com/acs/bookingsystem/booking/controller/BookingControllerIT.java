@@ -285,14 +285,14 @@ class BookingControllerIT extends BaseIntegrationTest {
 
   @Test
   void givenFreeSlot_whenValidateBooking_thenReturns204LikeCreate() throws Exception {
-    OffsetDateTime from = OffsetDateTime.of(2031, 3, 3, 10, 0, 0, 0, ZoneOffset.UTC);
+    OffsetDateTime from = OffsetDateTime.of(2032, 5, 3, 10, 0, 0, 0, ZoneOffset.UTC);
     assertValidateMatchesCreate(from, from.plusHours(1), false, null);
   }
 
   @Test
   void givenValidatedSlot_whenValidateBooking_thenNothingIsSaved() {
     ensureActivePrivateClass();
-    OffsetDateTime from = OffsetDateTime.of(2031, 3, 4, 10, 0, 0, 0, ZoneOffset.UTC);
+    OffsetDateTime from = OffsetDateTime.of(2032, 5, 4, 10, 0, 0, 0, ZoneOffset.UTC);
     long before = bookingRepository.count();
 
     ResponseEntity<String> response =
@@ -306,7 +306,7 @@ class BookingControllerIT extends BaseIntegrationTest {
   @Test
   void givenNonShareableOverlapsExisting_whenValidateBooking_thenConflictLikeCreate()
       throws Exception {
-    OffsetDateTime from = OffsetDateTime.of(2031, 3, 5, 10, 0, 0, 0, ZoneOffset.UTC);
+    OffsetDateTime from = OffsetDateTime.of(2032, 5, 5, 10, 0, 0, 0, ZoneOffset.UTC);
     saveShareableBooking(from);
     assertValidateMatchesCreate(
         from.plusMinutes(30), from.plusMinutes(90), false, "BOOKING_CONFLICT");
@@ -315,7 +315,7 @@ class BookingControllerIT extends BaseIntegrationTest {
   @Test
   void givenShareableOverlapsNonShareable_whenValidateBooking_thenConflictLikeCreate()
       throws Exception {
-    OffsetDateTime from = OffsetDateTime.of(2031, 3, 6, 10, 0, 0, 0, ZoneOffset.UTC);
+    OffsetDateTime from = OffsetDateTime.of(2032, 5, 6, 10, 0, 0, 0, ZoneOffset.UTC);
     saveBookedBooking(saveUser(Role.ROLE_USER, null, null), Room.ASTAIRE, from);
     assertValidateMatchesCreate(
         from.plusMinutes(30), from.plusMinutes(90), true, "BOOKING_CONFLICT");
@@ -324,7 +324,7 @@ class BookingControllerIT extends BaseIntegrationTest {
   @Test
   void givenThreeShareableOverlap_whenValidateBooking_thenShareableLimitLikeCreate()
       throws Exception {
-    OffsetDateTime from = OffsetDateTime.of(2031, 3, 7, 10, 0, 0, 0, ZoneOffset.UTC);
+    OffsetDateTime from = OffsetDateTime.of(2032, 5, 7, 10, 0, 0, 0, ZoneOffset.UTC);
     saveShareableBooking(from);
     saveShareableBooking(from);
     saveShareableBooking(from);
@@ -333,7 +333,7 @@ class BookingControllerIT extends BaseIntegrationTest {
 
   @Test
   void givenInvalidTime_whenValidateBooking_thenTimeInvalidLikeCreate() throws Exception {
-    OffsetDateTime from = OffsetDateTime.of(2031, 3, 10, 10, 3, 0, 0, ZoneOffset.UTC);
+    OffsetDateTime from = OffsetDateTime.of(2032, 5, 10, 10, 3, 0, 0, ZoneOffset.UTC);
     assertValidateMatchesCreate(from, from.plusHours(1), false, "BOOKING_TIME_INVALID");
   }
 }
