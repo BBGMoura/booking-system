@@ -2,6 +2,7 @@ package com.acs.bookingsystem.danceclass.controller;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -17,6 +18,7 @@ import com.acs.bookingsystem.security.config.SecurityConfig;
 import com.acs.bookingsystem.security.util.JwtUtil;
 import com.acs.bookingsystem.user.enums.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -67,6 +69,28 @@ class DanceClassAdminControllerTest {
         .andExpect(jsonPath("$.active", equalTo(Boolean.TRUE)))
         .andExpect(jsonPath("$.pricePerHour", equalTo(0)))
         .andExpect(jsonPath("$.role", equalTo(Role.ROLE_USER.toString())));
+  }
+
+  @Test
+  @WithMockUser(roles = {"USER"})
+  void givenUserAuthority_whenGetDanceClasses_thenReturnForbidden() throws Exception {
+    mockMvc.perform(get("/api/v1/admin/dance-classes")).andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockUser(roles = {"ADMIN"})
+  void givenAdminGetDanceClasses_thenReturnOkWithRates() throws Exception {
+    when(danceClassService.getAllActiveDanceClasses()).thenReturn(List.of(danceClass));
+    when(mapper.map(danceClass)).thenReturn(danceClassDTO);
+
+    mockMvc
+        .perform(get("/api/v1/admin/dance-classes"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(1)))
+        .andExpect(jsonPath("$[0].classType", equalTo("PRIVATE")))
+        .andExpect(jsonPath("$[0].pricePerHour", equalTo(0)))
+        .andExpect(jsonPath("$[0].role", equalTo("ROLE_USER")))
+        .andExpect(jsonPath("$[0].active", equalTo(Boolean.TRUE)));
   }
 
   @Test

@@ -6,10 +6,14 @@ import static org.mockito.Mockito.when;
 
 import com.acs.bookingsystem.danceclass.DanceClassTestData;
 import com.acs.bookingsystem.danceclass.entity.DanceClass;
+import com.acs.bookingsystem.danceclass.enums.ClassType;
 import com.acs.bookingsystem.danceclass.repository.DanceClassRepository;
 import com.acs.bookingsystem.danceclass.request.DanceClassRequest;
 import com.acs.bookingsystem.user.UserTestData;
 import com.acs.bookingsystem.user.entity.User;
+import com.acs.bookingsystem.user.enums.Role;
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,6 +41,22 @@ class DanceClassServiceTest {
     Authentication auth =
         new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
     SecurityContextHolder.getContext().setAuthentication(auth);
+  }
+
+  @Test
+  void whenGetAllActiveDanceClasses_thenSortedByClassTypeEnumOrder() {
+    final DanceClass other =
+        new DanceClass(3L, ClassType.OTHER, true, BigDecimal.ONE, Role.ROLE_ADMIN);
+    final DanceClass practice =
+        new DanceClass(2L, ClassType.PRACTICE, true, BigDecimal.TEN, Role.ROLE_USER);
+    final DanceClass privateLesson =
+        new DanceClass(1L, ClassType.PRIVATE, true, BigDecimal.TEN, Role.ROLE_USER);
+    when(danceClassRepository.findAllByActiveIsTrue())
+        .thenReturn(List.of(other, practice, privateLesson));
+
+    final List<DanceClass> actual = danceClassService.getAllActiveDanceClasses();
+
+    assertEquals(List.of(privateLesson, practice, other), actual);
   }
 
   @Test
