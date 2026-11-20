@@ -60,3 +60,7 @@ ALLOWED_ORIGINS=http://localhost:3000,https://booking-ui-d6mq.onrender.com,https
 Entries may contain `*` wildcards (useful for per-PR preview deployments). Whitespace around
 entries is trimmed and empty entries are ignored. A bare `*` is rejected and the app fails to
 start. If unset, the `dev` profile defaults to `http://localhost:3000`.
+
+## Asking Claude to act on review comments
+
+Comment `@claude` followed by what you want on a pull request, a review comment or a review. Claude (via `.github/workflows/claude.yml`) pushes changes to that PR's branch and replies. Only comments from BBGMoura are acted on, and it needs the `CLAUDE_CODE_OAUTH_TOKEN`, `WONDERBOT_APP_ID` and `WONDERBOT_APP_PRIVATE_KEY` repo secrets.
