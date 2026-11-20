@@ -8,6 +8,7 @@ import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.user.entity.User;
 import com.acs.bookingsystem.user.model.UserProfile;
 import com.acs.bookingsystem.user.repository.UserRepository;
+import com.acs.bookingsystem.user.repository.UserSpecifications;
 import com.acs.bookingsystem.user.request.InviteRequest;
 import com.acs.bookingsystem.user.request.RegisterRequest;
 import com.acs.bookingsystem.user.request.UpdateUserInfoRequest;
@@ -51,9 +52,11 @@ public class UserService {
   }
 
   @PreAuthorize("hasRole('ROLE_ADMIN')")
-  public Page<UserProfile> getUserProfiles(int page, int size) {
+  public Page<UserProfile> getUserProfiles(int page, int size, String search) {
     return userRepository
-        .findAll(PageRequest.of(page, size, Sort.by("lastName", "firstName")))
+        .findAll(
+            UserSpecifications.matchesSearch(search),
+            PageRequest.of(page, size, Sort.by("lastName", "firstName")))
         .map(this::toProfile);
   }
 

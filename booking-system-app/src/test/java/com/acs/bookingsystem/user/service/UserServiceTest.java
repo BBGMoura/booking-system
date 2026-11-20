@@ -24,6 +24,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -31,6 +32,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -82,9 +84,11 @@ class UserServiceTest {
   void givenUsersExist_whenGetUserProfiles_thenReturnsMappedPageSortedByName() {
     Page<User> userPage = new PageImpl<>(List.of(user));
     ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
-    when(userRepository.findAll(pageableCaptor.capture())).thenReturn(userPage);
+    when(userRepository.findAll(
+            ArgumentMatchers.<Specification<User>>any(), pageableCaptor.capture()))
+        .thenReturn(userPage);
 
-    Page<UserProfile> result = userService.getUserProfiles(0, 5);
+    Page<UserProfile> result = userService.getUserProfiles(0, 5, null);
 
     assertThat(result.getContent()).hasSize(1);
     assertThat(result.getContent().getFirst().email()).isEqualTo("test@example.com");

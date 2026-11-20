@@ -88,7 +88,7 @@ class UserAdminControllerTest {
   @Test
   @WithMockUser(roles = {"ADMIN"})
   void givenAdminAuthority_whenGetUsers_thenReturnOk() throws Exception {
-    when(userService.getUserProfiles(0, 5)).thenReturn(page);
+    when(userService.getUserProfiles(0, 5, null)).thenReturn(page);
 
     mockMvc
         .perform(get("/api/v1/admin/users?page=0&size=5").contentType(MediaType.APPLICATION_JSON))
@@ -99,7 +99,36 @@ class UserAdminControllerTest {
         .andExpect(jsonPath("$.page.totalElements").value(page.getTotalElements()))
         .andExpect(jsonPath("$.page.size").value(page.getSize()));
 
-    verify(userService).getUserProfiles(0, 5);
+    verify(userService).getUserProfiles(0, 5, null);
+  }
+
+  @Test
+  @WithMockUser(roles = {"ADMIN"})
+  void givenNoParams_whenGetUsers_thenDefaultsToPageSizeTen() throws Exception {
+    when(userService.getUserProfiles(0, 10, null)).thenReturn(page);
+
+    mockMvc.perform(get("/api/v1/admin/users")).andExpect(status().isOk());
+
+    verify(userService).getUserProfiles(0, 10, null);
+  }
+
+  @Test
+  @WithMockUser(roles = {"ADMIN"})
+  void givenSearchParam_whenGetUsers_thenPassesSearchToService() throws Exception {
+    when(userService.getUserProfiles(0, 10, "coo")).thenReturn(page);
+
+    mockMvc
+        .perform(get("/api/v1/admin/users?search=coo"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content").isArray());
+
+    verify(userService).getUserProfiles(0, 10, "coo");
+  }
+
+  @Test
+  @WithMockUser(roles = {"USER"})
+  void givenUserAuthority_whenGetUsers_thenReturnForbidden() throws Exception {
+    mockMvc.perform(get("/api/v1/admin/users?search=coo")).andExpect(status().isForbidden());
   }
 
   @Test

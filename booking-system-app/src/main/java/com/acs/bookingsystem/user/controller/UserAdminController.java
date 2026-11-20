@@ -32,8 +32,10 @@ public class UserAdminController {
 
   @GetMapping
   public ResponseEntity<Page<UserProfile>> getUsers(
-      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
-    return ResponseEntity.ok(userService.getUserProfiles(page, size));
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(required = false) String search) {
+    return ResponseEntity.ok(userService.getUserProfiles(page, size, search));
   }
 
   @PostMapping("/invite")
