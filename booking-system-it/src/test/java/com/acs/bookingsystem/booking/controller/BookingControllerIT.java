@@ -182,6 +182,104 @@ class BookingControllerIT extends BaseIntegrationTest {
     assertThat(page.get("content").get(0).get("lastName").asText()).isEqualTo("Rogers");
   }
 
+  private static final OffsetDateTime NOW =
+      OffsetDateTime.of(2030, 6, 15, 12, 0, 0, 0, ZoneOffset.UTC);
+
+  private void cancel(Booking booking, User by) {
+    bookingStatusRepository.save(
+        BookingStatus.builder()
+            .booking(booking)
+            .status(BookingStatusType.CANCELLED)
+            .createdBy(by)
+            .build());
+  }
+
+  private java.util.List<String> uids(JsonNode page) {
+    java.util.List<String> result = new java.util.ArrayList<>();
+    page.get("content").forEach(n -> result.add(n.get("uid").asText()));
+    return result;
+  }
+
+  private JsonNode adminGetUserBookings(User user, String query) throws Exception {
+    String adminToken = jwtUtil.generateToken(saveUser(Role.ROLE_ADMIN, null, null));
+    return get("/api/v1/admin/bookings/user/" + user.getUid() + query, adminToken);
+  }
+
+  @Test
+  void givenAdmin_whenGetUserBookingsWithDateFromAndAsc_thenReturnsUpcomingSoonestFirst()
+      throws Exception {
+    User ginger = saveUser(Role.ROLE_USER, "Ginger", "Rogers");
+    saveBookedBooking(ginger, Room.ASTAIRE, NOW.minusDays(1));
+    Booking later = saveBookedBooking(ginger, Room.ASTAIRE, NOW.plusDays(5));
+    Booking sooner = saveBookedBooking(ginger, Room.ASTAIRE, NOW.plusDays(2));
+
+    JsonNode page = adminGetUserBookings(ginger, "?dateFrom=" + NOW + "&order=ASC");
+
+    assertThat(uids(page)).containsExactly(sooner.getUid().toString(), later.getUid().toString());
+  }
+
+  @Test
+  void givenAdmin_whenGetUserBookingsWithDateToAndDesc_thenReturnsPastMostRecentFirst()
+      throws Exception {
+    User ginger = saveUser(Role.ROLE_USER, "Ginger", "Rogers");
+    saveBookedBooking(ginger, Room.ASTAIRE, NOW.plusDays(1));
+    Booking older = saveBookedBooking(ginger, Room.ASTAIRE, NOW.minusDays(5));
+    Booking recent = saveBookedBooking(ginger, Room.ASTAIRE, NOW.minusDays(2));
+
+    JsonNode page = adminGetUserBookings(ginger, "?dateTo=" + NOW + "&order=DESC");
+
+    assertThat(uids(page)).containsExactly(recent.getUid().toString(), older.getUid().toString());
+  }
+
+  @Test
+  void givenAdmin_whenGetUserBookingsWithDateFromAndStatus_thenCountsOnlyBookedUpcoming()
+      throws Exception {
+    User ginger = saveUser(Role.ROLE_USER, "Ginger", "Rogers");
+    Booking booked = saveBookedBooking(ginger, Room.ASTAIRE, NOW.plusDays(2));
+    Booking cancelled = saveBookedBooking(ginger, Room.ASTAIRE, NOW.plusDays(3));
+    cancel(cancelled, ginger);
+    saveBookedBooking(ginger, Room.ASTAIRE, NOW.minusDays(2));
+
+    JsonNode page = adminGetUserBookings(ginger, "?dateFrom=" + NOW + "&status=BOOKED");
+
+    assertThat(uids(page)).containsExactly(booked.getUid().toString());
+    assertThat(page.get("page").get("totalElements").asInt()).isEqualTo(1);
+  }
+
+  @Test
+  void givenAdmin_whenGetUserBookingsWithNoFilters_thenReturnsOnlyThatUsersNewestFirstWithSize10()
+      throws Exception {
+    User ginger = saveUser(Role.ROLE_USER, "Ginger", "Rogers");
+    User fred = saveUser(Role.ROLE_USER, "Fred", "Astaire");
+    saveBookedBooking(fred, Room.ASTAIRE, NOW);
+    for (int i = 0; i < 11; i++) {
+      saveBookedBooking(ginger, Room.ASTAIRE, NOW.plusDays(i));
+    }
+
+    JsonNode page = adminGetUserBookings(ginger, "");
+
+    assertThat(page.get("content")).hasSize(10);
+    assertThat(page.get("page").get("size").asInt()).isEqualTo(10);
+    assertThat(page.get("page").get("totalElements").asInt()).isEqualTo(11);
+    assertThat(page.get("content").get(0).get("dateFrom").asText()).startsWith("2030-06-25");
+  }
+
+  @Test
+  void givenNonAdmin_whenGetUserBookings_thenReturns403() {
+    User ginger = saveUser(Role.ROLE_USER, "Ginger", "Rogers");
+    HttpHeaders headers = new HttpHeaders();
+    headers.setBearerAuth(createUserAndGetToken());
+
+    ResponseEntity<String> response =
+        restTemplate.exchange(
+            "/api/v1/admin/bookings/user/" + ginger.getUid(),
+            HttpMethod.GET,
+            new HttpEntity<>(headers),
+            String.class);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+  }
+
   @Test
   void givenUser_whenGetOwnBooking_thenIncludesOwnName() throws Exception {
     User ginger = saveUser(Role.ROLE_USER, "Ginger", "Rogers");

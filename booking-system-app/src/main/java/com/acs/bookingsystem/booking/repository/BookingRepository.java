@@ -6,8 +6,6 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -31,9 +29,6 @@ public interface BookingRepository
       @Param("shareable") Boolean shareable,
       @Param("dateFrom") OffsetDateTime dateFrom,
       @Param("dateTo") OffsetDateTime dateTo);
-
-  @Query("SELECT b FROM Booking b JOIN b.user u WHERE u.uid = :userUid")
-  Page<Booking> findAllByUserUid(@Param("userUid") UUID userUid, Pageable pageable);
 
   Optional<Booking> findByUid(UUID uid);
 

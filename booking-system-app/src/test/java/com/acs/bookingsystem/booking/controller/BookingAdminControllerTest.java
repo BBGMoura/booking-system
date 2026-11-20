@@ -38,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -119,8 +120,7 @@ class BookingAdminControllerTest {
 
   @Test
   void givenAdmin_whenGetBookingsByUserUid_thenReturns200() throws Exception {
-    when(bookingService.getAllBookingsByUserUid(eq(USER_UID), any(int.class), any(int.class)))
-        .thenReturn(new PageImpl<>(List.of(bookingWithStatus)));
+    stubUserBookings();
     when(viewFactory.createView(any(BookingWithStatus.class), eq(ViewType.DETAIL)))
         .thenReturn(bookingDetail);
 
@@ -130,6 +130,91 @@ class BookingAdminControllerTest {
         .andExpect(jsonPath("$.content").isArray())
         .andExpect(jsonPath("$.content[0].firstName").value("Ginger"))
         .andExpect(jsonPath("$.content[0].lastName").value("Rogers"));
+  }
+
+  private void stubUserBookings() {
+    when(bookingService.getAllBookingsByUserUid(
+            eq(USER_UID), any(int.class), any(int.class), any(), any(), any(), any()))
+        .thenReturn(new PageImpl<>(List.of(bookingWithStatus)));
+    when(viewFactory.createView(any(BookingWithStatus.class), eq(ViewType.DETAIL)))
+        .thenReturn(bookingDetail);
+  }
+
+  @Test
+  void givenNoFilters_whenGetBookingsByUserUid_thenUsesPageSize10AndNullFilters() throws Exception {
+    stubUserBookings();
+
+    mockMvc
+        .perform(get("/api/v1/admin/bookings/user/{userUid}", USER_UID))
+        .andExpect(status().isOk());
+
+    verify(bookingService)
+        .getAllBookingsByUserUid(
+            eq(USER_UID), eq(0), eq(10), eq(null), eq(null), eq(null), eq(null));
+  }
+
+  @Test
+  void givenStatus_whenGetBookingsByUserUid_thenPassesStatusToService() throws Exception {
+    stubUserBookings();
+
+    mockMvc
+        .perform(get("/api/v1/admin/bookings/user/{userUid}", USER_UID).param("status", "BOOKED"))
+        .andExpect(status().isOk());
+
+    verify(bookingService)
+        .getAllBookingsByUserUid(
+            eq(USER_UID),
+            eq(0),
+            eq(10),
+            eq(BookingStatusType.BOOKED),
+            eq(null),
+            eq(null),
+            eq(null));
+  }
+
+  @Test
+  void givenInvalidStatus_whenGetBookingsByUserUid_thenReturns400() throws Exception {
+    mockMvc
+        .perform(get("/api/v1/admin/bookings/user/{userUid}", USER_UID).param("status", "NOPE"))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void givenDateFromAndDateTo_whenGetBookingsByUserUid_thenPassesDatesToService() throws Exception {
+    stubUserBookings();
+    OffsetDateTime dateFrom = OffsetDateTime.of(2025, 6, 2, 0, 0, 0, 0, ZoneOffset.UTC);
+    OffsetDateTime dateTo = OffsetDateTime.of(2025, 6, 9, 0, 0, 0, 0, ZoneOffset.UTC);
+
+    mockMvc
+        .perform(
+            get("/api/v1/admin/bookings/user/{userUid}", USER_UID)
+                .param("dateFrom", dateFrom.toString())
+                .param("dateTo", dateTo.toString()))
+        .andExpect(status().isOk());
+
+    verify(bookingService)
+        .getAllBookingsByUserUid(
+            eq(USER_UID), eq(0), eq(10), eq(null), eq(dateFrom), eq(dateTo), eq(null));
+  }
+
+  @Test
+  void givenOrder_whenGetBookingsByUserUid_thenPassesOrderToService() throws Exception {
+    stubUserBookings();
+
+    mockMvc
+        .perform(get("/api/v1/admin/bookings/user/{userUid}", USER_UID).param("order", "ASC"))
+        .andExpect(status().isOk());
+
+    verify(bookingService)
+        .getAllBookingsByUserUid(
+            eq(USER_UID), eq(0), eq(10), eq(null), eq(null), eq(null), eq(Sort.Direction.ASC));
+  }
+
+  @Test
+  void givenLowercaseOrder_whenGetBookingsByUserUid_thenReturns400() throws Exception {
+    mockMvc
+        .perform(get("/api/v1/admin/bookings/user/{userUid}", USER_UID).param("order", "asc"))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
