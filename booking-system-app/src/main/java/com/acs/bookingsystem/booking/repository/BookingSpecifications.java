@@ -6,6 +6,7 @@ import com.acs.bookingsystem.booking.enums.BookingStatusType;
 import jakarta.persistence.criteria.Subquery;
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 import org.springframework.data.jpa.domain.Specification;
 
 /**
@@ -20,6 +21,10 @@ public final class BookingSpecifications {
 
   public static Specification<Booking> forUser(Long userId) {
     return (root, query, cb) -> cb.equal(root.get("user").get("id"), userId);
+  }
+
+  public static Specification<Booking> forUserUid(UUID userUid) {
+    return (root, query, cb) -> cb.equal(root.get("user").get("uid"), userUid);
   }
 
   /**

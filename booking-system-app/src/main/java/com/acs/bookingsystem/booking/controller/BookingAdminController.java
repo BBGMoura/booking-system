@@ -1,6 +1,7 @@
 package com.acs.bookingsystem.booking.controller;
 
 import com.acs.bookingsystem.booking.BookingWithStatus;
+import com.acs.bookingsystem.booking.enums.BookingStatusType;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.booking.service.BookingService;
 import com.acs.bookingsystem.booking.view.BookingViewFactory;
@@ -10,9 +11,11 @@ import com.acs.bookingsystem.security.CurrentUser;
 import com.acs.bookingsystem.user.entity.User;
 import com.acs.bookingsystem.user.service.UserService;
 import jakarta.validation.Valid;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -46,10 +49,14 @@ public class BookingAdminController {
   public ResponseEntity<Page<BookingView>> getBookingsByUserUid(
       @PathVariable UUID userUid,
       @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "5") int size) {
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(required = false) BookingStatusType status,
+      @RequestParam(required = false) OffsetDateTime dateFrom,
+      @RequestParam(required = false) OffsetDateTime dateTo,
+      @RequestParam(required = false) Sort.Direction order) {
     Page<BookingView> bookings =
         bookingService
-            .getAllBookingsByUserUid(userUid, page, size)
+            .getAllBookingsByUserUid(userUid, page, size, status, dateFrom, dateTo, order)
             .map(b -> viewFactory.createView(b, ViewType.DETAIL));
     return ResponseEntity.ok(bookings);
   }

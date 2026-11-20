@@ -71,23 +71,41 @@ public class BookingService {
       OffsetDateTime dateFrom,
       OffsetDateTime dateTo,
       Sort.Direction order) {
+    return findFiltered(
+        BookingSpecifications.forUser(userId), page, size, status, dateFrom, dateTo, order);
+  }
+
+  /** Same filters and sorting as {@link #getAllBookingsByUserId}, for the user with this uid. */
+  public Page<BookingWithStatus> getAllBookingsByUserUid(
+      UUID userUid,
+      int page,
+      int size,
+      BookingStatusType status,
+      OffsetDateTime dateFrom,
+      OffsetDateTime dateTo,
+      Sort.Direction order) {
+    return findFiltered(
+        BookingSpecifications.forUserUid(userUid), page, size, status, dateFrom, dateTo, order);
+  }
+
+  private Page<BookingWithStatus> findFiltered(
+      Specification<Booking> userSpec,
+      int page,
+      int size,
+      BookingStatusType status,
+      OffsetDateTime dateFrom,
+      OffsetDateTime dateTo,
+      Sort.Direction order) {
     Sort.Direction direction = order != null ? order : Sort.Direction.DESC;
     Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "bookedFrom"));
 
     Specification<Booking> spec =
-        Specification.where(BookingSpecifications.forUser(userId))
+        Specification.where(userSpec)
             .and(BookingSpecifications.hasLatestStatus(status))
             .and(BookingSpecifications.inRange(dateFrom, dateTo));
 
     return bookingRepository
         .findAll(spec, pageable)
-        .map(b -> new BookingWithStatus(b, bookingStatusService.resolveStatus(b)));
-  }
-
-  public Page<BookingWithStatus> getAllBookingsByUserUid(UUID userUid, int page, int size) {
-    Pageable pageable = PageRequest.of(page, size, Sort.by("bookedFrom").descending());
-    return bookingRepository
-        .findAllByUserUid(userUid, pageable)
         .map(b -> new BookingWithStatus(b, bookingStatusService.resolveStatus(b)));
   }
 

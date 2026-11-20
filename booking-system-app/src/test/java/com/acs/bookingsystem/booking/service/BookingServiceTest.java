@@ -3,7 +3,6 @@ package com.acs.bookingsystem.booking.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import com.acs.bookingsystem.booking.BookingWithStatus;
@@ -356,16 +355,32 @@ class BookingServiceTest {
     UUID userUid = UUID.randomUUID();
     Page<Booking> page = new PageImpl<>(List.of(booking));
     ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
-    when(bookingRepository.findAllByUserUid(eq(userUid), pageableCaptor.capture()))
+    when(bookingRepository.findAll(any(Specification.class), pageableCaptor.capture()))
         .thenReturn(page);
     when(bookingStatusService.resolveStatus(booking)).thenReturn(BookingStatusType.BOOKED);
 
-    Page<BookingWithStatus> result = bookingService.getAllBookingsByUserUid(userUid, 0, 5);
+    Page<BookingWithStatus> result =
+        bookingService.getAllBookingsByUserUid(userUid, 0, 10, null, null, null, null);
 
     assertThat(result.getContent()).hasSize(1);
     Sort.Order order = pageableCaptor.getValue().getSort().getOrderFor("bookedFrom");
     assertThat(order).isNotNull();
     assertThat(order.getDirection()).isEqualTo(Sort.Direction.DESC);
+  }
+
+  @Test
+  void givenAscOrder_whenGetAllBookingsByUserUid_thenSortsAscending() {
+    ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+    when(bookingRepository.findAll(any(Specification.class), pageableCaptor.capture()))
+        .thenReturn(new PageImpl<>(List.of(booking)));
+    when(bookingStatusService.resolveStatus(booking)).thenReturn(BookingStatusType.BOOKED);
+
+    bookingService.getAllBookingsByUserUid(
+        UUID.randomUUID(), 0, 10, null, null, null, Sort.Direction.ASC);
+
+    Sort.Order order = pageableCaptor.getValue().getSort().getOrderFor("bookedFrom");
+    assertThat(order).isNotNull();
+    assertThat(order.getDirection()).isEqualTo(Sort.Direction.ASC);
   }
 
   // --- getBookingsByRoomAndDates ---
