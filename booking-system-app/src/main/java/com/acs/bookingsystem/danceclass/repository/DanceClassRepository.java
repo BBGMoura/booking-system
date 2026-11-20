@@ -12,5 +12,7 @@ public interface DanceClassRepository extends CrudRepository<DanceClass, Long> {
 
   Optional<DanceClass> findByActiveIsTrueAndClassTypeAndRole(ClassType classType, Role role);
 
+  List<DanceClass> findAllByActiveIsTrue();
+
   List<DanceClass> findAllByActiveIsTrueAndRole(Role role);
 }
