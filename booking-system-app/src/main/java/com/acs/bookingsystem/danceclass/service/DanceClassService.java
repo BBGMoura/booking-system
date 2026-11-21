@@ -9,6 +9,7 @@ import com.acs.bookingsystem.danceclass.request.DanceClassRequest;
 import com.acs.bookingsystem.user.enums.Role;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -44,20 +45,30 @@ public class DanceClassService {
   }
 
   public List<ClassType> getAllActiveDanceClassTypes(Role role) {
-    List<DanceClass> danceClasses = danceClassRepository.findAllByActiveIsTrueAndRole(role);
+    List<DanceClass> danceClasses =
+        role == Role.ROLE_ADMIN
+            ? danceClassRepository.findAllByActiveIsTrue()
+            : danceClassRepository.findAllByActiveIsTrueAndRole(role);
     return danceClasses.stream().map(DanceClass::getClassType).toList();
   }
 
+  /**
+   * Admins can use the active rate for a booking type whatever role it is set for. Everyone else
+   * only gets rates set for their own role. At most one rate per booking type is active, so the
+   * admin lookup by booking type alone is unambiguous.
+   */
   public DanceClass getActiveDanceClass(ClassType classType, Role role) {
-    return danceClassRepository
-        .findByActiveIsTrueAndClassTypeAndRole(classType, role)
-        .orElseThrow(
-            () ->
-                new NotFoundException(
-                    "Dance class with type "
-                        + classType
-                        + " has not been found. Please contact support.",
-                    ErrorCode.INVALID_DANCE_CLASS_REQUEST));
+    Optional<DanceClass> danceClass =
+        role == Role.ROLE_ADMIN
+            ? danceClassRepository.findByActiveIsTrueAndClassType(classType)
+            : danceClassRepository.findByActiveIsTrueAndClassTypeAndRole(classType, role);
+    return danceClass.orElseThrow(
+        () ->
+            new NotFoundException(
+                "Dance class with type "
+                    + classType
+                    + " has not been found. Please contact support.",
+                ErrorCode.INVALID_DANCE_CLASS_REQUEST));
   }
 
   @PreAuthorize("hasRole('ROLE_ADMIN')")
