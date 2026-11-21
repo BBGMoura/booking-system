@@ -29,6 +29,12 @@ public class DanceClassAdminController {
     return ResponseEntity.ok(Arrays.asList(ClassType.values()));
   }
 
+  @GetMapping
+  public ResponseEntity<List<DanceClassDTO>> getActiveDanceClasses() {
+    return ResponseEntity.ok(
+        danceClassService.getAllActiveDanceClasses().stream().map(mapper::map).toList());
+  }
+
   @PostMapping
   public ResponseEntity<DanceClassDTO> createDanceClass(
       @Valid @RequestBody DanceClassRequest danceClassRequest) {

@@ -48,6 +48,22 @@ class DanceClassServiceTest {
   }
 
   @Test
+  void whenGetAllActiveDanceClasses_thenSortedByClassTypeEnumOrder() {
+    final DanceClass other =
+        new DanceClass(3L, ClassType.OTHER, true, BigDecimal.ONE, Role.ROLE_ADMIN);
+    final DanceClass practice =
+        new DanceClass(2L, ClassType.PRACTICE, true, BigDecimal.TEN, Role.ROLE_USER);
+    final DanceClass privateLesson =
+        new DanceClass(1L, ClassType.PRIVATE, true, BigDecimal.TEN, Role.ROLE_USER);
+    when(danceClassRepository.findAllByActiveIsTrue())
+        .thenReturn(List.of(other, practice, privateLesson));
+
+    final List<DanceClass> actual = danceClassService.getAllActiveDanceClasses();
+
+    assertEquals(List.of(privateLesson, practice, other), actual);
+  }
+
+  @Test
   void whenUserAdmin_createDanceClass_danceClassReturned() {
     when(danceClassRepository.findByActiveIsTrueAndClassType(any()))
         .thenReturn(Optional.ofNullable(danceClass));

@@ -7,6 +7,7 @@ import com.acs.bookingsystem.danceclass.enums.ClassType;
 import com.acs.bookingsystem.danceclass.repository.DanceClassRepository;
 import com.acs.bookingsystem.danceclass.request.DanceClassRequest;
 import com.acs.bookingsystem.user.enums.Role;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
@@ -33,6 +34,14 @@ public class DanceClassService {
             danceClassRequest.role());
 
     return danceClassRepository.save(danceClass);
+  }
+
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  public List<DanceClass> getAllActiveDanceClasses() {
+    // classType is stored as a string, so a database sort would be alphabetical, not enum order.
+    return danceClassRepository.findAllByActiveIsTrue().stream()
+        .sorted(Comparator.comparing(DanceClass::getClassType))
+        .toList();
   }
 
   public List<ClassType> getAllActiveDanceClassTypes(Role role) {
