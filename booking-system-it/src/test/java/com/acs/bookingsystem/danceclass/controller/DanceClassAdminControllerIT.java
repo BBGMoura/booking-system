@@ -23,6 +23,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -69,16 +70,20 @@ class DanceClassAdminControllerIT extends BaseIntegrationTest {
   }
 
   @Test
-  void givenAdmin_whenGetDanceClasses_thenReturnsOnlyActiveRatesInClassTypeOrder()
+  void givenAdmin_whenGetDanceClasses_thenReturnsOnlyActiveRoomHireRatesInClassTypeOrder()
       throws Exception {
     danceClassRepository.save(
         new DanceClass(ClassType.OTHER, true, new BigDecimal("12.50"), Role.ROLE_ADMIN));
     danceClassRepository.save(
         new DanceClass(ClassType.PRIVATE, true, new BigDecimal("30.00"), Role.ROLE_USER));
     danceClassRepository.save(
-        new DanceClass(ClassType.GROUP, true, new BigDecimal("8.00"), Role.ROLE_USER));
+        new DanceClass(ClassType.PRACTICE, true, new BigDecimal("8.00"), Role.ROLE_USER));
     danceClassRepository.save(
-        new DanceClass(ClassType.PRACTICE, false, new BigDecimal("99.00"), Role.ROLE_USER));
+        new DanceClass(ClassType.GROUP, true, BigDecimal.ZERO, Role.ROLE_ADMIN));
+    danceClassRepository.save(
+        new DanceClass(ClassType.UNAVAILABLE, true, BigDecimal.ZERO, Role.ROLE_ADMIN));
+    danceClassRepository.save(
+        new DanceClass(ClassType.PRIVATE, false, new BigDecimal("99.00"), Role.ROLE_USER));
 
     ResponseEntity<String> response = get(tokenFor(Role.ROLE_ADMIN));
 
@@ -89,9 +94,41 @@ class DanceClassAdminControllerIT extends BaseIntegrationTest {
     assertThat(rates.get(0).get("pricePerHour").decimalValue()).isEqualByComparingTo("30.00");
     assertThat(rates.get(0).get("role").asText()).isEqualTo("ROLE_USER");
     assertThat(rates.get(0).get("active").asBoolean()).isTrue();
-    assertThat(rates.get(1).get("classType").asText()).isEqualTo("GROUP");
+    assertThat(rates.get(1).get("classType").asText()).isEqualTo("PRACTICE");
     assertThat(rates.get(2).get("classType").asText()).isEqualTo("OTHER");
     assertThat(rates.get(2).get("role").asText()).isEqualTo("ROLE_ADMIN");
+  }
+
+  @Test
+  void givenAdmin_whenCreateGroupClassRate_thenBadRequestAndNothingSaved() throws Exception {
+    HttpHeaders headers = new HttpHeaders();
+    headers.setBearerAuth(tokenFor(Role.ROLE_ADMIN));
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    String body = "{\"classType\":\"GROUP\",\"pricePerHour\":5.00,\"role\":\"ROLE_USER\"}";
+
+    ResponseEntity<String> response =
+        restTemplate.exchange(URL, HttpMethod.POST, new HttpEntity<>(body, headers), String.class);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(objectMapper.readTree(response.getBody()).get("error").asText())
+        .isEqualTo("INVALID_DANCE_CLASS_REQUEST");
+    assertThat(danceClassRepository.findByActiveIsTrueAndClassType(ClassType.GROUP)).isEmpty();
+  }
+
+  @Test
+  void givenAdmin_whenTurnOffClosed_thenBadRequestAndStillActive() {
+    danceClassRepository.save(
+        new DanceClass(ClassType.UNAVAILABLE, true, BigDecimal.ZERO, Role.ROLE_ADMIN));
+    HttpHeaders headers = new HttpHeaders();
+    headers.setBearerAuth(tokenFor(Role.ROLE_ADMIN));
+
+    ResponseEntity<String> response =
+        restTemplate.exchange(
+            URL + "/UNAVAILABLE", HttpMethod.DELETE, new HttpEntity<>(headers), String.class);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(danceClassRepository.findByActiveIsTrueAndClassType(ClassType.UNAVAILABLE))
+        .isPresent();
   }
 
   @Test

@@ -149,6 +149,30 @@ class BookingControllerTest {
         .andExpect(jsonPath("$.error").value("BOOKING_CONFLICT"));
   }
 
+  @Test
+  void givenGroupClass_whenCreateBooking_thenReturns400() throws Exception {
+    when(bookingService.createBooking(any(BookingRequest.class), any(User.class)))
+        .thenThrow(
+            new RequestException(
+                "Group classes are booked through timetables.", ErrorCode.INVALID_BOOKING_REQUEST));
+
+    mockMvc
+        .perform(
+            post("/api/v1/bookings")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        new BookingRequest(
+                            Room.ASTAIRE,
+                            ClassType.GROUP,
+                            false,
+                            validRequest().dateFrom(),
+                            validRequest().dateTo()))))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error").value("INVALID_BOOKING_REQUEST"))
+        .andExpect(jsonPath("$.message").value("Group classes are booked through timetables."));
+  }
+
   private BookingRequest validRequest() {
     return new BookingRequest(
         Room.ASTAIRE,

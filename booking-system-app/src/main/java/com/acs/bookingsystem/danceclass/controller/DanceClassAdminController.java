@@ -26,7 +26,8 @@ public class DanceClassAdminController {
 
   @GetMapping("/class-types")
   public ResponseEntity<List<ClassType>> getClassTypes() {
-    return ResponseEntity.ok(Arrays.asList(ClassType.values()));
+    return ResponseEntity.ok(
+        Arrays.stream(ClassType.values()).filter(ClassType::isRoomHire).toList());
   }
 
   @GetMapping

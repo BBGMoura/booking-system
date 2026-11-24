@@ -159,6 +159,21 @@ class BookingServiceTest {
     verify(bookingStatusService, never()).save(any(), any(), any());
   }
 
+  @Test
+  void givenGroupClass_whenCreateBooking_thenThrowsRequestExceptionWithoutLockingOrSaving() {
+    final BookingRequest groupRequest =
+        new BookingRequest(
+            Room.ASTAIRE, ClassType.GROUP, false, request.dateFrom(), request.dateTo());
+
+    assertThatThrownBy(() -> bookingService.createBooking(groupRequest, admin))
+        .isInstanceOfSatisfying(
+            RequestException.class,
+            e -> assertThat(e.getError()).isEqualTo(ErrorCode.INVALID_BOOKING_REQUEST))
+        .hasMessage("Group classes are booked through timetables.");
+
+    verifyNoInteractions(danceClassService, advisoryLockRepository, bookingRepository);
+  }
+
   // --- validateBooking ---
 
   @Test
@@ -185,6 +200,35 @@ class BookingServiceTest {
         .isInstanceOfSatisfying(
             RequestException.class,
             e -> assertThat(e.getError()).isEqualTo(ErrorCode.BOOKING_CONFLICT));
+  }
+
+  @Test
+  void givenGroupClass_whenValidateBooking_thenThrowsRequestException() {
+    final BookingRequest groupRequest =
+        new BookingRequest(
+            Room.ASTAIRE, ClassType.GROUP, false, request.dateFrom(), request.dateTo());
+
+    assertThatThrownBy(() -> bookingService.validateBooking(groupRequest, admin))
+        .isInstanceOfSatisfying(
+            RequestException.class,
+            e -> assertThat(e.getError()).isEqualTo(ErrorCode.INVALID_BOOKING_REQUEST));
+
+    verifyNoInteractions(danceClassService, bookingValidator);
+  }
+
+  @Test
+  void givenClosed_whenValidateBooking_thenAdminCanStillBookIt() {
+    final BookingRequest closedRequest =
+        new BookingRequest(
+            Room.ASTAIRE, ClassType.UNAVAILABLE, false, request.dateFrom(), request.dateTo());
+    when(danceClassService.getActiveDanceClass(ClassType.UNAVAILABLE, Role.ROLE_ADMIN))
+        .thenReturn(
+            new DanceClass(5L, ClassType.UNAVAILABLE, true, BigDecimal.ZERO, Role.ROLE_ADMIN));
+    when(bookingValidator.validate(closedRequest)).thenReturn(Optional.empty());
+
+    bookingService.validateBooking(closedRequest, admin);
+
+    verify(bookingValidator).validate(closedRequest);
   }
 
   // --- cancelBookingByUserId ---

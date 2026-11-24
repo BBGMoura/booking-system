@@ -11,7 +11,7 @@ import java.util.List;
 public class DanceClassTestData {
 
   public static final List<ClassType> classTypes =
-      List.of(ClassType.PRACTICE, ClassType.PRIVATE, ClassType.GROUP);
+      List.of(ClassType.PRACTICE, ClassType.PRIVATE, ClassType.OTHER);
 
   public static final DanceClassDTO danceClassDTO =
       new DanceClassDTO(ClassType.PRIVATE, true, BigDecimal.ZERO, Role.ROLE_USER);
@@ -20,7 +20,7 @@ public class DanceClassTestData {
       new DanceClassRequest(ClassType.PRIVATE, BigDecimal.ZERO, Role.ROLE_USER);
 
   public static final DanceClass danceClass =
-      new DanceClass(1L, ClassType.GROUP, true, BigDecimal.ZERO, Role.ROLE_USER);
+      new DanceClass(1L, ClassType.PRIVATE, true, BigDecimal.ZERO, Role.ROLE_USER);
 
   public static final DanceClass danceClassPrice =
       new DanceClass(1L, ClassType.PRIVATE, true, BigDecimal.TEN, Role.ROLE_USER);

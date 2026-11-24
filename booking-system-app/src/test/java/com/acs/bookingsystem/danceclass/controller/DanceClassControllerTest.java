@@ -68,7 +68,7 @@ class DanceClassControllerTest {
         .perform(get("/api/v1/dance-classes/class-types"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
-        .andExpect(jsonPath("$").value(containsInAnyOrder("PRACTICE", "PRIVATE", "GROUP")));
+        .andExpect(jsonPath("$").value(containsInAnyOrder("PRACTICE", "PRIVATE", "OTHER")));
   }
 
   @Test

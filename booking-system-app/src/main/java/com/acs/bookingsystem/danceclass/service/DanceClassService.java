@@ -1,6 +1,7 @@
 package com.acs.bookingsystem.danceclass.service;
 
 import com.acs.bookingsystem.common.exception.NotFoundException;
+import com.acs.bookingsystem.common.exception.RequestException;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.danceclass.entity.DanceClass;
 import com.acs.bookingsystem.danceclass.enums.ClassType;
@@ -22,6 +23,8 @@ public class DanceClassService {
 
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   public DanceClass createDanceClass(DanceClassRequest danceClassRequest) {
+    requireRoomHire(danceClassRequest.classType());
+
     danceClassRepository
         .findByActiveIsTrueAndClassType(danceClassRequest.classType())
         .ifPresent(this::deactivateDanceClass);
@@ -40,6 +43,7 @@ public class DanceClassService {
   public List<DanceClass> getAllActiveDanceClasses() {
     // classType is stored as a string, so a database sort would be alphabetical, not enum order.
     return danceClassRepository.findAllByActiveIsTrue().stream()
+        .filter(danceClass -> danceClass.getClassType().isRoomHire())
         .sorted(Comparator.comparing(DanceClass::getClassType))
         .toList();
   }
@@ -49,7 +53,10 @@ public class DanceClassService {
         role == Role.ROLE_ADMIN
             ? danceClassRepository.findAllByActiveIsTrue()
             : danceClassRepository.findAllByActiveIsTrueAndRole(role);
-    return danceClasses.stream().map(DanceClass::getClassType).toList();
+    return danceClasses.stream()
+        .map(DanceClass::getClassType)
+        .filter(classType -> !classType.isTimetableOnly())
+        .toList();
   }
 
   /**
@@ -73,6 +80,8 @@ public class DanceClassService {
 
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   public void deactivateDanceClassByClassType(ClassType classType) {
+    requireRoomHire(classType);
+
     final DanceClass danceClass =
         danceClassRepository
             .findByActiveIsTrueAndClassType(classType)
@@ -85,6 +94,14 @@ public class DanceClassService {
                         ErrorCode.INVALID_DANCE_CLASS_REQUEST));
 
     deactivateDanceClass(danceClass);
+  }
+
+  private void requireRoomHire(ClassType classType) {
+    if (!classType.isRoomHire()) {
+      throw new RequestException(
+          "Group class and Closed aren't room hire, so they don't have a floor fee.",
+          ErrorCode.INVALID_DANCE_CLASS_REQUEST);
+    }
   }
 
   private void deactivateDanceClass(DanceClass danceClass) {

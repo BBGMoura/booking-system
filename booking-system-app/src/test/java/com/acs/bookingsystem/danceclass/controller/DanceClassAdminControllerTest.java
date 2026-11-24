@@ -4,20 +4,26 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.acs.bookingsystem.common.exception.RequestException;
+import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.danceclass.DanceClassTestData;
 import com.acs.bookingsystem.danceclass.dto.DanceClassDTO;
 import com.acs.bookingsystem.danceclass.entity.DanceClass;
+import com.acs.bookingsystem.danceclass.enums.ClassType;
 import com.acs.bookingsystem.danceclass.mapper.DanceClassMapper;
+import com.acs.bookingsystem.danceclass.request.DanceClassRequest;
 import com.acs.bookingsystem.danceclass.service.DanceClassService;
 import com.acs.bookingsystem.security.config.SecurityConfig;
 import com.acs.bookingsystem.security.util.JwtUtil;
 import com.acs.bookingsystem.user.enums.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.math.BigDecimal;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,14 +101,53 @@ class DanceClassAdminControllerTest {
 
   @Test
   @WithMockUser(roles = {"ADMIN"})
-  void givenAdminGetAllClassTypes_thenReturnOk() throws Exception {
+  void givenAdminGetAllClassTypes_thenReturnOkWithRoomHireTypesOnly() throws Exception {
     mockMvc
         .perform(get("/api/v1/admin/dance-classes/class-types"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
+        .andExpect(jsonPath("$").value(containsInAnyOrder("PRACTICE", "PRIVATE", "OTHER")));
+  }
+
+  @Test
+  @WithMockUser(roles = {"ADMIN"})
+  void givenAdminCreateStudioUseDanceClass_thenReturnBadRequest() throws Exception {
+    when(danceClassService.createDanceClass(any()))
+        .thenThrow(
+            new RequestException(
+                "Group class and Closed aren't room hire, so they don't have a floor fee.",
+                ErrorCode.INVALID_DANCE_CLASS_REQUEST));
+
+    mockMvc
+        .perform(
+            post("/api/v1/admin/dance-classes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        new DanceClassRequest(ClassType.GROUP, BigDecimal.ZERO, Role.ROLE_ADMIN))))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error", equalTo("INVALID_DANCE_CLASS_REQUEST")))
         .andExpect(
-            jsonPath("$")
-                .value(containsInAnyOrder("PRACTICE", "PRIVATE", "GROUP", "UNAVAILABLE", "OTHER")));
+            jsonPath(
+                "$.message",
+                equalTo(
+                    "Group class and Closed aren't room hire, so they don't have a floor fee.")));
+  }
+
+  @Test
+  @WithMockUser(roles = {"ADMIN"})
+  void givenAdminDeactivateStudioUseDanceClass_thenReturnBadRequest() throws Exception {
+    doThrow(
+            new RequestException(
+                "Group class and Closed aren't room hire, so they don't have a floor fee.",
+                ErrorCode.INVALID_DANCE_CLASS_REQUEST))
+        .when(danceClassService)
+        .deactivateDanceClassByClassType(ClassType.UNAVAILABLE);
+
+    mockMvc
+        .perform(delete("/api/v1/admin/dance-classes/{classType}", "UNAVAILABLE"))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error", equalTo("INVALID_DANCE_CLASS_REQUEST")));
   }
 
   @Test

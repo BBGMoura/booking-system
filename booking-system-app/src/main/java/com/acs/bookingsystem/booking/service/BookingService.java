@@ -13,6 +13,7 @@ import com.acs.bookingsystem.common.exception.NotFoundException;
 import com.acs.bookingsystem.common.exception.RequestException;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.danceclass.entity.DanceClass;
+import com.acs.bookingsystem.danceclass.enums.ClassType;
 import com.acs.bookingsystem.danceclass.service.DanceClassService;
 import com.acs.bookingsystem.payment.PriceCalculator;
 import com.acs.bookingsystem.user.entity.User;
@@ -124,6 +125,7 @@ public class BookingService {
    * rejected if another booking lands first.
    */
   public void validateBooking(BookingRequest bookingRequest, User user) {
+    rejectTimetableOnly(bookingRequest.classType());
     danceClassService.getActiveDanceClass(bookingRequest.classType(), user.getRole());
     validateOrThrow(bookingRequest);
   }
@@ -131,6 +133,7 @@ public class BookingService {
   @Transactional
   public BookingWithStatus createBooking(BookingRequest bookingRequest, User user) {
     log.info("Creating booking for user with uid {}", user.getUid());
+    rejectTimetableOnly(bookingRequest.classType());
 
     DanceClass danceClass =
         danceClassService.getActiveDanceClass(bookingRequest.classType(), user.getRole());
@@ -158,6 +161,13 @@ public class BookingService {
     bookingStatusService.save(booking, user, BookingStatusType.BOOKED);
     log.info("Created booking {}", booking.getUid());
     return new BookingWithStatus(booking, BookingStatusType.BOOKED);
+  }
+
+  private void rejectTimetableOnly(ClassType classType) {
+    if (classType.isTimetableOnly()) {
+      throw new RequestException(
+          "Group classes are booked through timetables.", ErrorCode.INVALID_BOOKING_REQUEST);
+    }
   }
 
   @Transactional
