@@ -134,7 +134,7 @@ public class BookingService {
   /** A booking the signed-in user makes for themselves (or, for Closed, for the studio). */
   @Transactional
   public BookingWithStatus createBooking(BookingRequest bookingRequest, User user) {
-    return createBooking(bookingRequest, user, user);
+    return create(bookingRequest, user, user);
   }
 
   /**
@@ -144,6 +144,12 @@ public class BookingService {
   @Transactional
   public BookingWithStatus createBooking(
       BookingRequest bookingRequest, User bookedFor, User createdBy) {
+    return create(bookingRequest, bookedFor, createdBy);
+  }
+
+  // Both public overloads call this rather than each other: a call through `this` skips the
+  // transactional proxy, so only the outer method's @Transactional would apply.
+  private BookingWithStatus create(BookingRequest bookingRequest, User bookedFor, User createdBy) {
     log.info("Creating booking made by user with uid {}", createdBy.getUid());
 
     DanceClass floorFee = resolveFloorFee(bookingRequest, bookedFor, createdBy);

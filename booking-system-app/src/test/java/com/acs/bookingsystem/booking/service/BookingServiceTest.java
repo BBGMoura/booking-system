@@ -222,7 +222,9 @@ class BookingServiceTest {
 
   @Test
   void givenUserAndClosed_whenCreateBooking_thenThrowsAuthorizationExceptionAndDoesNotSave() {
-    assertThatThrownBy(() -> bookingService.createBooking(closedRequest(false), user))
+    BookingRequest closed = closedRequest(false);
+
+    assertThatThrownBy(() -> bookingService.createBooking(closed, user))
         .isInstanceOf(AuthorizationException.class);
 
     verify(bookingRepository, never()).save(any());
@@ -231,7 +233,9 @@ class BookingServiceTest {
 
   @Test
   void givenSharedClosed_whenCreateBooking_thenThrowsRequestException() {
-    assertThatThrownBy(() -> bookingService.createBooking(closedRequest(true), admin))
+    BookingRequest sharedClosed = closedRequest(true);
+
+    assertThatThrownBy(() -> bookingService.createBooking(sharedClosed, admin))
         .isInstanceOf(RequestException.class)
         .hasMessageContaining("Closed can't be shared");
 
@@ -253,7 +257,9 @@ class BookingServiceTest {
 
   @Test
   void givenUserAndClosed_whenValidateBooking_thenThrowsAuthorizationException() {
-    assertThatThrownBy(() -> bookingService.validateBooking(closedRequest(false), user))
+    BookingRequest closed = closedRequest(false);
+
+    assertThatThrownBy(() -> bookingService.validateBooking(closed, user))
         .isInstanceOf(AuthorizationException.class);
   }
 

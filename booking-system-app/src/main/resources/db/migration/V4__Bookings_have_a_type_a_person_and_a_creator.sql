@@ -53,7 +53,7 @@ ALTER TABLE booking ADD CONSTRAINT chk_booking_studio_has_no_person
 
 ALTER TABLE booking ADD CONSTRAINT chk_booking_studio_use_is_free
     CHECK (booking_type NOT IN ('GROUP', 'UNAVAILABLE')
-        OR (total_price = 0 AND shareable = FALSE AND dance_class_id IS NULL));
+        OR (total_price = 0 AND NOT shareable AND dance_class_id IS NULL));
 
 ALTER TABLE booking ADD CONSTRAINT chk_booking_room_hire_has_floor_fee
     CHECK (booking_type IN ('GROUP', 'UNAVAILABLE') OR dance_class_id IS NOT NULL);
