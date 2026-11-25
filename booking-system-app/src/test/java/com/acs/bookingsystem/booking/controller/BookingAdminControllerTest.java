@@ -81,7 +81,8 @@ class BookingAdminControllerTest {
           ClassType.PRIVATE,
           OffsetDateTime.of(2025, 6, 2, 10, 0, 0, 0, ZoneOffset.UTC),
           OffsetDateTime.of(2025, 6, 2, 11, 0, 0, 0, ZoneOffset.UTC),
-          BigDecimal.TEN);
+          BigDecimal.TEN,
+          false);
 
   @BeforeEach
   void setup() {
@@ -227,7 +228,7 @@ class BookingAdminControllerTest {
             OffsetDateTime.of(2025, 6, 2, 10, 0, 0, 0, ZoneOffset.UTC),
             OffsetDateTime.of(2025, 6, 2, 11, 0, 0, 0, ZoneOffset.UTC));
     when(userService.getUserByUid(USER_UID)).thenReturn(adminUser);
-    when(bookingService.createBooking(any(BookingRequest.class), any(User.class)))
+    when(bookingService.createBooking(any(BookingRequest.class), any(User.class), any(User.class)))
         .thenReturn(bookingWithStatus);
     when(viewFactory.createView(any(BookingWithStatus.class), eq(ViewType.DETAIL)))
         .thenReturn(bookingDetail);

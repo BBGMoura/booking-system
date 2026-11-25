@@ -14,6 +14,7 @@ import com.acs.bookingsystem.booking.repository.BookingRepository;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.booking.service.validation.BookingValidator;
 import com.acs.bookingsystem.booking.service.validation.ValidationFailure;
+import com.acs.bookingsystem.common.exception.AuthorizationException;
 import com.acs.bookingsystem.common.exception.LockTimeoutException;
 import com.acs.bookingsystem.common.exception.NotFoundException;
 import com.acs.bookingsystem.common.exception.RequestException;
@@ -82,7 +83,7 @@ class BookingServiceTest {
           OffsetDateTime.of(2025, 6, 2, 10, 0, 0, 0, ZoneOffset.UTC),
           OffsetDateTime.of(2025, 6, 2, 11, 0, 0, 0, ZoneOffset.UTC));
 
-  private final Booking booking = Booking.builder().uid(BOOKING_UID).user(user).build();
+  private final Booking booking = Booking.builder().uid(BOOKING_UID).bookedFor(user).build();
 
   // --- createBooking ---
 
@@ -159,6 +160,128 @@ class BookingServiceTest {
     verify(bookingStatusService, never()).save(any(), any(), any());
   }
 
+  @Test
+  void givenRoomHire_whenCreateBooking_thenBookedForAndCreatedByAreTheUser() {
+    when(danceClassService.getActiveDanceClass(ClassType.PRIVATE, Role.ROLE_USER))
+        .thenReturn(danceClass);
+    when(bookingValidator.validate(request)).thenReturn(Optional.empty());
+    when(bookingRepository.save(any())).thenReturn(booking);
+
+    bookingService.createBooking(request, user);
+
+    Booking saved = savedBooking();
+    assertThat(saved.getBookingType()).isEqualTo(ClassType.PRIVATE);
+    assertThat(saved.getBookedFor()).isEqualTo(user);
+    assertThat(saved.getCreatedBy()).isEqualTo(user);
+    assertThat(saved.getDanceClass()).isEqualTo(danceClass);
+    assertThat(saved.getTotalPrice()).isEqualByComparingTo(BigDecimal.TEN);
+  }
+
+  @Test
+  void givenAdminBookingForUser_whenCreateBooking_thenCreatedByIsTheAdmin() {
+    when(danceClassService.getActiveDanceClass(ClassType.PRIVATE, Role.ROLE_USER))
+        .thenReturn(danceClass);
+    when(bookingValidator.validate(request)).thenReturn(Optional.empty());
+    when(bookingRepository.save(any())).thenReturn(booking);
+
+    bookingService.createBooking(request, user, admin);
+
+    Booking saved = savedBooking();
+    assertThat(saved.getBookedFor()).isEqualTo(user);
+    assertThat(saved.getCreatedBy()).isEqualTo(admin);
+    verify(bookingStatusService).save(booking, admin, BookingStatusType.BOOKED);
+  }
+
+  @Test
+  void givenAdminAndClosed_whenCreateBooking_thenBookedForTheStudioAtNoCost() {
+    when(bookingValidator.validate(closedRequest(false))).thenReturn(Optional.empty());
+    when(bookingRepository.save(any())).thenReturn(booking);
+
+    bookingService.createBooking(closedRequest(false), admin);
+
+    Booking saved = savedBooking();
+    assertThat(saved.getBookingType()).isEqualTo(ClassType.UNAVAILABLE);
+    assertThat(saved.getBookedFor()).isNull();
+    assertThat(saved.getCreatedBy()).isEqualTo(admin);
+    assertThat(saved.getDanceClass()).isNull();
+    assertThat(saved.getTotalPrice()).isEqualByComparingTo(BigDecimal.ZERO);
+    assertThat(saved.isShareable()).isFalse();
+    verify(danceClassService, never()).getActiveDanceClass(any(), any());
+    verify(advisoryLockRepository).acquireRoomLock(Room.ASTAIRE);
+  }
+
+  @Test
+  void givenAdminBookingClosedViaAdminEndpoint_whenCreateBooking_thenStillForTheStudio() {
+    when(bookingValidator.validate(closedRequest(false))).thenReturn(Optional.empty());
+    when(bookingRepository.save(any())).thenReturn(booking);
+
+    bookingService.createBooking(closedRequest(false), user, admin);
+
+    assertThat(savedBooking().getBookedFor()).isNull();
+  }
+
+  @Test
+  void givenUserAndClosed_whenCreateBooking_thenThrowsAuthorizationExceptionAndDoesNotSave() {
+    assertThatThrownBy(() -> bookingService.createBooking(closedRequest(false), user))
+        .isInstanceOf(AuthorizationException.class);
+
+    verify(bookingRepository, never()).save(any());
+    verify(advisoryLockRepository, never()).acquireRoomLock(any());
+  }
+
+  @Test
+  void givenSharedClosed_whenCreateBooking_thenThrowsRequestException() {
+    assertThatThrownBy(() -> bookingService.createBooking(closedRequest(true), admin))
+        .isInstanceOf(RequestException.class)
+        .hasMessageContaining("Closed can't be shared");
+
+    verify(bookingRepository, never()).save(any());
+  }
+
+  @Test
+  void givenGroupClass_whenCreateBooking_thenThrowsRequestExceptionEvenForAdmin() {
+    BookingRequest group = requestOfType(ClassType.GROUP);
+
+    assertThatThrownBy(() -> bookingService.createBooking(group, admin))
+        .isInstanceOf(RequestException.class)
+        .hasMessageContaining("booked through timetables");
+    assertThatThrownBy(() -> bookingService.createBooking(group, user))
+        .isInstanceOf(RequestException.class);
+
+    verify(bookingRepository, never()).save(any());
+  }
+
+  @Test
+  void givenUserAndClosed_whenValidateBooking_thenThrowsAuthorizationException() {
+    assertThatThrownBy(() -> bookingService.validateBooking(closedRequest(false), user))
+        .isInstanceOf(AuthorizationException.class);
+  }
+
+  @Test
+  void givenAdminAndClosed_whenValidateBooking_thenRunsTheClashChecksWithoutAFloorFee() {
+    when(bookingValidator.validate(closedRequest(false))).thenReturn(Optional.empty());
+
+    bookingService.validateBooking(closedRequest(false), admin);
+
+    verify(bookingValidator).validate(closedRequest(false));
+    verify(danceClassService, never()).getActiveDanceClass(any(), any());
+  }
+
+  private Booking savedBooking() {
+    ArgumentCaptor<Booking> captor = ArgumentCaptor.forClass(Booking.class);
+    verify(bookingRepository).save(captor.capture());
+    return captor.getValue();
+  }
+
+  private BookingRequest closedRequest(boolean shareable) {
+    return new BookingRequest(
+        request.room(), ClassType.UNAVAILABLE, shareable, request.dateFrom(), request.dateTo());
+  }
+
+  private BookingRequest requestOfType(ClassType type) {
+    return new BookingRequest(request.room(), type, false, request.dateFrom(), request.dateTo());
+  }
+
   // --- validateBooking ---
 
   @Test
@@ -192,7 +315,7 @@ class BookingServiceTest {
   @Test
   void
       givenValidUidAndUser_whenCancelBookingByUserId_thenInsertsCancelledStatusWithUserAsCreatedBy() {
-    when(bookingRepository.findByUidAndUserId(BOOKING_UID, USER_ID))
+    when(bookingRepository.findByUidAndBookedForId(BOOKING_UID, USER_ID))
         .thenReturn(Optional.of(booking));
 
     bookingService.cancelBookingByUserId(BOOKING_UID, USER_ID);
@@ -202,7 +325,8 @@ class BookingServiceTest {
 
   @Test
   void givenBookingNotOwnedByUser_whenCancelBookingByUserId_thenThrowsNotFoundException() {
-    when(bookingRepository.findByUidAndUserId(BOOKING_UID, USER_ID)).thenReturn(Optional.empty());
+    when(bookingRepository.findByUidAndBookedForId(BOOKING_UID, USER_ID))
+        .thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> bookingService.cancelBookingByUserId(BOOKING_UID, USER_ID))
         .isInstanceOf(NotFoundException.class);
@@ -236,7 +360,7 @@ class BookingServiceTest {
   @Test
   void
       givenUserId_whenCancelAllBookings_thenInsertsCancelledForEachActiveBookingWithAdminAsCreatedBy() {
-    Booking booking2 = Booking.builder().uid(UUID.randomUUID()).user(user).build();
+    Booking booking2 = Booking.builder().uid(UUID.randomUUID()).bookedFor(user).build();
     when(bookingRepository.findActiveBookingsByUserId(USER_ID))
         .thenReturn(List.of(booking, booking2));
 
@@ -271,7 +395,7 @@ class BookingServiceTest {
 
   @Test
   void givenValidUidAndOwner_whenGetBookingByUidAndUser_thenReturnsBookingWithStatus() {
-    when(bookingRepository.findByUidAndUserId(BOOKING_UID, USER_ID))
+    when(bookingRepository.findByUidAndBookedForId(BOOKING_UID, USER_ID))
         .thenReturn(Optional.of(booking));
     when(bookingStatusService.resolveStatus(booking)).thenReturn(BookingStatusType.BOOKED);
 
@@ -283,7 +407,8 @@ class BookingServiceTest {
 
   @Test
   void givenUidNotOwnedByUser_whenGetBookingByUidAndUser_thenThrowsNotFoundException() {
-    when(bookingRepository.findByUidAndUserId(BOOKING_UID, USER_ID)).thenReturn(Optional.empty());
+    when(bookingRepository.findByUidAndBookedForId(BOOKING_UID, USER_ID))
+        .thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> bookingService.getBookingByUidAndUser(BOOKING_UID, USER_ID))
         .isInstanceOf(NotFoundException.class);

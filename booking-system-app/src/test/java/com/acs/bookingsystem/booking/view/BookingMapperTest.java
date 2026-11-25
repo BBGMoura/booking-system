@@ -45,12 +45,13 @@ class BookingMapperTest {
             .role(Role.ROLE_USER)
             .build();
     DanceClass danceClass =
-        new DanceClass(1L, ClassType.PRIVATE, true, BigDecimal.TEN, Role.ROLE_USER);
+        new DanceClass(1L, ClassType.PRACTICE, true, BigDecimal.TEN, Role.ROLE_USER);
 
     booking =
         Booking.builder()
             .uid(BOOKING_UID)
-            .user(user)
+            .bookingType(ClassType.PRIVATE)
+            .bookedFor(user)
             .room(Room.ASTAIRE)
             .danceClass(danceClass)
             .shareable(false)
@@ -75,6 +76,39 @@ class BookingMapperTest {
     assertThat(detail.dateFrom()).isEqualTo(FROM);
     assertThat(detail.dateTo()).isEqualTo(TO);
     assertThat(detail.totalPrice()).isEqualByComparingTo(BigDecimal.TEN);
+    assertThat(detail.forStudio()).isFalse();
+  }
+
+  @Test
+  void mapDetail_givenStudioBooking_hasNoPersonAndIsForStudio() {
+    BookingDetail detail = mapper.mapDetail(studioBooking(), BookingStatusType.BOOKED);
+
+    assertThat(detail.userUid()).isNull();
+    assertThat(detail.firstName()).isNull();
+    assertThat(detail.lastName()).isNull();
+    assertThat(detail.classType()).isEqualTo(ClassType.UNAVAILABLE);
+    assertThat(detail.totalPrice()).isEqualByComparingTo(BigDecimal.ZERO);
+    assertThat(detail.forStudio()).isTrue();
+  }
+
+  @Test
+  void mapSummary_givenStudioBooking_isForStudioWithBookingType() {
+    BookingSummary summary = mapper.mapSummary(studioBooking(), BookingStatusType.BOOKED);
+
+    assertThat(summary.classType()).isEqualTo(ClassType.UNAVAILABLE);
+    assertThat(summary.forStudio()).isTrue();
+  }
+
+  private Booking studioBooking() {
+    return Booking.builder()
+        .uid(BOOKING_UID)
+        .bookingType(ClassType.UNAVAILABLE)
+        .createdBy(User.builder().uid(UUID.randomUUID()).role(Role.ROLE_ADMIN).build())
+        .room(Room.ASTAIRE)
+        .bookedFrom(FROM)
+        .bookedTo(TO)
+        .totalPrice(BigDecimal.ZERO)
+        .build();
   }
 
   @Test
@@ -82,7 +116,7 @@ class BookingMapperTest {
     Booking unnamedBooking =
         Booking.builder()
             .uid(BOOKING_UID)
-            .user(User.builder().uid(USER_UID).role(Role.ROLE_ADMIN).build())
+            .bookedFor(User.builder().uid(USER_UID).role(Role.ROLE_ADMIN).build())
             .room(Room.ASTAIRE)
             .danceClass(booking.getDanceClass())
             .bookedFrom(FROM)
@@ -114,5 +148,6 @@ class BookingMapperTest {
     assertThat(summary.shareable()).isFalse();
     assertThat(summary.bookedFrom()).isEqualTo(FROM);
     assertThat(summary.bookedTo()).isEqualTo(TO);
+    assertThat(summary.forStudio()).isFalse();
   }
 }

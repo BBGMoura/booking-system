@@ -19,6 +19,7 @@ import com.acs.bookingsystem.booking.view.BookingViewFactory;
 import com.acs.bookingsystem.booking.view.ViewType;
 import com.acs.bookingsystem.booking.view.dto.BookingDetail;
 import com.acs.bookingsystem.booking.view.dto.BookingSummary;
+import com.acs.bookingsystem.common.exception.AuthorizationException;
 import com.acs.bookingsystem.common.exception.RequestException;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.danceclass.enums.ClassType;
@@ -79,7 +80,8 @@ class BookingControllerTest {
           ClassType.PRIVATE,
           OffsetDateTime.of(2025, 6, 2, 10, 0, 0, 0, ZoneOffset.UTC),
           OffsetDateTime.of(2025, 6, 2, 11, 0, 0, 0, ZoneOffset.UTC),
-          BigDecimal.TEN);
+          BigDecimal.TEN,
+          false);
 
   private final BookingSummary bookingSummary =
       new BookingSummary(
@@ -89,7 +91,8 @@ class BookingControllerTest {
           BookingStatusType.BOOKED,
           false,
           OffsetDateTime.of(2025, 6, 2, 10, 0, 0, 0, ZoneOffset.UTC),
-          OffsetDateTime.of(2025, 6, 2, 11, 0, 0, 0, ZoneOffset.UTC));
+          OffsetDateTime.of(2025, 6, 2, 11, 0, 0, 0, ZoneOffset.UTC),
+          false);
 
   @BeforeEach
   void setup() {
@@ -120,6 +123,117 @@ class BookingControllerTest {
                 .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.uid").value(BOOKING_UID.toString()));
+  }
+
+  @Test
+  void givenGroupClass_whenCreateBooking_thenReturns400() throws Exception {
+    when(bookingService.createBooking(any(BookingRequest.class), any(User.class)))
+        .thenThrow(
+            new RequestException(
+                "Group classes are booked through timetables.", ErrorCode.INVALID_BOOKING_REQUEST));
+
+    mockMvc
+        .perform(
+            post("/api/v1/bookings")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestOfType(ClassType.GROUP, false))))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void givenSharedClosed_whenCreateBooking_thenReturns400() throws Exception {
+    when(bookingService.createBooking(any(BookingRequest.class), any(User.class)))
+        .thenThrow(
+            new RequestException("Closed can't be shared.", ErrorCode.INVALID_BOOKING_REQUEST));
+
+    mockMvc
+        .perform(
+            post("/api/v1/bookings")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(requestOfType(ClassType.UNAVAILABLE, true))))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void givenUserAndClosed_whenCreateBooking_thenReturns403() throws Exception {
+    when(bookingService.createBooking(any(BookingRequest.class), any(User.class)))
+        .thenThrow(
+            new AuthorizationException(
+                "Only admins can book the studio as Closed.", ErrorCode.INVALID_BOOKING_REQUEST));
+
+    mockMvc
+        .perform(
+            post("/api/v1/bookings")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(requestOfType(ClassType.UNAVAILABLE, false))))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void givenStudioBooking_whenGetBookings_thenForStudioIsTrueWithNoPerson() throws Exception {
+    BookingDetail studioDetail =
+        new BookingDetail(
+            BOOKING_UID,
+            null,
+            null,
+            null,
+            Room.ASTAIRE,
+            BookingStatusType.BOOKED,
+            false,
+            ClassType.UNAVAILABLE,
+            OffsetDateTime.of(2025, 6, 2, 10, 0, 0, 0, ZoneOffset.UTC),
+            OffsetDateTime.of(2025, 6, 2, 11, 0, 0, 0, ZoneOffset.UTC),
+            BigDecimal.ZERO,
+            true);
+    when(bookingService.getBookingByUidAndUser(BOOKING_UID, user.getId()))
+        .thenReturn(bookingWithStatus);
+    when(viewFactory.createView(any(BookingWithStatus.class), eq(ViewType.DETAIL)))
+        .thenReturn(studioDetail);
+
+    mockMvc
+        .perform(get("/api/v1/bookings/{uid}", BOOKING_UID))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.forStudio").value(true))
+        .andExpect(jsonPath("$.userUid").doesNotExist())
+        .andExpect(jsonPath("$.classType").value("UNAVAILABLE"));
+  }
+
+  @Test
+  void givenStudioBooking_whenGetSchedule_thenSummaryHasForStudio() throws Exception {
+    BookingSummary studioSummary =
+        new BookingSummary(
+            BOOKING_UID,
+            Room.ASTAIRE,
+            ClassType.UNAVAILABLE,
+            BookingStatusType.BOOKED,
+            false,
+            OffsetDateTime.of(2025, 6, 2, 10, 0, 0, 0, ZoneOffset.UTC),
+            OffsetDateTime.of(2025, 6, 2, 11, 0, 0, 0, ZoneOffset.UTC),
+            true);
+    when(bookingService.getBookingsByRoomAndDates(any(), any(), any()))
+        .thenReturn(List.of(bookingWithStatus));
+    when(viewFactory.createView(any(BookingWithStatus.class), any(Role.class)))
+        .thenReturn(studioSummary);
+
+    mockMvc
+        .perform(
+            get("/api/v1/bookings/schedule")
+                .param("room", "ASTAIRE")
+                .param("dateFrom", "2025-06-02T00:00:00Z")
+                .param("dateTo", "2025-06-03T00:00:00Z"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].forStudio").value(true));
+  }
+
+  private static BookingRequest requestOfType(ClassType type, boolean shareable) {
+    return new BookingRequest(
+        Room.ASTAIRE,
+        type,
+        shareable,
+        OffsetDateTime.of(2025, 6, 2, 10, 0, 0, 0, ZoneOffset.UTC),
+        OffsetDateTime.of(2025, 6, 2, 11, 0, 0, 0, ZoneOffset.UTC));
   }
 
   @Test

@@ -301,7 +301,9 @@ class BookingRepositoryIT extends BaseIntegrationTest {
     bookingRepository.save(
         Booking.builder()
             .uid(UUID.randomUUID())
-            .user(otherUser)
+            .bookingType(ClassType.PRIVATE)
+            .bookedFor(otherUser)
+            .createdBy(otherUser)
             .room(Room.BUSSELL)
             .danceClass(danceClass)
             .shareable(false)
@@ -464,7 +466,9 @@ class BookingRepositoryIT extends BaseIntegrationTest {
     return bookingRepository.save(
         Booking.builder()
             .uid(UUID.randomUUID())
-            .user(user)
+            .bookingType(ClassType.PRIVATE)
+            .bookedFor(user)
+            .createdBy(user)
             .room(room)
             .danceClass(danceClass)
             .shareable(shareable)

@@ -2,6 +2,7 @@ package com.acs.bookingsystem.booking.entity;
 
 import com.acs.bookingsystem.booking.enums.Room;
 import com.acs.bookingsystem.danceclass.entity.DanceClass;
+import com.acs.bookingsystem.danceclass.enums.ClassType;
 import com.acs.bookingsystem.user.entity.User;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -24,16 +25,26 @@ public class Booking {
   @Column(name = "uid", unique = true, nullable = false, updatable = false)
   private UUID uid;
 
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private ClassType bookingType;
+
+  // Null means the booking is for the studio.
+  @ManyToOne
+  @JoinColumn(referencedColumnName = "id")
+  private User bookedFor;
+
   @ManyToOne
   @JoinColumn(referencedColumnName = "id", nullable = false)
-  private User user;
+  private User createdBy;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private Room room;
 
+  // The floor fee that priced the booking; null for studio use, which costs nothing.
   @ManyToOne
-  @JoinColumn(referencedColumnName = "id", nullable = false)
+  @JoinColumn(referencedColumnName = "id")
   private DanceClass danceClass;
 
   private boolean shareable;
@@ -46,6 +57,10 @@ public class Booking {
 
   @Column(nullable = false)
   private BigDecimal totalPrice;
+
+  public boolean isForStudio() {
+    return bookedFor == null;
+  }
 
   @PrePersist
   void prePersist() {

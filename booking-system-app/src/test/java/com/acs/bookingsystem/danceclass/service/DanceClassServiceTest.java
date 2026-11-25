@@ -118,25 +118,37 @@ class DanceClassServiceTest {
   }
 
   @Test
-  void givenAdmin_getAllActiveDanceClassTypes_returnsEveryActiveRate() {
+  void givenAdmin_getAllActiveDanceClassTypes_returnsRoomHireRatesAndClosed() {
     when(danceClassRepository.findAllByActiveIsTrue())
         .thenReturn(
             List.of(
-                danceClass,
+                DanceClassTestData.danceClassPrice,
                 new DanceClass(2L, ClassType.PRACTICE, true, BigDecimal.ONE, Role.ROLE_ADMIN)));
 
     assertEquals(
-        List.of(ClassType.GROUP, ClassType.PRACTICE),
+        List.of(ClassType.PRIVATE, ClassType.PRACTICE, ClassType.UNAVAILABLE),
         danceClassService.getAllActiveDanceClassTypes(Role.ROLE_ADMIN));
   }
 
   @Test
-  void givenUser_getAllActiveDanceClassTypes_returnsOnlyUserRates() {
+  void givenUser_getAllActiveDanceClassTypes_returnsOnlyUserRoomHireRates() {
     when(danceClassRepository.findAllByActiveIsTrueAndRole(Role.ROLE_USER))
-        .thenReturn(List.of(danceClass));
+        .thenReturn(List.of(DanceClassTestData.danceClassPrice));
 
     assertEquals(
-        List.of(ClassType.GROUP), danceClassService.getAllActiveDanceClassTypes(Role.ROLE_USER));
+        List.of(ClassType.PRIVATE), danceClassService.getAllActiveDanceClassTypes(Role.ROLE_USER));
     verify(danceClassRepository, never()).findAllByActiveIsTrue();
+  }
+
+  @Test
+  void getAllActiveDanceClassTypes_neverReturnsGroupClass() {
+    when(danceClassRepository.findAllByActiveIsTrueAndRole(Role.ROLE_USER))
+        .thenReturn(List.of(danceClass));
+    when(danceClassRepository.findAllByActiveIsTrue()).thenReturn(List.of(danceClass));
+
+    assertEquals(List.of(), danceClassService.getAllActiveDanceClassTypes(Role.ROLE_USER));
+    assertEquals(
+        List.of(ClassType.UNAVAILABLE),
+        danceClassService.getAllActiveDanceClassTypes(Role.ROLE_ADMIN));
   }
 }

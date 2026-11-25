@@ -7,9 +7,11 @@ import com.acs.bookingsystem.danceclass.enums.ClassType;
 import com.acs.bookingsystem.danceclass.repository.DanceClassRepository;
 import com.acs.bookingsystem.danceclass.request.DanceClassRequest;
 import com.acs.bookingsystem.user.enums.Role;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -49,7 +51,16 @@ public class DanceClassService {
         role == Role.ROLE_ADMIN
             ? danceClassRepository.findAllByActiveIsTrue()
             : danceClassRepository.findAllByActiveIsTrueAndRole(role);
-    return danceClasses.stream().map(DanceClass::getClassType).toList();
+    List<ClassType> types =
+        danceClasses.stream()
+            .map(DanceClass::getClassType)
+            .filter(ClassType::isRoomHire)
+            .collect(Collectors.toCollection(ArrayList::new));
+    // Closed is for the studio so it has no floor fee, but admins can always book it.
+    if (role == Role.ROLE_ADMIN) {
+      types.add(ClassType.UNAVAILABLE);
+    }
+    return types;
   }
 
   /**

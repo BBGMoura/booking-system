@@ -31,9 +31,11 @@ public class BookingAdminController {
 
   @PostMapping
   public ResponseEntity<BookingView> createBooking(
-      @RequestParam UUID userUid, @Valid @RequestBody BookingRequest bookingRequest) {
+      @CurrentUser User admin,
+      @RequestParam UUID userUid,
+      @Valid @RequestBody BookingRequest bookingRequest) {
     User user = userService.getUserByUid(userUid);
-    BookingWithStatus result = bookingService.createBooking(bookingRequest, user);
+    BookingWithStatus result = bookingService.createBooking(bookingRequest, user, admin);
     return new ResponseEntity<>(
         viewFactory.createView(result, ViewType.DETAIL), HttpStatus.CREATED);
   }

@@ -13,5 +13,6 @@ public record BookingSummary(
     BookingStatusType status,
     boolean shareable,
     OffsetDateTime bookedFrom,
-    OffsetDateTime bookedTo)
+    OffsetDateTime bookedTo,
+    boolean forStudio)
     implements BookingView {}

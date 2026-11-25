@@ -67,7 +67,9 @@ class BookingControllerIT extends BaseIntegrationTest {
     Booking booking =
         bookingRepository.save(
             Booking.builder()
-                .user(booker)
+                .bookingType(ClassType.PRIVATE)
+                .bookedFor(booker)
+                .createdBy(booker)
                 .room(room)
                 .danceClass(danceClass)
                 .shareable(false)
@@ -365,7 +367,9 @@ class BookingControllerIT extends BaseIntegrationTest {
     Booking booking =
         bookingRepository.save(
             Booking.builder()
-                .user(booker)
+                .bookingType(ClassType.PRIVATE)
+                .bookedFor(booker)
+                .createdBy(booker)
                 .room(Room.ASTAIRE)
                 .danceClass(danceClass)
                 .shareable(true)

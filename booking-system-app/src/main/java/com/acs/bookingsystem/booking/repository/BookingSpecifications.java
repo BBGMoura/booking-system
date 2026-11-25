@@ -20,11 +20,11 @@ public final class BookingSpecifications {
   private BookingSpecifications() {}
 
   public static Specification<Booking> forUser(Long userId) {
-    return (root, query, cb) -> cb.equal(root.get("user").get("id"), userId);
+    return (root, query, cb) -> cb.equal(root.get("bookedFor").get("id"), userId);
   }
 
   public static Specification<Booking> forUserUid(UUID userUid) {
-    return (root, query, cb) -> cb.equal(root.get("user").get("uid"), userUid);
+    return (root, query, cb) -> cb.equal(root.get("bookedFor").get("uid"), userUid);
   }
 
   /**
