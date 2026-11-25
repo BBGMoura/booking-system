@@ -23,7 +23,7 @@ docker-compose up -d
 Mailpit is a fake SMTP server for local dev — the app sends real emails to it instead of a
 real provider, and you view them at http://localhost:8025 instead of an inbox. No real email
 account or credentials needed locally. Deployed environments (dev/prod) still use a real
-Gmail account via `EMAIL_ADDRESS`/`EMAIL_PASSWORD`.
+Gmail account by default, or any SMTP provider (see [Email](#email)).
 
 3. Run the Application:
 
@@ -35,6 +35,33 @@ Alternatively, you can build and run the application using Maven from the comman
 mvn clean install
 
 java -Dspring.profiles.active=local -jar target/booking-system-image.jar.
+```
+
+## Email
+
+The app sends email over SMTP, so the provider is chosen by environment variables alone.
+With only `EMAIL_ADDRESS` and `EMAIL_PASSWORD` set, it sends through Gmail.
+
+| Variable | Required | Default | Purpose |
+| --- | --- | --- | --- |
+| `EMAIL_ADDRESS` | Yes | – | The From address on every email |
+| `EMAIL_PASSWORD` | Yes | – | The SMTP password (Gmail App Password, or a Resend API key) |
+| `EMAIL_SMTP_SERVER` | No | `smtp.gmail.com` | SMTP host |
+| `EMAIL_SMTP_PORT` | No | `465` | SMTP port |
+| `EMAIL_SMTP_TRANSPORT_STRATEGY` | No | `SMTPS` | `SMTP`, `SMTP_TLS` or `SMTPS` |
+| `EMAIL_SMTP_USERNAME` | No | the value of `EMAIL_ADDRESS` | SMTP login name |
+| `EMAIL_REPLY_TO` | No | none | When set, the Reply-To on every email |
+
+Resend example:
+
+```bash
+EMAIL_ADDRESS=bookings@acsdance.uk
+EMAIL_PASSWORD=<Resend API key with sending access only>
+EMAIL_SMTP_SERVER=smtp.resend.com
+EMAIL_SMTP_PORT=465
+EMAIL_SMTP_TRANSPORT_STRATEGY=SMTPS
+EMAIL_SMTP_USERNAME=resend
+EMAIL_REPLY_TO=<the ACS mailbox>
 ```
 
 ## Admin Bootstrap

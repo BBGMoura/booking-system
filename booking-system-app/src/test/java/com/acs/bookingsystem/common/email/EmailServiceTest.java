@@ -65,4 +65,48 @@ class EmailServiceTest {
                     email.getSubject().equals("You're invited!")
                         && email.getPlainText().equals("Welcome to the system.")));
   }
+
+  @Test
+  void sendInvitationEmail_setsReplyToWhenConfigured() {
+    EmailProperties.Sender sender = new EmailProperties.Sender();
+    sender.setAddress("noreply@example.com");
+
+    EmailProperties.Template template = new EmailProperties.Template();
+    template.setSubject("You're invited!");
+    template.setBody("Welcome to the system.");
+
+    when(emailProperties.getSender()).thenReturn(sender);
+    when(emailProperties.getReplyTo()).thenReturn("studio@example.com");
+    when(emailProperties.getTemplate())
+        .thenReturn(Map.of(TemplateType.INVITATION.getKey(), template));
+
+    emailService.sendInvitationEmail("user@example.com");
+
+    verify(mailer)
+        .sendMail(
+            argThat(
+                email ->
+                    email.getReplyToRecipients().size() == 1
+                        && "studio@example.com"
+                            .equals(email.getReplyToRecipients().get(0).getAddress())));
+  }
+
+  @Test
+  void sendInvitationEmail_hasNoReplyToWhenNotConfigured() {
+    EmailProperties.Sender sender = new EmailProperties.Sender();
+    sender.setAddress("noreply@example.com");
+
+    EmailProperties.Template template = new EmailProperties.Template();
+    template.setSubject("You're invited!");
+    template.setBody("Welcome to the system.");
+
+    when(emailProperties.getSender()).thenReturn(sender);
+    when(emailProperties.getReplyTo()).thenReturn("");
+    when(emailProperties.getTemplate())
+        .thenReturn(Map.of(TemplateType.INVITATION.getKey(), template));
+
+    emailService.sendInvitationEmail("user@example.com");
+
+    verify(mailer).sendMail(argThat(email -> email.getReplyToRecipients().isEmpty()));
+  }
 }

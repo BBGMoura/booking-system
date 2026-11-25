@@ -14,6 +14,7 @@ public class EmailProperties {
 
   private Sender sender;
   private Smtp smtp;
+  private String replyTo;
   private Map<String, Template> template;
 
   @Getter
@@ -29,10 +30,13 @@ public class EmailProperties {
     private String server;
     private int port;
 
+    /** Blank falls back to the sender address (Gmail); Resend needs its own fixed username. */
+    private String username;
+
     /**
      * Name of a {@link org.simplejavamail.api.mailer.config.TransportStrategy} constant (e.g. SMTP,
-     * SMTP_TLS, SMTPS). Defaults to SMTPS to match Gmail's implicit-TLS setup used in deployed
-     * environments; local dev overrides this to plain SMTP for Mailpit.
+     * SMTP_TLS, SMTPS). Defaults to SMTPS (implicit TLS, as used by Gmail and Resend on port 465);
+     * local dev overrides this to plain SMTP for Mailpit.
      */
     private String transportStrategy = "SMTPS";
   }
