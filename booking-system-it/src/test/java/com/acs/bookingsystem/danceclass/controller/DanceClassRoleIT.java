@@ -37,12 +37,12 @@ class DanceClassRoleIT extends BaseIntegrationTest {
   @Autowired private DanceClassRepository danceClassRepository;
   @Autowired private ObjectMapper objectMapper;
 
-  // GROUP and PRACTICE are used only here, so these tests don't disturb other ITs that rely on an
+  // OTHER and PRACTICE are used only here, so these tests don't disturb other ITs that rely on an
   // active PRIVATE rate.
   @BeforeEach
   void setUpRates() {
     danceClassRepository
-        .findByActiveIsTrueAndClassType(ClassType.GROUP)
+        .findByActiveIsTrueAndClassType(ClassType.OTHER)
         .ifPresent(
             d -> {
               d.setActive(false);
@@ -56,7 +56,7 @@ class DanceClassRoleIT extends BaseIntegrationTest {
               danceClassRepository.save(d);
             });
     danceClassRepository.save(
-        new DanceClass(null, ClassType.GROUP, true, BigDecimal.TEN, Role.ROLE_USER));
+        new DanceClass(null, ClassType.OTHER, true, BigDecimal.TEN, Role.ROLE_USER));
     danceClassRepository.save(
         new DanceClass(null, ClassType.PRACTICE, true, BigDecimal.ONE, Role.ROLE_ADMIN));
   }
@@ -105,7 +105,7 @@ class DanceClassRoleIT extends BaseIntegrationTest {
 
   @Test
   void givenAdmin_whenBookUserRate_thenCreated() {
-    assertThat(book(token(Role.ROLE_ADMIN), ClassType.GROUP, 1).getStatusCode())
+    assertThat(book(token(Role.ROLE_ADMIN), ClassType.OTHER, 1).getStatusCode())
         .isEqualTo(HttpStatus.CREATED);
   }
 
@@ -117,7 +117,7 @@ class DanceClassRoleIT extends BaseIntegrationTest {
 
   @Test
   void givenUser_whenBookUserRate_thenCreated() {
-    assertThat(book(token(Role.ROLE_USER), ClassType.GROUP, 3).getStatusCode())
+    assertThat(book(token(Role.ROLE_USER), ClassType.OTHER, 3).getStatusCode())
         .isEqualTo(HttpStatus.CREATED);
   }
 
@@ -129,9 +129,9 @@ class DanceClassRoleIT extends BaseIntegrationTest {
 
   @Test
   void whenGetClassTypes_thenAdminSeesEveryActiveRateAndUserOnlyTheirs() throws Exception {
-    assertThat(classTypes(token(Role.ROLE_ADMIN))).contains("GROUP", "PRACTICE");
+    assertThat(classTypes(token(Role.ROLE_ADMIN))).contains("OTHER", "PRACTICE");
     List<String> userTypes = classTypes(token(Role.ROLE_USER));
-    assertThat(userTypes).contains("GROUP").doesNotContain("PRACTICE");
+    assertThat(userTypes).contains("OTHER").doesNotContain("PRACTICE");
   }
 
   @Test
@@ -147,7 +147,7 @@ class DanceClassRoleIT extends BaseIntegrationTest {
     assertThat(user.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
 
     ResponseEntity<String> adminUserRate =
-        getUrl("/api/v1/dance-classes?classType=GROUP", token(Role.ROLE_ADMIN));
+        getUrl("/api/v1/dance-classes?classType=OTHER", token(Role.ROLE_ADMIN));
     assertThat(adminUserRate.getStatusCode()).isEqualTo(HttpStatus.OK);
   }
 }

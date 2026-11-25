@@ -13,4 +13,12 @@ public enum ClassType {
   OTHER("OTH");
 
   private final String code;
+
+  public boolean isRoomHire() {
+    return this == PRIVATE || this == PRACTICE || this == OTHER;
+  }
+
+  public boolean isStudioUse() {
+    return !isRoomHire();
+  }
 }

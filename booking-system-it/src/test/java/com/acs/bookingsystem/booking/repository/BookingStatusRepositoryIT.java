@@ -56,7 +56,9 @@ class BookingStatusRepositoryIT extends BaseIntegrationTest {
         bookingRepository.save(
             Booking.builder()
                 .uid(UUID.randomUUID())
-                .user(user)
+                .bookingType(ClassType.PRIVATE)
+                .bookedFor(user)
+                .createdBy(user)
                 .room(Room.ASTAIRE)
                 .danceClass(danceClass)
                 .shareable(false)

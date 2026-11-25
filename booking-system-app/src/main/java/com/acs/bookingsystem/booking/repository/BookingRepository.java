@@ -15,10 +15,11 @@ public interface BookingRepository
     extends JpaRepository<Booking, Long>, JpaSpecificationExecutor<Booking> {
 
   // A room's schedule spans many bookers and the detail view reads each booker's name, so the user
-  // is fetched here rather than with a follow-up select per booker.
+  // is fetched here rather than with a follow-up select per booker. It is a LEFT JOIN because
+  // bookings for the studio have no person and must still block the room.
   @Query(
       "SELECT b FROM Booking b "
-          + "JOIN FETCH b.user "
+          + "LEFT JOIN FETCH b.bookedFor "
           + "WHERE b.room = :room "
           + "AND (:shareable IS NULL OR b.shareable = :shareable) "
           + "AND (SELECT bs.status FROM BookingStatus bs WHERE bs.booking = b ORDER BY bs.createdOn DESC LIMIT 1) = 'BOOKED' "
@@ -32,11 +33,11 @@ public interface BookingRepository
 
   Optional<Booking> findByUid(UUID uid);
 
-  Optional<Booking> findByUidAndUserId(UUID uid, Long userId);
+  Optional<Booking> findByUidAndBookedForId(UUID uid, Long userId);
 
   @Query(
       "SELECT b FROM Booking b "
-          + "WHERE b.user.id = :userId "
+          + "WHERE b.bookedFor.id = :userId "
           + "AND b.bookedTo > CURRENT_TIMESTAMP "
           + "AND (SELECT bs.status FROM BookingStatus bs WHERE bs.booking = b ORDER BY bs.createdOn DESC LIMIT 1) = 'BOOKED'")
   List<Booking> findActiveBookingsByUserId(@Param("userId") Long userId);

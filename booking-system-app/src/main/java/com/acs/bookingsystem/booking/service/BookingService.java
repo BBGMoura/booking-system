@@ -9,13 +9,16 @@ import com.acs.bookingsystem.booking.repository.BookingRepository;
 import com.acs.bookingsystem.booking.repository.BookingSpecifications;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.booking.service.validation.BookingValidator;
+import com.acs.bookingsystem.common.exception.AuthorizationException;
 import com.acs.bookingsystem.common.exception.NotFoundException;
 import com.acs.bookingsystem.common.exception.RequestException;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.danceclass.entity.DanceClass;
+import com.acs.bookingsystem.danceclass.enums.ClassType;
 import com.acs.bookingsystem.danceclass.service.DanceClassService;
 import com.acs.bookingsystem.payment.PriceCalculator;
 import com.acs.bookingsystem.user.entity.User;
+import com.acs.bookingsystem.user.enums.Role;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -124,46 +127,91 @@ public class BookingService {
    * rejected if another booking lands first.
    */
   public void validateBooking(BookingRequest bookingRequest, User user) {
-    danceClassService.getActiveDanceClass(bookingRequest.classType(), user.getRole());
+    resolveFloorFee(bookingRequest, user);
     validateOrThrow(bookingRequest);
   }
 
+  /** A booking the signed-in user makes for themselves (or, for Closed, for the studio). */
   @Transactional
   public BookingWithStatus createBooking(BookingRequest bookingRequest, User user) {
-    log.info("Creating booking for user with uid {}", user.getUid());
+    return create(bookingRequest, user, user);
+  }
 
-    DanceClass danceClass =
-        danceClassService.getActiveDanceClass(bookingRequest.classType(), user.getRole());
+  /**
+   * @param bookedFor who the booking is for. Ignored for studio use, which is never for a person.
+   * @param createdBy who is making the booking; must be an admin to book Closed.
+   */
+  @Transactional
+  public BookingWithStatus createBooking(
+      BookingRequest bookingRequest, User bookedFor, User createdBy) {
+    return create(bookingRequest, bookedFor, createdBy);
+  }
+
+  // Both public overloads call this rather than each other: a call through `this` skips the
+  // transactional proxy, so only the outer method's @Transactional would apply.
+  private BookingWithStatus create(BookingRequest bookingRequest, User bookedFor, User createdBy) {
+    log.info("Creating booking made by user with uid {}", createdBy.getUid());
+
+    DanceClass floorFee = resolveFloorFee(bookingRequest, bookedFor, createdBy);
 
     advisoryLockRepository.acquireRoomLock(bookingRequest.room());
 
     validateOrThrow(bookingRequest);
 
+    boolean studioUse = bookingRequest.classType().isStudioUse();
     BigDecimal totalCost =
-        PriceCalculator.calculateTotalPrice(
-            bookingRequest.dateFrom(), bookingRequest.dateTo(), danceClass);
+        studioUse
+            ? BigDecimal.ZERO
+            : PriceCalculator.calculateTotalPrice(
+                bookingRequest.dateFrom(), bookingRequest.dateTo(), floorFee);
 
     Booking booking =
         bookingRepository.save(
             Booking.builder()
-                .user(user)
+                .bookingType(bookingRequest.classType())
+                .bookedFor(studioUse ? null : bookedFor)
+                .createdBy(createdBy)
                 .room(bookingRequest.room())
-                .danceClass(danceClass)
+                .danceClass(floorFee)
                 .shareable(bookingRequest.isShareable())
                 .bookedFrom(bookingRequest.dateFrom())
                 .bookedTo(bookingRequest.dateTo())
                 .totalPrice(totalCost)
                 .build());
 
-    bookingStatusService.save(booking, user, BookingStatusType.BOOKED);
+    bookingStatusService.save(booking, createdBy, BookingStatusType.BOOKED);
     log.info("Created booking {}", booking.getUid());
     return new BookingWithStatus(booking, BookingStatusType.BOOKED);
+  }
+
+  private DanceClass resolveFloorFee(BookingRequest request, User user) {
+    return resolveFloorFee(request, user, user);
+  }
+
+  /** Returns the floor fee that prices a room hire booking, or null for studio use. */
+  private DanceClass resolveFloorFee(BookingRequest request, User bookedFor, User createdBy) {
+    ClassType type = request.classType();
+    if (type == ClassType.GROUP) {
+      throw new RequestException(
+          "Group classes are booked through timetables.", ErrorCode.INVALID_BOOKING_REQUEST);
+    }
+    if (type.isStudioUse()) {
+      if (createdBy.getRole() != Role.ROLE_ADMIN) {
+        throw new AuthorizationException(
+            "Only admins can book the studio as Closed.", ErrorCode.INVALID_BOOKING_REQUEST);
+      }
+      if (request.isShareable()) {
+        throw new RequestException("Closed can't be shared.", ErrorCode.INVALID_BOOKING_REQUEST);
+      }
+      return null;
+    }
+    return danceClassService.getActiveDanceClass(type, bookedFor.getRole());
   }
 
   @Transactional
   public void cancelBookingByUserId(UUID bookingUid, Long userId) {
     Booking booking = fetchBookingByUidAndUser(bookingUid, userId);
-    bookingStatusService.save(booking, booking.getUser(), BookingStatusType.CANCELLED);
+    bookingStatusService.save(booking, booking.getBookedFor(), BookingStatusType.CANCELLED);
   }
 
   @Transactional
@@ -202,7 +250,7 @@ public class BookingService {
 
   private Booking fetchBookingByUidAndUser(UUID uid, Long userId) {
     return bookingRepository
-        .findByUidAndUserId(uid, userId)
+        .findByUidAndBookedForId(uid, userId)
         .orElseThrow(
             () ->
                 new NotFoundException(

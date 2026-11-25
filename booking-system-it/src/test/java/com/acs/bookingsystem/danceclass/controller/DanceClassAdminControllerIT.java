@@ -76,7 +76,7 @@ class DanceClassAdminControllerIT extends BaseIntegrationTest {
     danceClassRepository.save(
         new DanceClass(ClassType.PRIVATE, true, new BigDecimal("30.00"), Role.ROLE_USER));
     danceClassRepository.save(
-        new DanceClass(ClassType.GROUP, true, new BigDecimal("8.00"), Role.ROLE_USER));
+        new DanceClass(ClassType.PRACTICE, true, new BigDecimal("8.00"), Role.ROLE_USER));
     danceClassRepository.save(
         new DanceClass(ClassType.PRACTICE, false, new BigDecimal("99.00"), Role.ROLE_USER));
 
@@ -89,7 +89,7 @@ class DanceClassAdminControllerIT extends BaseIntegrationTest {
     assertThat(rates.get(0).get("pricePerHour").decimalValue()).isEqualByComparingTo("30.00");
     assertThat(rates.get(0).get("role").asText()).isEqualTo("ROLE_USER");
     assertThat(rates.get(0).get("active").asBoolean()).isTrue();
-    assertThat(rates.get(1).get("classType").asText()).isEqualTo("GROUP");
+    assertThat(rates.get(1).get("classType").asText()).isEqualTo("PRACTICE");
     assertThat(rates.get(2).get("classType").asText()).isEqualTo("OTHER");
     assertThat(rates.get(2).get("role").asText()).isEqualTo("ROLE_ADMIN");
   }

@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -31,9 +32,12 @@ public class BookingAdminController {
 
   @PostMapping
   public ResponseEntity<BookingView> createBooking(
-      @RequestParam UUID userUid, @Valid @RequestBody BookingRequest bookingRequest) {
+      Authentication authentication,
+      @RequestParam UUID userUid,
+      @Valid @RequestBody BookingRequest bookingRequest) {
+    User admin = (User) authentication.getPrincipal();
     User user = userService.getUserByUid(userUid);
-    BookingWithStatus result = bookingService.createBooking(bookingRequest, user);
+    BookingWithStatus result = bookingService.createBooking(bookingRequest, user, admin);
     return new ResponseEntity<>(
         viewFactory.createView(result, ViewType.DETAIL), HttpStatus.CREATED);
   }

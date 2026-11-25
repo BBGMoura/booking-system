@@ -18,5 +18,6 @@ public record BookingDetail(
     ClassType classType,
     OffsetDateTime dateFrom,
     OffsetDateTime dateTo,
-    BigDecimal totalPrice)
+    BigDecimal totalPrice,
+    boolean forStudio)
     implements BookingView {}
