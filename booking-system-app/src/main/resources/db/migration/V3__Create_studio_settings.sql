@@ -1,0 +1,33 @@
+CREATE TABLE studio_settings (
+    id INT PRIMARY KEY DEFAULT 1,
+    studio_name VARCHAR(100) NOT NULL DEFAULT 'ACS Dance Studio',
+    recurring_max_dates INT NOT NULL DEFAULT 5,
+    recurring_max_active INT NOT NULL DEFAULT 3,
+    shared_room_max INT NOT NULL DEFAULT 3,
+    shared_discount_per_hour DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    cancellation_window_hours INT NOT NULL DEFAULT 24,
+    payment_due_days INT NOT NULL DEFAULT 14,
+    billing_day INT NOT NULL DEFAULT 1,
+    invoice_prefix VARCHAR(10) NOT NULL DEFAULT 'ACS',
+    business_name TEXT,
+    business_address TEXT,
+    bank_account_name VARCHAR(200),
+    bank_sort_code VARCHAR(6),
+    bank_account_number VARCHAR(8),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+    updated_by_id BIGINT REFERENCES users (id),
+    CONSTRAINT chk_studio_settings_single_row CHECK (id = 1),
+    CONSTRAINT chk_studio_settings_name CHECK (btrim(studio_name) <> ''),
+    CONSTRAINT chk_studio_settings_recurring_max_dates CHECK (recurring_max_dates BETWEEN 1 AND 52),
+    CONSTRAINT chk_studio_settings_recurring_max_active CHECK (recurring_max_active BETWEEN 1 AND 20),
+    CONSTRAINT chk_studio_settings_shared_room_max CHECK (shared_room_max BETWEEN 2 AND 10),
+    CONSTRAINT chk_studio_settings_shared_discount CHECK (shared_discount_per_hour >= 0),
+    CONSTRAINT chk_studio_settings_cancellation_window CHECK (cancellation_window_hours BETWEEN 0 AND 168),
+    CONSTRAINT chk_studio_settings_payment_due_days CHECK (payment_due_days BETWEEN 1 AND 90),
+    CONSTRAINT chk_studio_settings_billing_day CHECK (billing_day BETWEEN 1 AND 28),
+    CONSTRAINT chk_studio_settings_invoice_prefix CHECK (invoice_prefix ~ '^[A-Za-z]+$'),
+    CONSTRAINT chk_studio_settings_sort_code CHECK (bank_sort_code IS NULL OR bank_sort_code ~ '^[0-9]{6}$'),
+    CONSTRAINT chk_studio_settings_account_number CHECK (bank_account_number IS NULL OR bank_account_number ~ '^[0-9]{8}$')
+);
+
+INSERT INTO studio_settings (id) VALUES (1);
