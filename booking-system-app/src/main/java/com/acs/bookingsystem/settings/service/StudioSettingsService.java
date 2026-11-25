@@ -7,6 +7,7 @@ import com.acs.bookingsystem.settings.repository.StudioSettingsRepository;
 import com.acs.bookingsystem.settings.request.StudioSettingsRequest;
 import com.acs.bookingsystem.user.entity.User;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,15 @@ public class StudioSettingsService {
 
   @Transactional(readOnly = true)
   public StudioSettings getSettings() {
+    return load();
+  }
+
+  @Transactional(readOnly = true)
+  public int getSharedRoomMax() {
+    return load().getSharedRoomMax();
+  }
+
+  private StudioSettings load() {
     return repository
         .findById(StudioSettings.SINGLETON_ID)
         .orElseThrow(
@@ -30,14 +40,10 @@ public class StudioSettingsService {
                     ErrorCode.INTERNAL_ERROR));
   }
 
-  public int getSharedRoomMax() {
-    return getSettings().getSharedRoomMax();
-  }
-
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   @Transactional
   public StudioSettings update(StudioSettingsRequest request, User updatedBy) {
-    StudioSettings settings = getSettings();
+    StudioSettings settings = load();
     settings.setStudioName(request.studioName());
     settings.setRecurringMaxDates(request.recurringMaxDates());
     settings.setRecurringMaxActive(request.recurringMaxActive());
@@ -52,7 +58,7 @@ public class StudioSettingsService {
     settings.setBankAccountName(request.bankAccountName());
     settings.setBankSortCode(request.bankSortCode());
     settings.setBankAccountNumber(request.bankAccountNumber());
-    settings.setUpdatedAt(OffsetDateTime.now());
+    settings.setUpdatedAt(OffsetDateTime.now(ZoneOffset.UTC));
     settings.setUpdatedBy(updatedBy);
     return repository.save(settings);
   }

@@ -23,8 +23,12 @@ import com.acs.bookingsystem.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.Month;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -118,13 +122,13 @@ class StudioSettingsIT extends BaseIntegrationTest {
 
     assertThat(jdbc.queryForObject("SELECT count(*) FROM studio_settings", Integer.class))
         .isEqualTo(1);
-    assertThat(row.get("studio_name")).isEqualTo("ACS Dance Studio");
-    assertThat(row.get("recurring_max_dates")).isEqualTo(5);
-    assertThat(row.get("recurring_max_active")).isEqualTo(3);
-    assertThat(row.get("invoice_prefix")).isEqualTo("ACS");
-    assertThat(row.get("billing_day")).isEqualTo(1);
-    assertThat(row.get("payment_due_days")).isEqualTo(14);
-    assertThat(row.get("cancellation_window_hours")).isEqualTo(24);
+    assertThat(row).containsEntry("studio_name", "ACS Dance Studio");
+    assertThat(row).containsEntry("recurring_max_dates", 5);
+    assertThat(row).containsEntry("recurring_max_active", 3);
+    assertThat(row).containsEntry("invoice_prefix", "ACS");
+    assertThat(row).containsEntry("billing_day", 1);
+    assertThat(row).containsEntry("payment_due_days", 14);
+    assertThat(row).containsEntry("cancellation_window_hours", 24);
   }
 
   @Test
@@ -246,9 +250,8 @@ class StudioSettingsIT extends BaseIntegrationTest {
     assertThat(lowered.get().message()).contains("2");
   }
 
-  private java.time.LocalDate nextMonday() {
-    return java.time.LocalDate.of(2031, 6, 2)
-        .with(java.time.temporal.TemporalAdjusters.nextOrSame(java.time.DayOfWeek.MONDAY));
+  private LocalDate nextMonday() {
+    return LocalDate.of(2031, Month.JUNE, 2).with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY));
   }
 
   private void saveSharedBooking(User booker, OffsetDateTime from) {
