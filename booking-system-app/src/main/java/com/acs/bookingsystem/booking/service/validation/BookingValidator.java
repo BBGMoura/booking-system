@@ -2,6 +2,7 @@ package com.acs.bookingsystem.booking.service.validation;
 
 import com.acs.bookingsystem.booking.repository.BookingRepository;
 import com.acs.bookingsystem.booking.request.BookingRequest;
+import com.acs.bookingsystem.settings.service.StudioSettingsService;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -14,12 +15,14 @@ public class BookingValidator {
   private final List<BookingValidatorRule> rules;
 
   public BookingValidator(
-      ScheduleProperties scheduleProperties, BookingRepository bookingRepository) {
+      ScheduleProperties scheduleProperties,
+      BookingRepository bookingRepository,
+      StudioSettingsService settingsService) {
     this.rules =
         List.of(
             new BookingTimeValidator(scheduleProperties),
             new NonShareableConflictValidator(bookingRepository),
-            new ShareabilityLimitValidator(bookingRepository));
+            new ShareabilityLimitValidator(bookingRepository, settingsService));
   }
 
   public Optional<ValidationFailure> validate(BookingRequest request) {

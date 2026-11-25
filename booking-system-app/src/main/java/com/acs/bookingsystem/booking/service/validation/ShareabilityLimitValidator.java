@@ -4,6 +4,7 @@ import com.acs.bookingsystem.booking.entity.Booking;
 import com.acs.bookingsystem.booking.repository.BookingRepository;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
+import com.acs.bookingsystem.settings.service.StudioSettingsService;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -13,12 +14,13 @@ import lombok.RequiredArgsConstructor;
 public class ShareabilityLimitValidator implements BookingValidatorRule {
 
   private final BookingRepository bookingRepository;
+  private final StudioSettingsService settingsService;
 
-  private static final int MAXIMUM_SLOTS = 3;
   private static final int TIME_INTERVAL = 5;
 
   public Optional<ValidationFailure> validate(BookingRequest bookingRequest) {
     List<Booking> shareableBookings = getBookings(bookingRequest);
+    int maximumSlots = settingsService.getSharedRoomMax();
 
     if (isNotShareableAndOverlapsShareableBookings(bookingRequest, shareableBookings)) {
       return Optional.of(
@@ -27,11 +29,11 @@ public class ShareabilityLimitValidator implements BookingValidatorRule {
               ErrorCode.BOOKING_CONFLICT));
     }
 
-    if (overlapsMaximumShareableBookings(shareableBookings, bookingRequest)) {
+    if (overlapsMaximumShareableBookings(shareableBookings, bookingRequest, maximumSlots)) {
       return Optional.of(
           new ValidationFailure(
               "Timeslot is unavailable. Can only book "
-                  + MAXIMUM_SLOTS
+                  + maximumSlots
                   + " shareable bookings at a time.",
               ErrorCode.BOOKING_SHAREABLE_LIMIT));
     }
@@ -45,7 +47,7 @@ public class ShareabilityLimitValidator implements BookingValidatorRule {
   }
 
   private boolean overlapsMaximumShareableBookings(
-      List<Booking> shareableBookings, BookingRequest bookingRequest) {
+      List<Booking> shareableBookings, BookingRequest bookingRequest, int maximumSlots) {
     OffsetDateTime start = bookingRequest.dateFrom();
     final OffsetDateTime end = bookingRequest.dateTo();
 
@@ -59,7 +61,7 @@ public class ShareabilityLimitValidator implements BookingValidatorRule {
         }
       }
 
-      if (overlapCounter >= MAXIMUM_SLOTS) return true;
+      if (overlapCounter >= maximumSlots) return true;
       start = slotEnd;
     }
     return false;

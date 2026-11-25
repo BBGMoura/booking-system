@@ -3,6 +3,7 @@ package com.acs.bookingsystem.booking.service.validation;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import com.acs.bookingsystem.booking.entity.Booking;
@@ -11,6 +12,7 @@ import com.acs.bookingsystem.booking.repository.BookingRepository;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.danceclass.enums.ClassType;
+import com.acs.bookingsystem.settings.service.StudioSettingsService;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -25,6 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ShareabilityLimitValidatorTest {
 
   @Mock private BookingRepository bookingRepository;
+  @Mock private StudioSettingsService settingsService;
 
   private ShareabilityLimitValidator validator;
 
@@ -35,7 +38,8 @@ class ShareabilityLimitValidatorTest {
 
   @BeforeEach
   void setup() {
-    validator = new ShareabilityLimitValidator(bookingRepository);
+    lenient().when(settingsService.getSharedRoomMax()).thenReturn(3);
+    validator = new ShareabilityLimitValidator(bookingRepository, settingsService);
   }
 
   @Test
@@ -119,6 +123,33 @@ class ShareabilityLimitValidatorTest {
 
     Optional<ValidationFailure> result = validator.validate(shareableRequest());
     assertThat(result).isEmpty();
+  }
+
+  @Test
+  void givenLimitRaisedInSettings_shouldAllowMoreShareableBookings() {
+    when(settingsService.getSharedRoomMax()).thenReturn(4);
+    when(bookingRepository.findActiveBookingsForRoomAndTimeRange(
+            eq(Room.ASTAIRE), eq(true), any(), any()))
+        .thenReturn(
+            List.of(
+                shareableBooking(START, END),
+                shareableBooking(START, END),
+                shareableBooking(START, END)));
+
+    assertThat(validator.validate(shareableRequest())).isEmpty();
+  }
+
+  @Test
+  void givenLimitLoweredInSettings_shouldFailAtNewLimitAndNameIt() {
+    when(settingsService.getSharedRoomMax()).thenReturn(2);
+    when(bookingRepository.findActiveBookingsForRoomAndTimeRange(
+            eq(Room.ASTAIRE), eq(true), any(), any()))
+        .thenReturn(List.of(shareableBooking(START, END), shareableBooking(START, END)));
+
+    Optional<ValidationFailure> result = validator.validate(shareableRequest());
+    assertThat(result).isPresent();
+    assertThat(result.get().code()).isEqualTo(ErrorCode.BOOKING_SHAREABLE_LIMIT);
+    assertThat(result.get().message()).contains("2");
   }
 
   private BookingRequest shareableRequest() {
