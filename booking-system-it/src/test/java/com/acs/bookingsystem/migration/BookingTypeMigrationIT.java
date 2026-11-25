@@ -14,7 +14,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 
-/** Runs V3 over rows written under V2, the way dev's database will meet it. */
+/** Runs V4 over rows written under V3, the way dev's database will meet it. */
 class BookingTypeMigrationIT {
 
   private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16");
@@ -26,7 +26,7 @@ class BookingTypeMigrationIT {
     postgres.start();
     Flyway.configure()
         .dataSource(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword())
-        .target("2")
+        .target("3")
         .load()
         .migrate();
     connection =

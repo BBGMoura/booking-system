@@ -261,7 +261,9 @@ class StudioSettingsIT extends BaseIntegrationTest {
     Booking booking =
         bookingRepository.save(
             Booking.builder()
-                .user(booker)
+                .bookingType(ClassType.PRACTICE)
+                .bookedFor(booker)
+                .createdBy(booker)
                 .room(Room.FOSSE)
                 .danceClass(danceClass)
                 .shareable(true)
