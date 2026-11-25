@@ -1,6 +1,7 @@
 package com.acs.bookingsystem.migration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.sql.Connection;
@@ -157,7 +158,13 @@ class BookingTypeMigrationIT {
   @Test
   void checksAcceptAStudioBookingForTheStudio() throws SQLException {
     execute("SELECT setval('booking_id_seq', 100)");
-    insertBooking("'UNAVAILABLE'", "NULL", "NULL", "0", "FALSE");
+    assertThatCode(() -> insertBooking("'UNAVAILABLE'", "NULL", "NULL", "0", "FALSE"))
+        .doesNotThrowAnyException();
+    assertThat(
+            count(
+                "SELECT COUNT(*) FROM booking WHERE booking_type = 'UNAVAILABLE'"
+                    + " AND booked_from = '2031-01-01T10:00:00Z'"))
+        .isEqualTo(1);
   }
 
   private static void insertBooking(
