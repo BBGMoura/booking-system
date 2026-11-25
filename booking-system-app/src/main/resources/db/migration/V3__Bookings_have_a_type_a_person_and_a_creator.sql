@@ -26,7 +26,7 @@ ALTER INDEX idx_booking_user_id RENAME TO idx_booking_booked_for_id;
 ALTER TABLE booking ALTER COLUMN booked_for_id DROP NOT NULL;
 
 ALTER TABLE booking ADD COLUMN created_by_id BIGINT;
-UPDATE booking SET created_by_id = booked_for_id;
+UPDATE booking SET created_by_id = booked_for_id WHERE booked_for_id IS NOT NULL;
 ALTER TABLE booking ALTER COLUMN created_by_id SET NOT NULL;
 ALTER TABLE booking ADD CONSTRAINT fk_booking_created_by
     FOREIGN KEY (created_by_id) REFERENCES users(id);
