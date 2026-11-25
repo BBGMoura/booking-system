@@ -3,6 +3,7 @@ package com.acs.bookingsystem.booking.service.validation;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,6 +13,7 @@ import com.acs.bookingsystem.booking.repository.BookingRepository;
 import com.acs.bookingsystem.booking.request.BookingRequest;
 import com.acs.bookingsystem.common.exception.model.ErrorCode;
 import com.acs.bookingsystem.danceclass.enums.ClassType;
+import com.acs.bookingsystem.settings.service.StudioSettingsService;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -27,6 +29,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class BookingValidatorTest {
 
   @Mock private BookingRepository bookingRepository;
+  @Mock private StudioSettingsService settingsService;
 
   private BookingValidator validator;
 
@@ -55,7 +58,8 @@ class BookingValidatorTest {
     props.setSaturday(saturday);
     props.setSunday(sunday);
 
-    validator = new BookingValidator(props, bookingRepository);
+    lenient().when(settingsService.getSharedRoomMax()).thenReturn(3);
+    validator = new BookingValidator(props, bookingRepository, settingsService);
   }
 
   @Test

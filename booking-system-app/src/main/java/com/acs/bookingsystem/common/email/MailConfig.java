@@ -15,10 +15,15 @@ public class MailConfig {
 
   @Bean
   public Mailer mailer() {
+    String configuredUsername = emailProperties.getSmtp().getUsername();
+    String username =
+        configuredUsername == null || configuredUsername.isBlank()
+            ? emailProperties.getSender().getAddress()
+            : configuredUsername;
     return MailerBuilder.withSMTPServer(
             emailProperties.getSmtp().getServer(),
             emailProperties.getSmtp().getPort(),
-            emailProperties.getSender().getAddress(),
+            username,
             emailProperties.getSender().getPassword())
         .withTransportStrategy(
             TransportStrategy.valueOf(emailProperties.getSmtp().getTransportStrategy()))
