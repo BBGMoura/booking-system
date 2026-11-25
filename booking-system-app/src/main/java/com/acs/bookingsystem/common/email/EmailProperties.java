@@ -14,10 +14,7 @@ public class EmailProperties {
 
   private Sender sender;
   private Smtp smtp;
-
-  /** Optional Reply-To address added to every email; blank means no Reply-To header. */
   private String replyTo;
-
   private Map<String, Template> template;
 
   @Getter
@@ -33,10 +30,7 @@ public class EmailProperties {
     private String server;
     private int port;
 
-    /**
-     * SMTP login name. Blank falls back to the sender address, which is what Gmail expects;
-     * providers such as Resend use a fixed username that differs from the From address.
-     */
+    /** Blank falls back to the sender address (Gmail); Resend needs its own fixed username. */
     private String username;
 
     /**
