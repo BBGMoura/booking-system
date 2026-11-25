@@ -84,9 +84,13 @@ email:
     address: ${EMAIL_ADDRESS}
     password: ${EMAIL_PASSWORD}
 
+  reply-to: ${EMAIL_REPLY_TO:}
+
   smtp:
-    server: smtp.gmail.com
-    port: 465
+    server: ${EMAIL_SMTP_SERVER:smtp.gmail.com}
+    port: ${EMAIL_SMTP_PORT:465}
+    transport-strategy: ${EMAIL_SMTP_TRANSPORT_STRATEGY:SMTPS}
+    username: ${EMAIL_SMTP_USERNAME:}
 
   template:
     invitation:

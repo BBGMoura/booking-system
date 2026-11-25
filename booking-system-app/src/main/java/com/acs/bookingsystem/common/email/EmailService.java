@@ -5,6 +5,7 @@ import static com.acs.bookingsystem.common.email.TemplateType.RESET_PASSWORD;
 
 import lombok.AllArgsConstructor;
 import org.simplejavamail.api.email.Email;
+import org.simplejavamail.api.email.EmailPopulatingBuilder;
 import org.simplejavamail.api.mailer.Mailer;
 import org.simplejavamail.email.EmailBuilder;
 import org.slf4j.Logger;
@@ -34,13 +35,18 @@ public class EmailService {
 
   private void sendEmail(String recipientEmail, String subject, String content) {
     try {
-      Email email =
+      EmailPopulatingBuilder builder =
           EmailBuilder.startingBlank()
               .from(emailProperties.getSender().getAddress())
               .to(recipientEmail)
               .withSubject(subject)
-              .withPlainText(content)
-              .buildEmail();
+              .withPlainText(content);
+
+      String replyTo = emailProperties.getReplyTo();
+      if (replyTo != null && !replyTo.isBlank()) {
+        builder.withReplyTo(replyTo);
+      }
+      Email email = builder.buildEmail();
 
       mailer.sendMail(email);
 

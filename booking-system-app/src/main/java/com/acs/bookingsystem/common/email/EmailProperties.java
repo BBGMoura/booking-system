@@ -14,6 +14,10 @@ public class EmailProperties {
 
   private Sender sender;
   private Smtp smtp;
+
+  /** Optional Reply-To address added to every email; blank means no Reply-To header. */
+  private String replyTo;
+
   private Map<String, Template> template;
 
   @Getter
@@ -30,9 +34,15 @@ public class EmailProperties {
     private int port;
 
     /**
+     * SMTP login name. Blank falls back to the sender address, which is what Gmail expects;
+     * providers such as Resend use a fixed username that differs from the From address.
+     */
+    private String username;
+
+    /**
      * Name of a {@link org.simplejavamail.api.mailer.config.TransportStrategy} constant (e.g. SMTP,
-     * SMTP_TLS, SMTPS). Defaults to SMTPS to match Gmail's implicit-TLS setup used in deployed
-     * environments; local dev overrides this to plain SMTP for Mailpit.
+     * SMTP_TLS, SMTPS). Defaults to SMTPS (implicit TLS, as used by Gmail and Resend on port 465);
+     * local dev overrides this to plain SMTP for Mailpit.
      */
     private String transportStrategy = "SMTPS";
   }
