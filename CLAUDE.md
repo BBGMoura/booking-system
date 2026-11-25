@@ -26,3 +26,25 @@ Banned regardless of the above:
   reasoning matters, write it in the comment itself, not as a pointer to a
   ticket.
 - **No comments that restate what the line already says.**
+
+# Names
+
+The backend keeps some older names on purpose until the renames after launch. Code uses the
+backend names; error messages a person reads use the UI names.
+
+| Backend name | UI name |
+| --- | --- |
+| `Booking` | **Booking** (**for** a person or the studio, **made by** a person) |
+| `ClassType` | **Booking type**: **Room hire** (`PRIVATE` = Private lesson, `PRACTICE` = Practice, `OTHER` = Other) and **Studio use** (`GROUP` = Group class, `UNAVAILABLE` = Closed) |
+| `booked_for_id` null, `forStudio` | **Studio** |
+| `DanceClass` (`pricePerHour`; `role` `ROLE_ADMIN` = Admin only) | **Floor fee** |
+| `shareable`, `shared_discount_per_hour` | **Shared room**, **Shared room discount** |
+| `recurring_booking` | **Recurring booking** (dates are Free, Taken, Excluded or Closed) |
+| `timetable`, `timetable_class` | **Timetable** (Draft, Published, Duplicate), **Class** |
+| `invoice`, `invoice_charge`, `billing_day` | **Invoice** (Outstanding, Settled, Mark as settled, never "reconcile"), **Charge**, **Billing day** |
+| `studio_settings` | **Settings** |
+| `ROLE_USER` / `ROLE_ADMIN` | **User** / **Admin** |
+
+What each concept means is in the
+[Booking Portal design](https://linear.app/acs-booking-system/document/booking-portal-design-concepts-rules-and-data-model-e3899a5d8599).
+Don't call users teachers in anything a person reads. Anyone the studio invites can book.
