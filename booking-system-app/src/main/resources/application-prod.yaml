@@ -1,0 +1,31 @@
+# Render prod service. No secrets in this file: they all come from environment variables.
+spring:
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT:5432}/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+  jpa:
+    show-sql: false
+
+logging:
+  level:
+    root: WARN
+    com.acs.bookingsystem: INFO
+    org.flywaydb: INFO
+
+# No default: a prod deploy without explicit origins must not start.
+allowed:
+  origins: ${ALLOWED_ORIGINS}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+server:
+  error:
+    include-stacktrace: never
+    include-message: never
+    include-binding-errors: never
+    include-exception: false

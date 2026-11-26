@@ -1,12 +1,22 @@
+# Render dev service. Everything environment-specific that is secret or changes without a rebuild
+# comes from environment variables; email has no defaults here, so a missing SMTP variable stops
+# startup instead of falling back to Mailpit or Gmail.
 spring:
   datasource:
-      url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT:5432}/${POSTGRES_DB}
-      username: ${POSTGRES_USER}
-      password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT:5432}/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
 
 logging:
   level:
+    com.acs.bookingsystem: DEBUG
     org.flywaydb: INFO
 
 allowed:
   origins: ${ALLOWED_ORIGINS:http://localhost:3000}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

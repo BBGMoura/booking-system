@@ -13,6 +13,10 @@ email:
   sender:
     address: test@test.com
     password: test
+  smtp:
+    server: localhost
+    port: 1025
+    transport-strategy: SMTP
 
 jwt:
   secret:

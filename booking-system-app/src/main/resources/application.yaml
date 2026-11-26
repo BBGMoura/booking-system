@@ -36,7 +36,7 @@ spring:
 
 logging:
   level:
-    com.acs.bookingsystem: DEBUG
+    com.acs.bookingsystem: INFO
 
 jwt:
   secret:
@@ -86,10 +86,13 @@ email:
 
   reply-to: ${EMAIL_REPLY_TO:}
 
+  # No defaults for host, port or strategy: a deployed profile with the SMTP variables unset must
+  # fail at startup rather than quietly send through some other provider. Only the local profile
+  # (Mailpit) sets them in a file.
   smtp:
-    server: ${EMAIL_SMTP_SERVER:smtp.gmail.com}
-    port: ${EMAIL_SMTP_PORT:465}
-    transport-strategy: ${EMAIL_SMTP_TRANSPORT_STRATEGY:SMTPS}
+    server: ${EMAIL_SMTP_SERVER}
+    port: ${EMAIL_SMTP_PORT}
+    transport-strategy: ${EMAIL_SMTP_TRANSPORT_STRATEGY}
     username: ${EMAIL_SMTP_USERNAME:}
 
   template:

@@ -5,11 +5,13 @@
 
 ## Running Steps
 
-1. Configure Database Password:
+1. Configure the environment:
 
-The database password must be set and changed in both the _docker-compose.yaml_ and _application-local.yml_ files.
-
-If you change the `POSTGRES_PASSWORD` in _docker-compose.yaml_, you must also update the `spring.datasource.password` in _application-local.yml_ to match.
+The `local` profile (_application-local.yaml_) already points at the database and Mailpit from
+_local/docker-compose.yaml_, so the only variable you must set is `JWT_SECRET`
+(`openssl rand -base64 32`). If you change `POSTGRES_PASSWORD` in _docker-compose.yaml_, set the
+same `POSTGRES_PASSWORD` in your environment. See [CONFIG.md](CONFIG.md) for every variable and
+`.env.example` for a template.
 
 2. Start the Database and Mailpit:
 The _docker-compose.yaml_ file is located in the _local_ folder. Navigate to this folder.
@@ -22,33 +24,35 @@ docker-compose up -d
 
 Mailpit is a fake SMTP server for local dev — the app sends real emails to it instead of a
 real provider, and you view them at http://localhost:8025 instead of an inbox. No real email
-account or credentials needed locally. Deployed environments (dev/prod) still use a real
-Gmail account by default, or any SMTP provider (see [Email](#email)).
+account or credentials needed locally. Deployed environments (`dev` and `prod`) have no email defaults: they must be given an SMTP provider
+(Resend) through environment variables, or the app will not start (see [Email](#email)).
 
 3. Run the Application:
 
-Use the provided IntelliJ run configuration file _BookingSystemApplication.run.xml_ to run the application.
+Use the provided IntelliJ run configuration file _BookingSystemApplication.run.xml_ (it uses the
+`local` profile) to run the application.
 
 Alternatively, you can build and run the application using Maven from the command line:
 
 ```bash
-mvn clean install
+./mvnw clean install
 
-java -Dspring.profiles.active=local -jar target/booking-system-image.jar.
+./mvnw -pl booking-system-app spring-boot:run -Dspring-boot.run.profiles=local
 ```
 
 ## Email
 
 The app sends email over SMTP, so the provider is chosen by environment variables alone.
-With only `EMAIL_ADDRESS` and `EMAIL_PASSWORD` set, it sends through Gmail.
+On `dev` and `prod` all of `EMAIL_ADDRESS`, `EMAIL_PASSWORD`, `EMAIL_SMTP_SERVER`, `EMAIL_SMTP_PORT` and
+`EMAIL_SMTP_TRANSPORT_STRATEGY` must be set. On `local` they default to Mailpit.
 
 | Variable | Required | Default | Purpose |
 | --- | --- | --- | --- |
 | `EMAIL_ADDRESS` | Yes | – | The From address on every email |
-| `EMAIL_PASSWORD` | Yes | – | The SMTP password (Gmail App Password, or a Resend API key) |
-| `EMAIL_SMTP_SERVER` | No | `smtp.gmail.com` | SMTP host |
-| `EMAIL_SMTP_PORT` | No | `465` | SMTP port |
-| `EMAIL_SMTP_TRANSPORT_STRATEGY` | No | `SMTPS` | `SMTP`, `SMTP_TLS` or `SMTPS` |
+| `EMAIL_PASSWORD` | Yes | – | The SMTP password (a Resend API key) |
+| `EMAIL_SMTP_SERVER` | Yes on dev/prod | `localhost` on local | SMTP host |
+| `EMAIL_SMTP_PORT` | Yes on dev/prod | `1025` on local | SMTP port |
+| `EMAIL_SMTP_TRANSPORT_STRATEGY` | Yes on dev/prod | `SMTP` on local | `SMTP`, `SMTP_TLS` or `SMTPS` |
 | `EMAIL_SMTP_USERNAME` | No | the value of `EMAIL_ADDRESS` | SMTP login name |
 | `EMAIL_REPLY_TO` | No | none | When set, the Reply-To on every email |
 
@@ -72,8 +76,8 @@ On startup, if no admin user exists yet, the app creates one from the
 go through the normal reset/change-password flow, not this mechanism.
 
 If both are left unset, the app still starts, but logs a warning and has no usable admin
-account. For local dev, set them in `application-local.yaml` (git-ignored) if you need a
-working admin locally; otherwise it's safe to leave blank.
+account. For local dev, set them in your environment if you need a working admin locally;
+otherwise it's safe to leave blank.
 
 ## CORS Allowed Origins
 
@@ -86,4 +90,8 @@ ALLOWED_ORIGINS=http://localhost:3000,https://booking-ui-d6mq.onrender.com,https
 
 Entries may contain `*` wildcards (useful for per-PR preview deployments). Whitespace around
 entries is trimmed and empty entries are ignored. A bare `*` is rejected and the app fails to
-start. If unset, the `dev` profile defaults to `http://localhost:3000`.
+start. If unset, the `local` and `dev` profiles default to `http://localhost:3000`; `prod` requires it.
+
+## Configuration
+
+Which setting lives in a file, in Render or in GitHub, for each environment: see [CONFIG.md](CONFIG.md).
