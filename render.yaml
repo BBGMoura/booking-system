@@ -1,0 +1,54 @@
+# Render Blueprint for the Booking Portal Dev workspace.
+# Describes the services as they exist today; secret values are set in the Render dashboard.
+services:
+  - type: web
+    name: booking-system-backend
+    runtime: image
+    image:
+      url: docker.io/brunamoura/booking-system-image:latest
+    plan: free
+    region: frankfurt
+    autoDeploy: false
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: dev
+      - key: ALLOWED_ORIGINS
+        value: https://booking-ui-d6mq.onrender.com,https://booking-ui-d6mq-pr-*.onrender.com
+      - key: ADMIN_BOOTSTRAP_EMAIL
+        sync: false
+      - key: ADMIN_BOOTSTRAP_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: EMAIL_ADDRESS
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: POSTGRES_HOST
+        sync: false
+      - key: POSTGRES_PORT
+        sync: false
+      - key: POSTGRES_DB
+        sync: false
+      - key: POSTGRES_USER
+        sync: false
+      - key: POSTGRES_PASSWORD
+        sync: false
+      - key: PASSWORD_RESET_URL
+        sync: false
+
+  - type: web
+    name: booking-ui
+    runtime: node
+    repo: https://github.com/BBGMoura/booking-ui
+    branch: main
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    plan: free
+    region: frankfurt
+    autoDeployTrigger: commit
+    previews:
+      generation: automatic
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://booking-system-backed.onrender.com

@@ -87,3 +87,9 @@ ALLOWED_ORIGINS=http://localhost:3000,https://booking-ui-d6mq.onrender.com,https
 Entries may contain `*` wildcards (useful for per-PR preview deployments). Whitespace around
 entries is trimmed and empty entries are ignored. A bare `*` is rejected and the app fails to
 start. If unset, the `dev` profile defaults to `http://localhost:3000`.
+
+## Deployment
+
+[`render.yaml`](render.yaml) is a Render Blueprint describing the Render setup for the dev
+workspace: the backend (`booking-system-backend`) and the UI (`booking-ui`). Secret values
+are not in git; they are set in the Render dashboard (variables marked `sync: false`).
