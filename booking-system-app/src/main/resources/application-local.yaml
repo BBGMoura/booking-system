@@ -1,0 +1,29 @@
+# Bruna's laptop: Postgres and Mailpit from local/docker-compose.yaml. Nothing here is a real
+# credential; the database password is the throwaway one from docker-compose.yaml.
+# Put personal overrides (admin bootstrap, a different DB password) in environment variables.
+spring:
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:booking_system}
+    username: ${POSTGRES_USER:booking_user}
+    password: ${POSTGRES_PASSWORD:postgres}
+
+logging:
+  level:
+    com.acs.bookingsystem: DEBUG
+    org.flywaydb: INFO
+
+allowed:
+  origins: ${ALLOWED_ORIGINS:http://localhost:3000}
+
+password-reset:
+  url: ${PASSWORD_RESET_URL:http://localhost:3000/reset-password}
+
+# Mailpit accepts any sender and password and speaks plain SMTP.
+email:
+  sender:
+    address: ${EMAIL_ADDRESS:bookings@localhost}
+    password: ${EMAIL_PASSWORD:mailpit}
+  smtp:
+    server: ${EMAIL_SMTP_SERVER:localhost}
+    port: ${EMAIL_SMTP_PORT:1025}
+    transport-strategy: ${EMAIL_SMTP_TRANSPORT_STRATEGY:SMTP}
