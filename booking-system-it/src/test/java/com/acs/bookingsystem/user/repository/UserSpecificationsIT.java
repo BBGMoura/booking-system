@@ -12,16 +12,20 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 class UserSpecificationsIT extends BaseIntegrationTest {
 
   @Autowired private UserRepository userRepository;
+  @Autowired private JdbcTemplate jdbcTemplate;
 
   @BeforeEach
   void setup() {
-    userRepository.deleteAll();
+    // Other ITs commit bookings and settings that reference users, so a plain deleteAll() fails
+    // on their foreign keys whenever they run first. The truncate is rolled back with the test.
+    jdbcTemplate.execute("TRUNCATE users CASCADE");
     save("jane@studio.com", "Jane", "Cooper");
     save("bob@studio.com", "Bob", "Smith");
     save("invited@studio.com", null, null);

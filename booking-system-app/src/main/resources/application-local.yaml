@@ -1,5 +1,3 @@
-# Bruna's laptop: Postgres and Mailpit from local/docker-compose.yaml. Nothing here is a real
-# credential; the database password is the throwaway one from docker-compose.yaml.
 # Put personal overrides (admin bootstrap, a different DB password) in environment variables.
 spring:
   datasource:
